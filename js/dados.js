@@ -33,7 +33,7 @@ function baseInfo(apiName){
   return null;
 }
 function fakePlayer(clubId,i,strength,pos,r,ageRange){
-  return {id:'s'+clubId+'_'+i+'_'+Math.floor(r()*1e6),name:pick(FN,r)+' '+pick(LN,r),age:ageRange?ri(ageRange[0],ageRange[1],r):ri(18,34,r),pos,number:i+1,photo:null};
+  return {id:'s'+clubId+'_'+i+'_'+Math.floor(r()*1e6),name:pick(FN,r)+' '+pick(LN,r),age:ageRange?ri(ageRange[0],ageRange[1],r):ri(18,34,r),pos,pd:sorteiaPosD(pos,r),number:i+1,photo:null};
 }
 function sampleData(){
   const r=mulberry32(2026);

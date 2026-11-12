@@ -10,6 +10,7 @@ function showLive(g,done){
   openModal(`<div class="score"><div>${crest(H)}<br>${esc(H.name)}</div><div class="num" id="lsc">0 x 0</div><div>${crest(A)}<br>${esc(A.name)}</div></div>
     <div class="clock" id="lclk">0'</div><div class="bar"><div id="lbar" style="width:0"></div></div>
     <ul class="feed" id="lfeed"><li class="muted">Bola rolando!</li></ul>
+    <div class="row" id="ltat">${controlesTatica('tvLive')}</div>
     <div class="row" style="justify-content:flex-end"><button class="btn sec" id="lskip">Pular para o fim</button><button class="btn" id="ldone" style="display:none">Continuar</button></div>`);
   const feed=document.getElementById('lfeed');
   const tick=()=>{
@@ -24,7 +25,8 @@ function showLive(g,done){
     document.getElementById('lbar').style.width=Math.min(100,min/93*100)+'%';
     if(min>=93)finish();
   };
-  const finish=()=>{clearInterval(timer);while(min<93)tick();
+  tvAoVivo={g,min:()=>min};
+  const finish=()=>{clearInterval(timer);while(min<93)tick();tvAoVivo=null;document.getElementById('ltat').style.display='none';
     document.getElementById('lclk').textContent='Fim de jogo';
     document.getElementById('lskip').style.display='none';document.getElementById('ldone').style.display='';};
   timer=setInterval(tick,55);
@@ -87,7 +89,7 @@ function ensureSquad(c){
     while(c.players.filter(p=>p.pos===pos).length<n){
       const p=fakePlayer(c.id,i++,c.strength,pos,r,[17,19]);p.ovr=clamp(c.strength-10+ri(-4,6),40,85);
       p.goals=0;p.listed=false;refreshEconomics(p);p.clubId=c.id;c.players.push(p);P[p.id]=p;
-      if(c.id===S.userClubId)addNews(`🌱 ${p.name} (${POSL[pos]}) subiu da base.`);
+      if(c.id===S.userClubId)addNews(`🌱 ${p.name} (${POSD[p.pd].nome}) subiu da base.`);
     }
   }
 }

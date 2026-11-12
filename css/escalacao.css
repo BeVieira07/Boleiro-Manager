@@ -1,0 +1,8 @@
+.campo{background:linear-gradient(#1d6b3c,#175a31);border:2px solid #e8f1ec55;border-radius:12px;padding:14px 6px;display:flex;flex-direction:column;gap:22px;min-height:420px;justify-content:space-around;margin-bottom:14px}
+.campo .linha{display:flex;justify-content:space-evenly;gap:6px}
+.ec{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:62px;padding:5px 4px;border-radius:10px;background:rgba(0,0,0,.35);border:2px solid transparent;position:relative;font-size:12px}
+.ec:hover{border-color:var(--accent2)} .ec.sel{border-color:var(--accent2);background:rgba(242,201,76,.25)}
+.ec.fora{border-color:var(--accent2)} .ec.indisp{border-color:var(--danger);opacity:.8}
+.ec.vazio{border:2px dashed #fff5;color:#fff9}
+.ec i{position:absolute;top:-8px;right:-4px;font-style:normal}
+.aviso{border-color:var(--accent2);color:var(--accent2)}

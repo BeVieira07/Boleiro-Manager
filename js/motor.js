@@ -1,11 +1,12 @@
 /* ================= escalação e força ================= */
 function autoXI(club,formation){
   const f=FORMS[formation||club.formation||'4-4-2'];
-  const by=pos=>club.players.filter(p=>p.pos===pos).sort((a,b)=>b.ovr-a.ovr);
+  const pool=club.players.filter(p=>!unavailable(p)),jog=pool.length>=11?pool:club.players;
+  const by=pos=>jog.filter(p=>p.pos===pos).sort((a,b)=>b.ovr-a.ovr);
   const xi=[];
   xi.push(...by('G').slice(0,1));
   xi.push(...by('D').slice(0,f[0]));xi.push(...by('M').slice(0,f[1]));xi.push(...by('A').slice(0,f[2]));
-  const rest=club.players.filter(p=>!xi.includes(p)&&p.pos!=='G').sort((a,b)=>b.ovr-a.ovr);
+  const rest=jog.filter(p=>!xi.includes(p)&&p.pos!=='G').sort((a,b)=>b.ovr-a.ovr);
   while(xi.length<11&&rest.length)xi.push(rest.shift());
   return xi.map(p=>p.id);
 }
@@ -35,10 +36,10 @@ function simulate(g){
   const H=clubById(g.h),A=clubById(g.a),ph=power(H),pa=power(A);
   const lh=clamp(1.1*Math.pow(ph.att/pa.def,3)*Math.pow(ph.mid/pa.mid,0.8)*1.12,0.15,4.5);
   const la=clamp(1.1*Math.pow(pa.att/ph.def,3)*Math.pow(pa.mid/ph.mid,0.8)*0.9,0.15,4.5);
-  g.hg=poisson(lh);g.ag=poisson(la);
-  const ev=[];
-  const goal=(side,xi)=>{if(!xi.length)return;const p=pickScorer(xi);p.goals=(p.goals||0)+1;ev.push({m:ri(1,93),t:'gol',side,pid:p.id,name:p.name})};
-  for(let i=0;i<g.hg;i++)goal('h',ph.xi);for(let i=0;i<g.ag;i++)goal('a',pa.xi);
+  g.lh=lh;g.la=la;g.hg=0;g.ag=0;g.ev=[]; // estilo e modo entram em golsSegmento (taticas.js)
+  const sg=golsSegmento(lh,la,taticaDe(H,A),taticaDe(A,H),1,93);
+  novosGols(g,ph,pa,poisson(sg.h),poisson(sg.a),1,93);
+  const ev=g.ev;
   for(const [side,xi] of [['h',ph.xi],['a',pa.xi]])for(let k=ri(0,3);k>0;k--){if(!xi.length)break;const p=pick(xi);ev.push({m:ri(5,90),t:'cartao',side,name:p.name})}
   ev.sort((x,y)=>x.m-y.m);g.ev=ev;
   return g;
@@ -49,12 +50,15 @@ function validateLineup(){
   const uc=userClub(),xi=getXI(uc);
   if(xi.length!==11)return `Sua escalação tem ${xi.length} jogadores. Escolha exatamente 11 titulares.`;
   if(xi.filter(id=>P[id].pos==='G').length!==1)return 'Escale exatamente 1 goleiro.';
+  const ind=xi.map(id=>P[id]).filter(unavailable);
+  if(ind.length)return `Jogador(es) indisponível(is) na escalação: ${ind.map(p=>p.name+' ('+unavailable(p)+')').join(', ')}.`;
   return null;
 }
 function playRound(){
   if(S.round>=S.fixtures.length)return;
-  const err=validateLineup();if(err){alert(err);view='elenco';render();return}
+  const err=validateLineup();if(err){alert(err);view='escalacao';render();return}
   const games=S.fixtures[S.round].map(simulate);
+  aplicarDisponibilidade(games);
   const uc=userClub();
   // finanças do usuário
   addFin(`Cota de TV — rodada ${S.round+1}`,tvQuota(divOf(uc)));
