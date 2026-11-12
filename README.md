@@ -17,7 +17,7 @@ Abrir o `index.html` direto (duplo clique) também funciona, mas com Live Server
 
 ## Dados do Brasileirão (API-Football)
 
-O jogo já vem com a **Série A 2024** (20 clubes, 726 jogadores reais) em `data/brasileirao-2024.json`, embutida em `js/dados-padrao.js` para funcionar até abrindo o HTML direto. Para usar outros dados, baixe com os passos abaixo e carregue em **Dados → Carregar JSON**.
+O jogo já vem com as **Séries A e B de 2024** (40 clubes, 1443 jogadores reais), salvas em `data/brasileirao-2024.json` e `data/brasileirao-serie-b-2024.json`. Elas ficam embutidas em `js/dados-padrao.js` para funcionar até abrindo o HTML direto. Se mudar os JSONs, rode `npm run dados:padrao` para gerar o `dados-padrao.js` de novo. Para usar outros dados, baixe com os passos abaixo e carregue em **Dados → Carregar JSON**.
 
 1. Copie `.env.example` para `.env` e coloque sua chave.
 2. Rode:
@@ -48,7 +48,7 @@ index.html            página principal
 css/style.css         visual
 js/utils.js           utilidades (aleatório, formatação, localStorage)
 js/dados.js           clubes base, geração de jogadores, força e valor
-js/dados-padrao.js    dados padrão (Série A 2024), gerado de data/brasileirao-2024.json
+js/dados-padrao.js    dados padrão (Séries A e B 2024), gerado por scripts/gerar-dados-padrao.mjs
 js/estado.js          estado do jogo, novo jogo, calendário e tabela
 js/motor.js           escalação, força dos times, simulação e rodada
 js/partida.js         jogo ao vivo e fim de temporada

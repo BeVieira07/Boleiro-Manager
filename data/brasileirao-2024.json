@@ -291,7 +291,8 @@
      "number": 12,
      "photo": "https://media.api-sports.io/football/players/47319.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c119",
@@ -597,7 +598,8 @@
      "number": 54,
      "photo": "https://media.api-sports.io/football/players/609467.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c120",
@@ -911,7 +913,8 @@
      "number": 77,
      "photo": "https://media.api-sports.io/football/players/308798.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c121",
@@ -1201,7 +1204,8 @@
      "number": 9,
      "photo": "https://media.api-sports.io/football/players/340279.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c124",
@@ -1499,7 +1503,8 @@
      "number": 34,
      "photo": "https://media.api-sports.io/football/players/568706.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c126",
@@ -1813,7 +1818,8 @@
      "number": 34,
      "photo": "https://media.api-sports.io/football/players/607350.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c127",
@@ -2095,7 +2101,8 @@
      "number": 14,
      "photo": "https://media.api-sports.io/football/players/198347.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c130",
@@ -2401,7 +2408,8 @@
      "number": 11,
      "photo": "https://media.api-sports.io/football/players/691.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c131",
@@ -2683,7 +2691,8 @@
      "number": 9,
      "photo": "https://media.api-sports.io/football/players/10007.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c133",
@@ -3029,7 +3038,8 @@
      "number": 77,
      "photo": "https://media.api-sports.io/football/players/6735.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c134",
@@ -3343,7 +3353,8 @@
      "number": 9,
      "photo": "https://media.api-sports.io/football/players/13198.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c135",
@@ -3641,7 +3652,8 @@
      "number": 20,
      "photo": "https://media.api-sports.io/football/players/365287.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c136",
@@ -3947,7 +3959,8 @@
      "number": 41,
      "photo": "https://media.api-sports.io/football/players/464022.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c140",
@@ -4213,7 +4226,8 @@
      "number": 33,
      "photo": "https://media.api-sports.io/football/players/109209.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c144",
@@ -4503,7 +4517,8 @@
      "number": 10,
      "photo": "https://media.api-sports.io/football/players/10574.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c152",
@@ -4817,7 +4832,8 @@
      "number": 10,
      "photo": "https://media.api-sports.io/football/players/10322.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c154",
@@ -5091,7 +5107,8 @@
      "number": 31,
      "photo": "https://media.api-sports.io/football/players/135135.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c794",
@@ -5389,7 +5406,8 @@
      "number": 47,
      "photo": "https://media.api-sports.io/football/players/405160.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c1062",
@@ -5711,7 +5729,8 @@
      "number": 59,
      "photo": "https://media.api-sports.io/football/players/659457.png"
     }
-   ]
+   ],
+   "division": "A"
   },
   {
    "id": "c1193",
@@ -6009,7 +6028,8 @@
      "number": 29,
      "photo": "https://media.api-sports.io/football/players/472907.png"
     }
-   ]
+   ],
+   "division": "A"
   }
  ]
 }

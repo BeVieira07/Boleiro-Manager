@@ -117,6 +117,6 @@ function loadSaveFile(ev){
   catch(e){alert('Arquivo de save inválido.')}};
   rd.readAsText(f);
 }
-function resetData(){if(confirm('Voltar para os dados padrão (Série A 2024)?')){store.del(DATA_KEY);render()}}
+function resetData(){if(confirm('Voltar para os dados padrão (Séries A e B 2024)?')){store.del(DATA_KEY);render()}}
 function resetGame(){if(confirm('Apagar o jogo salvo e começar de novo?')){store.del(SAVE_KEY);S=null;view='inicio';render()}}
 
