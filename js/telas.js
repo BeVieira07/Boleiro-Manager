@@ -59,28 +59,13 @@ function vClube(){
    return `<div class="card"><h3>Histórico</h3><table><tr><th>Temporada</th>${hd.map(x=>`<th>Campeão${many?' '+DIVS[x]:''}</th>`).join('')}<th>Sua posição</th><th>Artilheiro</th></tr>${S.history.map(h=>`<tr><td>${h.season}</td>${hd.map(x=>`<td>${esc(ch(h)[x]||'-')}</td>`).join('')}<td>${h.me}º${many&&h.div?' ('+DIVS[h.div]+')':''}</td><td>${esc(h.scorer)}</td></tr>`).join('')}</table></div>`})():''}`;
 }
 function autoLineup(){const uc=userClub();uc.lineup=autoXI(uc);save();render()}
-function toggleStarter(pid){
-  const uc=userClub();uc.lineup=uc.lineup||[];
-  if(uc.lineup.includes(pid))uc.lineup=uc.lineup.filter(x=>x!==pid);
-  else{if(uc.lineup.length>=11){alert('Já tem 11 titulares. Tire alguém primeiro.');render();return}uc.lineup.push(pid)}
-  save();render();
-}
 function toggleListed(pid){P[pid].listed=!P[pid].listed;save();render()}
 function vElenco(){
   const uc=userClub(),xi=getXI(uc),ps=[...uc.players].sort((a,b)=>POSD_ORDEM.indexOf(posDSigla(a))-POSD_ORDEM.indexOf(posDSigla(b))||b.ovr-a.ovr);
-  const cnt=pos=>xi.filter(id=>P[id].pos===pos).length;const pw=power(uc);
   return `<h2>Elenco — ${esc(uc.name)}</h2>
-  <div class="card row">
-    <label>Formação <select onchange="setFormation(this.value)">${Object.keys(FORMS).map(f=>`<option ${uc.formation===f?'selected':''}>${f}</option>`).join('')}</select></label>
-    <button class="btn sec" onclick="autoLineup()">Escalar melhores</button>
-    <span class="pill">Titulares: <b class="${xi.length===11?'ok':'bad'}">${xi.length}/11</b></span>
-    <span class="pill">GOL ${cnt('G')} · DEF ${cnt('D')} · MEI ${cnt('M')} · ATA ${cnt('A')}</span>
-    <span class="pill">Ataque <b>${pw.att.toFixed(0)}</b> · Meio <b>${pw.mid.toFixed(0)}</b> · Defesa <b>${pw.def.toFixed(0)}</b></span>
-  </div>
-  <p class="muted">"Escalar melhores" usa a formação escolhida. Marque ou desmarque os titulares manualmente na primeira coluna.</p>
-  <div class="card tw"><table><tr><th>Tit.</th><th>Pos</th><th>#</th><th>Nome</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Gols</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th>Mercado</th></tr>
-  ${ps.map(p=>`<tr${xi.includes(p.id)?' class="me"':''}><td><input type="checkbox" ${xi.includes(p.id)?'checked':''} onchange="toggleStarter('${p.id}')"></td>
-   <td>${posTag(p)}</td><td class="muted">${p.number??''}</td><td>${esc(p.name)}${loanTag(p)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${p.goals||0}</td>
+  <p class="muted">Titulares (linha destacada), reservas e formação são definidos na tela de Escalação.</p>
+  <div class="card tw"><table><tr><th>Pos</th><th>#</th><th>Nome</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Gols</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th>Mercado</th></tr>
+  ${ps.map(p=>`<tr${xi.includes(p.id)?' class="me"':''}><td>${posTag(p)}</td><td class="muted">${p.number??''}</td><td>${esc(p.name)}${loanTag(p)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${p.goals||0}</td>
    <td class="n">${money(p.value)}</td><td class="n">${money(p.wage)}</td>
    <td>${loanOf(p.id)?'':`<button class="btn sm ${p.listed?'red':'sec'}" onclick="toggleListed('${p.id}')">${p.listed?'À venda ✓':'Pôr à venda'}</button> <button class="btn sec sm" onclick="quickSell('${p.id}')">Vender já</button> `}${loanBtn(p,'out')}</td></tr>`).join('')}
   </table></div>${vLoans()}`;
