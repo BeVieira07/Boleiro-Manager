@@ -87,7 +87,7 @@ function ensureSquad(c){
     while(c.players.filter(p=>p.pos===pos).length<n){
       const p=fakePlayer(c.id,i++,c.strength,pos,r,[17,19]);p.ovr=clamp(c.strength-10+ri(-4,6),40,85);
       p.goals=0;p.listed=false;refreshEconomics(p);p.clubId=c.id;c.players.push(p);P[p.id]=p;
-      if(c.id===S.userClubId)addNews(`🌱 ${p.name} (${POSL[pos]}) subiu da base.`);
+      if(c.id===S.userClubId)addNews(`🌱 ${p.name} (${POSD[p.pd].nome}) subiu da base.`);
     }
   }
 }

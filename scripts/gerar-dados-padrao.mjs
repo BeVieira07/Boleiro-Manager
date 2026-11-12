@@ -96,6 +96,13 @@ let locais = 0;
 for (const c of clubs) if (existsSync(`img/escudos/${c.id}.png`)) { c.logo = `img/escudos/${c.id}.png`; locais++; }
 console.log(`Escudos: ${locais}/${clubs.length} usando arquivo local.`);
 
+/* ================= 4. posições detalhadas ================= */
+// Usa a mesma lógica do jogo (js/posicoes.js): a API só traz goleiro/defensor/meia/atacante, então a posição detalhada vem da camisa e do equilíbrio do elenco.
+const hashStr = s => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619) } return h >>> 0 };
+const { atribuirPosicoes } = new Function('hashStr', 'clamp', readFileSync('js/posicoes.js', 'utf8') + '\nreturn { atribuirPosicoes };')(hashStr, clamp);
+for (const c of clubs) atribuirPosicoes(c.players);
+console.log(`Posições: ${clubs.reduce((s, c) => s + c.players.filter(p => p.pd).length, 0)}/${ids.size} jogadores com posição detalhada.`);
+
 const data = { source: 'api', season: a.season, createdAt: a.createdAt, clubs };
 writeFileSync('js/dados-padrao.js', `// Dados padrão do jogo (API-Football), temporada ${a.season}. NÃO EDITE: gerado por scripts/gerar-dados-padrao.mjs a partir de data/.\nconst DADOS_PADRAO=${JSON.stringify(data)};\n`);
 console.log(`js/dados-padrao.js: ${Object.entries(series).map(([d, x]) => `Série ${d} ${x.clubs.length} clubes`).join(' + ')}, ${ids.size} jogadores.`);

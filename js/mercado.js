@@ -10,7 +10,7 @@ function makeBid(pid){
   const p=P[pid],seller=clubById(p.clubId),uc=userClub();
   if(p.bidRound===S.round+'_'+S.season){alert(`${seller.name} não quer negociar ${p.name} de novo nesta rodada.`);return}
   if(uc.players.length>=32){alert('Seu elenco já tem 32 jogadores. Venda alguém antes.');return}
-  const s=prompt(`Proposta por ${p.name} (${POSL[p.pos]}, ${p.ovr}) do ${seller.name}.\nValor de mercado: ${money(p.value)}.\nSeu caixa: ${money(S.balance)}.\n\nQuanto oferecer (em milhões)?`,p.value.toFixed(1));
+  const s=prompt(`Proposta por ${p.name} (${posDNome(p)}, ${p.ovr}) do ${seller.name}.\nValor de mercado: ${money(p.value)}.\nSeu caixa: ${money(S.balance)}.\n\nQuanto oferecer (em milhões)?`,p.value.toFixed(1));
   if(s==null)return;const amt=parseFloat(String(s).replace(',','.'));
   if(!(amt>0)){alert('Valor inválido.');return}
   if(amt>S.balance){alert('Caixa insuficiente.');return}
