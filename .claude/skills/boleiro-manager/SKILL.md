@@ -51,6 +51,11 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 - Com porta: `npm start` (`npx serve .`, normalmente `http://localhost:3000`) ou Live Server do VS Code (`http://127.0.0.1:5500`).
 - O `localStorage` é separado por origem: save feito em `file://` não aparece em `localhost`. Para mudar de origem, usar **Exportar save** e **Importar save** na aba **Dados**.
 
+## Testes
+- `npm test` roda `node --test` com os testes de `tests/` (uns 20 s). Rodar antes de commitar mudanças no jogo.
+- `tests/jogo.mjs` carrega os scripts de `js/` em Node, na ordem do `index.html`, com um DOM falso: `carregarJogo()` devolve `run(código)`, o HTML da tela atual, os alertas e o localStorage em memória. Use `jogarRodada`/`jogarTemporada` (corrigem a escalação quando há lesionados) e `problemasNasTelas` (acha "undefined", "NaN" e "[object" nas telas).
+- Enquanto o sorteio não tiver semente (#26), os testes não dependem de resultados exatos; `jogarTemporada` impede a demissão, salvo com `{demissao:true}`.
+
 ## Persistência no navegador
 - As campanhas ficam em `localStorage`, uma por save (até 5): `brasfoot_save_v2_<id>` mais o índice `brasfoot_saves_v2`. Tudo em `js/saves.js` (`save()` de `js/estado.js` chama `salvarJogo()`). O jogo abre na tela inicial (Continuar, Novo jogo, lista de saves); o save antigo de slot único (`brasfoot_save_v1`) é migrado na primeira abertura. Backup: **Exportar save (JSON)**; importar cria um save novo.
 - Dados importados pela aba Dados (`DATA_KEY`) ficam só no navegador e **têm prioridade** sobre `dados-padrao.js`. Se o jogo mostrar menos jogadores ou escudos antigos: aba **Dados**, **Voltar aos dados padrão**, `Ctrl+F5` e começar campanha nova (dados novos só valem a partir de um jogo novo).
