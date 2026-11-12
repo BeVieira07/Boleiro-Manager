@@ -26,13 +26,14 @@ function newGame(clubId){
   const data=getData();
   const clubs=JSON.parse(JSON.stringify(data.clubs));
   for(const c of clubs){
+    if(data.posv!==2)converterPosicoesAntigas(c.players); // dados antigos (aba Dados) usam as siglas de antes da #23
     if(c.players.length<16){const r=mulberry32(hashStr(c.id));let k=0;for(const [pos,n] of Object.entries(SQUAD_SHAPE))while(c.players.filter(p=>p.pos===pos).length<n)c.players.push(fakePlayer(c.id,k++,c.strength,pos,r))}
     atribuirPosicoes(c.players);
     const ref=refStrength(c,clubs);
     c.players.forEach(p=>{p.ovr=rate(p,ref);refreshEconomics(p);p.goals=0;p.listed=false});
     c.formation='4-4-2';
   }
-  S={season:data.season||2026,dataSource:data.source,round:0,userClubId:clubId,clubs,
+  S={posv:2,season:data.season||2026,dataSource:data.source,round:0,userClubId:clubId,clubs,
      fixtures:makeAllFixtures(clubs),news:[],offers:[],fin:[],history:[]};
   reindex();
   const uc=userClub();
