@@ -1,11 +1,12 @@
 /* ================= escalação e força ================= */
 function autoXI(club,formation){
   const f=FORMS[formation||club.formation||'4-4-2'];
-  const by=pos=>club.players.filter(p=>p.pos===pos).sort((a,b)=>b.ovr-a.ovr);
+  const pool=club.players.filter(p=>!unavailable(p)),jog=pool.length>=11?pool:club.players;
+  const by=pos=>jog.filter(p=>p.pos===pos).sort((a,b)=>b.ovr-a.ovr);
   const xi=[];
   xi.push(...by('G').slice(0,1));
   xi.push(...by('D').slice(0,f[0]));xi.push(...by('M').slice(0,f[1]));xi.push(...by('A').slice(0,f[2]));
-  const rest=club.players.filter(p=>!xi.includes(p)&&p.pos!=='G').sort((a,b)=>b.ovr-a.ovr);
+  const rest=jog.filter(p=>!xi.includes(p)&&p.pos!=='G').sort((a,b)=>b.ovr-a.ovr);
   while(xi.length<11&&rest.length)xi.push(rest.shift());
   return xi.map(p=>p.id);
 }
@@ -49,12 +50,15 @@ function validateLineup(){
   const uc=userClub(),xi=getXI(uc);
   if(xi.length!==11)return `Sua escalação tem ${xi.length} jogadores. Escolha exatamente 11 titulares.`;
   if(xi.filter(id=>P[id].pos==='G').length!==1)return 'Escale exatamente 1 goleiro.';
+  const ind=xi.map(id=>P[id]).filter(unavailable);
+  if(ind.length)return `Jogador(es) indisponível(is) na escalação: ${ind.map(p=>p.name+' ('+unavailable(p)+')').join(', ')}.`;
   return null;
 }
 function playRound(){
   if(S.round>=S.fixtures.length)return;
-  const err=validateLineup();if(err){alert(err);view='elenco';render();return}
+  const err=validateLineup();if(err){alert(err);view='escalacao';render();return}
   const games=S.fixtures[S.round].map(simulate);
+  aplicarDisponibilidade(games);
   const uc=userClub();
   // finanças do usuário
   addFin(`Cota de TV — rodada ${S.round+1}`,tvQuota(divOf(uc)));
