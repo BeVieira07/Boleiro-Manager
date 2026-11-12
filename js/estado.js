@@ -26,7 +26,8 @@ function newGame(clubId){
   const clubs=JSON.parse(JSON.stringify(data.clubs));
   for(const c of clubs){
     if(c.players.length<16){const r=mulberry32(hashStr(c.id));let k=0;for(const [pos,n] of Object.entries(SQUAD_SHAPE))while(c.players.filter(p=>p.pos===pos).length<n)c.players.push(fakePlayer(c.id,k++,c.strength,pos,r))}
-    c.players.forEach(p=>{p.ovr=rate(p,c.strength);refreshEconomics(p);p.goals=0;p.listed=false});
+    const ref=refStrength(c,clubs);
+    c.players.forEach(p=>{p.ovr=rate(p,ref);refreshEconomics(p);p.goals=0;p.listed=false});
     c.formation='4-4-2';
   }
   S={season:data.season||2026,dataSource:data.source,round:0,userClubId:clubId,clubs,

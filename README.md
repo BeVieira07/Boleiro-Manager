@@ -41,6 +41,18 @@ A Série D real tem 64 clubes. O jogo usa só 20: os que foram mais longe em 202
 
 As Séries B, C e D precisam de uma temporada liberada pelo plano da API (no plano gratuito, de 2022 a 2024). Jogadores que aparecem em dois elencos (empréstimos) devem ficar só em um clube, porque o `dados:padrao` recusa ids repetidos.
 
+## Overall dos jogadores
+
+A API só entrega nome, idade, posição e camisa, então o overall (40–95) vem de três fontes, em ordem de prioridade:
+
+1. **Lista manual** (`data/overalls-manual.json`): overall escolhido à mão para craques e para quem veio de fora do Brasil (sem nota nas séries nacionais). É um arquivo editável, com valores estimados de memória. Depois de editar, rode `npm run dados:padrao`.
+2. **Nota real** (`data/notas-2024.json`): a nota média e os minutos de 2024 de cada jogador, comparados com os outros da mesma série e posição (e, para atacantes e meias, com gols e assistências por 90 min). Quanto mais minutos, mais o jogo confia na nota (confiança total a partir de ~2000 min).
+3. **Estimativa:** para quem não tem nota, usa a força do clube em relação à média da série, a idade e um sorteio pequeno. Quem jogou pouco ou nada em 2024 fica mais baixo.
+
+O overall médio de um titular é 72 na Série A, 66 na B, 61 na C e 56 na D.
+
+Para baixar as notas: `npm run notas`. O plano gratuito só libera 100 requisições por dia e 3 páginas por consulta, então a busca é feita clube a clube (~3 requisições cada, ~180 no total para as Séries A, B e C). O script **retoma de onde parou**: rode de novo a cada dia até aparecer "Concluído". Depois rode `npm run dados:padrao` para aplicar. Séries sem nota (como a D) usam só a estimativa.
+
 > O `.env` está no `.gitignore` — nunca suba sua chave para o GitHub.
 
 ## Estrutura
@@ -59,6 +71,8 @@ js/api.js             importação da API-Football, exportar/importar JSON e sav
 js/telas.js           todas as telas (HTML gerado em JS)
 js/main.js            inicialização
 scripts/baixar-brasileirao.mjs   script Node para baixar os dados
+scripts/baixar-notas.mjs         baixa nota e minutos dos jogadores (retomável)
+scripts/gerar-dados-padrao.mjs   junta as séries, aplica notas e lista manual em js/dados-padrao.js
 data/                 JSONs baixados
 ```
 

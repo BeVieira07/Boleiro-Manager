@@ -1,0 +1,83 @@
+{
+  "_ajuda": "Overalls escolhidos à mão (escala do jogo: 70-78 titular de Série A, 80+ craque, 85+ estrela). Valem mais que a nota calculada. Formato: \"Clube\": { \"Nome do jogador\": overall }. O nome pode ser parte do nome dos dados (ex.: \"Arrascaeta\" acha \"G. de Arrascaeta\"). Depois de editar, rode: npm run dados:padrao",
+  "_aviso": "Valores estimados de memória (referência: nível do jogador em 2025). Ajuste o que discordar.",
+
+  "Flamengo": {
+    "Arrascaeta": 87, "Pedro": 86, "Lucas Paquetá": 85, "N. de la Cruz": 82, "Léo Ortiz": 82, "Saúl": 81, "Léo Pereira": 81,
+    "G. Plata": 80, "A. Rossi": 80, "Samuel Lino": 79, "Bruno Henrique": 79, "Ayrton Lucas": 79, "J. Carrascal": 78, "Luiz Araújo": 78,
+    "Alex Sandro": 78, "Danilo": 78, "Jorginho": 77, "E. Pulgar": 76, "Emerson Royal": 76, "G. Varela": 74, "A. Valencia": 73,
+    "Evertton Araújo": 73, "Vitão": 72
+  },
+  "Palmeiras": {
+    "Vitor Roque": 81, "Felipe Anderson": 81, "Paulinho": 81, "Murilo": 80, "G. Gómez": 79, "Andreas Pereira": 79, "Marlon Freitas": 78,
+    "J. Piquerez": 78, "Carlos Miguel": 78, "Bruno Fuchs": 76, "Maurício": 76, "Khellven": 75, "R. Sosa": 75, "A. Barboza": 75, "A. Giay": 74
+  },
+  "Corinthians": {
+    "M. Depay": 84, "Yuri Alberto": 81, "Hugo Souza": 77, "R. Garro": 77, "J. Lingard": 77, "Gustavo Henrique": 75, "Matheuzinho": 75,
+    "André Ramalho": 74, "F. Angileri": 74, "Matheus Bidu": 73, "Alex Santana": 73, "Raniele": 73, "A. Carrillo": 73, "Matheus Pereira": 72,
+    "Allan": 72
+  },
+  "Fluminense": {
+    "Hulk": 78, "Thiago Silva": 77, "PH Ganso": 77, "G. Cano": 77, "John Kennedy": 77, "J. Savarino": 77, "Martinelli": 77,
+    "Guilherme Arana": 78, "Y. Soteldo": 76, "A. Canobbio": 76, "Fábio": 75, "Nonato": 73, "Ignacio": 73, "L. Acosta": 73,
+    "Alisson": 73, "J. Freytes": 72, "Igor Rabello": 72, "J. Millán": 72, "Samuel Xavier": 72, "Renê": 71
+  },
+  "São Paulo": {
+    "Lucas Moura": 78, "J. Calleri": 77, "Luciano": 76, "Wendell": 76, "Carlos Coronel": 76, "R. Arboleda": 76, "Pablo Maia": 75,
+    "Ferreira": 75, "Rafael": 74, "D. Bobadilla": 74, "Cédric Soares": 73, "Aurélio Buta": 73, "André Silva": 73, "R. Tolói": 72,
+    "Victor Sá": 72, "Cauly": 72, "Lucas Ramon": 72
+  },
+  "Botafogo": {
+    "H. Ziyech": 77, "Arthur Cabral": 77, "Júnior Santos": 77, "N. Ferraresi": 77, "Alex Telles": 76, "Tiquinho Soares": 75,
+    "Allan": 75, "Matheus Martins": 75, "Vitinho": 74, "L. Villalba": 73, "C. Medina": 73, "L. Monzón": 73, "Edenílson": 72,
+    "Warleson": 72, "M. Ponte": 72, "Marçal": 71
+  },
+  "Atlético-MG": {
+    "Gustavo Scarpa": 80, "Renan Lodi": 77, "Everson": 77, "Fred": 76, "Dudu": 75, "M. Cassierra": 75, "T. Cuello": 75,
+    "A. Franco": 75, "Lyanco": 75, "Bernard": 74, "Maycon": 74, "Reinier": 73, "A. Preciado": 73, "Ruan Tressoldi": 73,
+    "A. Minda": 73, "Léo Duarte": 72, "Igor Gomes": 72
+  },
+  "Internacional": {
+    "Alan Patrick": 78, "S. Rochet": 77, "Alerrandro": 75, "Vitinho": 75, "G. Maripán": 75, "Bruno Henrique": 74, "J. Carbonero": 74,
+    "A. Bernabéi": 74, "Thiago Maia": 73, "Kayky": 73, "A. Sanabria": 73, "N. Eliasson": 73, "Paulinho": 72, "Bruno Gomes": 72,
+    "G. Mercado": 70
+  },
+  "Grêmio": {
+    "Weverton": 78, "C. Pavón": 77, "M. Villasanti": 76, "W. Kannemann": 75, "M. Braithwaite": 75, "F. Amuzu": 74, "J. Enamorado": 74,
+    "E. Noriega": 74, "J. Nardoni": 74, "Dodi": 73, "F. Krovinović": 73, "F. Balbuena": 73, "Carlos Vinícius": 73, "Marlon": 73,
+    "Wagner Leonardo": 73, "Tetê": 72, "Jovane Cabral": 72, "João Pedro": 72
+  },
+  "Cruzeiro": {
+    "Gerson": 80, "Matheus Pereira": 78, "Gabriel Pec": 77, "Fabrício Bruno": 77, "Cássio": 77, "Kaio Jorge": 76, "M. Viña": 76,
+    "Matheus Henrique": 75, "L. Romero": 75, "L. Sinisterra": 75, "Marquinhos": 74, "Lucas Silva": 73, "Wanderson": 73,
+    "Bruno Rodrigues": 73, "William": 73, "Fágner": 72, "G. Rojas": 72, "L. Rodríguez": 72
+  },
+  "Vasco da Gama": {
+    "Léo Jardim": 77, "Robert Renan": 76, "Lucas Piton": 75, "C. Cuesta": 75, "J. Rojas": 75, "Nuno Moreira": 75, "Brenner": 74,
+    "David": 74, "F. Colidio": 74, "M. Hinestroza": 74, "Cuiabano": 74, "C. Spinelli": 73, "A. Gómez": 73, "Adson": 73,
+    "Thiago Mendes": 72, "A. Lescano": 72, "Bruno Duarte": 72, "Tchê Tchê": 71, "Jair": 71
+  },
+  "Bahia": {
+    "Éverton Ribeiro": 77, "Ademir": 76, "Willian José": 75, "Erick Pulga": 75, "Luciano Juba": 75, "Jean Lucas": 74, "Caio Alexandre": 74,
+    "Kanu": 73, "Rodrigo Nestor": 73, "N. Acevedo": 73, "Everaldo": 73
+  },
+  "Athletico-PR": {
+    "B. Zapelli": 74, "Santos": 74, "S. Mendoza": 73, "K. Viveros": 73, "Léo": 73, "K. Vargas": 72
+  },
+  "Vitória": {
+    "Renato Kayzer": 73, "T. Pochettino": 73, "Lucas Arcanjo": 73, "Matheuzinho": 73, "Marinho": 72, "Osvaldo": 71
+  },
+  "RB Bragantino": {
+    "Eduardo Sasha": 75, "I. Pitta": 74, "Henry Mosquera": 74, "Fernando": 73, "J. Hurtado": 73, "Juninho Capixaba": 73,
+    "Gustavo Marques": 73, "Eric Ramires": 73, "Cleiton": 72, "Tiago Volpi": 72
+  },
+  "Fortaleza": {
+    "T. Cardona": 74, "João Ricardo": 73, "Lucas Crispim": 73, "Lucas Sasha": 73, "Pedro Henrique": 72, "Nathan Fogaça": 72, "Paulo Baya": 72
+  },
+  "Juventude": {
+    "Alan Kardec": 72
+  },
+  "Santos": {
+    "Neymar": 85
+  }
+}

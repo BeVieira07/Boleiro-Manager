@@ -46,11 +46,26 @@ function sampleData(){
 }
 
 /* ================= atributos e valores ================= */
-function rate(p,strength){
+// Overall médio de um titular de cada série. Mantenha igual ao CENTRO de scripts/gerar-dados-padrao.mjs.
+const OVR_CENTRO={A:72,B:66,C:61,D:56};
+// Overall de referência de um clube: o centro da série, mais ou menos conforme o clube é mais forte ou mais fraco que a média dela.
+function refStrength(c,clubs){
+  const dv=divOf(c),mesmos=clubs.filter(x=>divOf(x)===dv);
+  return OVR_CENTRO[dv]+(c.strength-mesmos.reduce((s,x)=>s+x.strength,0)/mesmos.length);
+}
+// Overall do jogador, em ordem de prioridade:
+//  1. p.ovrM  — valor escolhido à mão (data/overalls-manual.json)
+//  2. p.base  — calculado da nota média e dos minutos reais (npm run notas), misturado com a estimativa conforme p.conf
+//  3. estimativa pela força do clube e idade, com pouco sorteio; quem jogou pouco ou nada (p.mn) fica mais baixo
+function rate(p,ref){
+  if(p.ovrM!=null)return clamp(Math.round(p.ovrM),40,95);
   const r=mulberry32(hashStr(p.id+'|'+p.name));
   const a=p.age||25;
   const ageAdj=a<=19?-6:a<=21?-3:a<=23?-1:a<=30?1:a<=32?0:a<=34?-2:-4;
-  return clamp(Math.round(strength-2+(r()+r()+r()-1.5)*10+ageAdj),40,93);
+  let h=ref-1+(r()+r()+r()-1.5)*6+ageAdj;
+  if(p.mn!=null&&p.mn<600)h-=4;
+  if(p.base!=null){const w=p.conf??1;h=w*p.base+(1-w)*h}
+  return clamp(Math.round(h),40,93);
 }
 function valueOf(p){
   const af=p.age<=21?1.4:p.age<=24?1.2:p.age<=28?1:p.age<=31?0.7:0.4;
