@@ -30,6 +30,15 @@ O jogo já vem com a **Série A 2024** (20 clubes, 726 jogadores reais) em `data
 
 No plano gratuito a temporada 2026 é bloqueada; o script monta os 20 clubes de 2026 com os **elencos atuais** (`/players/squads`, que não depende de temporada). Também é possível importar pelo próprio jogo, na tela **Dados**.
 
+### Série B
+
+O jogo suporta duas divisões. Com a Série B carregada, cada série tem sua tabela, e no fim da temporada os 4 últimos da A caem e os 4 primeiros da B sobem. A Série B tem cota de TV e premiação menores.
+
+- **Pelo terminal:** `npm run dados:b` gera `data/brasileirao-serie-b-2024.json`. Depois, no jogo, use **Dados → Carregar JSON** e confirme para juntar com a Série A.
+- **Pelo jogo:** na tela **Dados**, escolha **Série B** no importador. A série importada substitui só ela mesma, então a Série A continua.
+
+A Série B precisa de uma temporada liberada pelo plano da API (no plano gratuito, de 2022 a 2024).
+
 > O `.env` está no `.gitignore` — nunca suba sua chave para o GitHub.
 
 ## Estrutura
@@ -61,7 +70,6 @@ O progresso fica no `localStorage` do navegador. Use **Dados → Exportar save**
 
 ## Ideias para próximas versões
 - Lesões, suspensões e cartões acumulados
-- Série B com acesso e rebaixamento
 - Campo visual para escalação
 - Copa do Brasil / Libertadores
 - Contratos e renovação

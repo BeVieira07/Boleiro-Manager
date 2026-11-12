@@ -35,21 +35,32 @@ function closeModal(){document.getElementById('modal').style.display='none'}
 /* ================= fim de temporada ================= */
 function seasonEnd(){
   if(S.seasonClosed===S.season)return;
-  const T=table(),uc=userClub(),pos=T.findIndex(t=>t.id===uc.id)+1;
-  const prize=Math.round((5+(20-pos)*2.1)*10)/10;
-  addFin(`Premiação — ${pos}º lugar`,prize);
-  const champ=clubById(T[0].id),top=topScorers(1)[0];
-  S.history.unshift({season:S.season,champ:champ.name,me:pos,scorer:top?`${top.name} (${top.goals})`:'-'});
+  const uc=userClub(),div=divOf(uc),T=table(div),pos=T.findIndex(t=>t.id===uc.id)+1,two=hasTwoDivs(),mv=MOVE_N();
+  const prize=div==='B'?Math.round((1+(20-pos)*0.5)*10)/10:Math.round((5+(20-pos)*2.1)*10)/10;
+  addFin(`Premiação ${DIVS[div]} — ${pos}º lugar`,prize);
+  const champs=divisions().map(d=>({d,c:clubById(table(d)[0].id)}));
+  const top=topScorers(1,divisions()[0])[0];
+  const champA=champs[0].c,champB=two?champs[1].c:null;
+  S.history.unshift({season:S.season,champ:champA.name,champB:champB?champB.name:null,me:pos,div,scorer:top?`${top.name} (${top.goals})`:'-'});
   S.seasonClosed=S.season;save();
+  const fate=!two?(pos>=17?'<p class="bad">Seu time terminou na zona de rebaixamento… a diretoria está de olho!</p>':'')
+    :div==='A'&&pos>T.length-mv?'<p class="bad">⬇️ Seu time foi rebaixado para a Série B.</p>'
+    :div==='B'&&pos<=mv?'<p class="ok">⬆️ Acesso! Seu time vai disputar a Série A.</p>':'';
   openModal(`<h2>🏆 Fim da temporada ${S.season}</h2>
-   <p>Campeão: <b class="gold">${esc(champ.name)}</b></p>
-   <p>Seu time terminou em <b>${pos}º lugar</b> e recebeu ${money(prize)} de premiação.</p>
-   <p>Artilheiro: ${top?esc(top.name)+' — '+top.goals+' gols':'-'}</p>
-   ${pos>=17?'<p class="bad">Seu time terminou na zona de rebaixamento… a diretoria está de olho!</p>':''}
+   ${champs.map(x=>`<p>Campeão${two?' da '+DIVS[x.d]:''}: <b class="gold">${esc(x.c.name)}</b></p>`).join('')}
+   <p>Seu time terminou em <b>${pos}º lugar</b>${two?' na '+DIVS[div]:''} e recebeu ${money(prize)} de premiação.</p>
+   <p>Artilheiro${two?' da '+DIVS[divisions()[0]]:''}: ${top?esc(top.name)+' — '+top.goals+' gols':'-'}</p>
+   ${fate}
    <div class="row" style="justify-content:flex-end"><button class="btn sec" onclick="closeModal()">Ver tabela</button><button class="btn" onclick="closeModal();newSeason()">Iniciar temporada ${S.season+1}</button></div>`);
 }
 function newSeason(){
   const r=rnd;
+  if(hasTwoDivs()){ // acesso e rebaixamento, com base na tabela final
+    const n=MOVE_N(),down=table('A').slice(-n).map(t=>clubById(t.id)),up=table('B').slice(0,n).map(t=>clubById(t.id));
+    down.forEach(c=>c.division='B');up.forEach(c=>c.division='A');
+    addNews(`⬆️ Sobem para a Série A: ${up.map(c=>c.name).join(', ')}.`);
+    addNews(`⬇️ Caem para a Série B: ${down.map(c=>c.name).join(', ')}.`);
+  }
   for(const c of S.clubs){
     const keep=[];
     for(const p of c.players){
@@ -61,7 +72,7 @@ function newSeason(){
     }
     c.players=keep;ensureSquad(c);
   }
-  S.season++;S.round=0;S.fixtures=makeFixtures(S.clubs.map(c=>c.id));S.offers=[];
+  S.season++;S.round=0;S.fixtures=makeAllFixtures(S.clubs);S.offers=[];
   reindex();
   const uc=userClub();uc.lineup=getXI(uc);if(uc.lineup.length<11)uc.lineup=autoXI(uc);
   addNews(`📅 Começa a temporada ${S.season}!`);save();view='clube';render();

@@ -12,6 +12,7 @@ async function apiGet(path,key){
 async function importFromApi(){
   const key=document.getElementById('apikey').value.replace(/[^A-Za-z0-9]/g,'');
   const season=parseInt(document.getElementById('season').value,10);
+  const serie=document.getElementById('serie').value==='B'?'B':'A',league=serie==='B'?72:71;
   const delay=parseInt(document.getElementById('delay').value,10)*1000;
   const log=document.getElementById('implog'),bar=document.getElementById('impbar');
   const out=t=>{log.insertAdjacentHTML('beforeend',`<div>${esc(t)}</div>`);log.scrollTop=1e9};
@@ -20,15 +21,17 @@ async function importFromApi(){
   document.getElementById('impbtn').disabled=true;log.innerHTML='';
   try{
     let usedSeason=season,list=null,rank={};
-    try{out(`Buscando times da Série A ${season}…`);const j=await apiGet(`/teams?league=71&season=${season}`,key);
+    try{out(`Buscando times da ${DIVS[serie]} ${season}…`);const j=await apiGet(`/teams?league=${league}&season=${season}`,key);
       if(j.results>0)list=j.response.map(x=>({t:x.team,b:baseInfo(x.team.name)}))}
     catch(e){out(`Temporada ${season}: ${e.message}`)}
     if(list){
       out(`${list.length} times encontrados (temporada ${season}).`);
-      try{await sleep(delay);const st=await apiGet(`/standings?league=71&season=${season}`,key);
+      try{await sleep(delay);const st=await apiGet(`/standings?league=${league}&season=${season}`,key);
         const rows=st.response?.[0]?.league?.standings?.[0]||[];rows.forEach(r=>rank[r.team.id]=r.rank);
         out(rows.length?'Classificação obtida — força dos times ajustada pela tabela.':'Sem classificação disponível.');}
       catch(e){out('Classificação indisponível: '+e.message)}
+    }else if(serie==='B'){
+      throw new Error(`Seu plano não libera a Série B ${season}. Tente uma temporada liberada (no plano gratuito, de 2022 a 2024).`);
     }else{
       out('Seu plano não libera essa temporada. Vou montar a Série A 2026 (20 clubes) com os ELENCOS ATUAIS, que não dependem de temporada.');
       let known=[];
@@ -55,9 +58,10 @@ async function importFromApi(){
     const clubs=[];
     for(let i=0;i<list.length;i++){
       const {t,b}=list[i];
-      let strength=b?b[2]:68;
-      if(t&&rank[t.id]&&Object.values(rank).length>=10){const fromRank=80-(rank[t.id]-1)*0.8;strength=Math.round((strength+fromRank)/2)}
-      const club={id:'c'+(t?t.id:b[1]),name:b?b[0]:t.name,short:((t&&t.code)||(b&&b[1])||t.name.slice(0,3)).toUpperCase(),color:b?b[3]:'#335',logo:t?t.logo:null,strength,players:[]};
+      // Série B: força base menor (64, ou a da Série A menos 4 para clubes conhecidos)
+      let strength=serie==='B'?(b?b[2]-4:64):(b?b[2]:68);
+      if(t&&rank[t.id]&&Object.values(rank).length>=10){const fromRank=serie==='B'?70-(rank[t.id]-1)*0.5:80-(rank[t.id]-1)*0.8;strength=Math.round((strength+fromRank)/2)}
+      const club={id:'c'+(t?t.id:b[1]),name:b?b[0]:t.name,short:((t&&t.code)||(b&&b[1])||t.name.slice(0,3)).toUpperCase(),color:b?b[3]:'#335',logo:t?t.logo:null,strength,division:serie,players:[]};
       if(t){await sleep(delay);
       try{
         out(`(${i+1}/${list.length}) Elenco do ${club.name}…`);
@@ -70,7 +74,8 @@ async function importFromApi(){
       if(club.players.length<16){const r=mulberry32(hashStr(club.id));let k=0;for(const [pos,n] of Object.entries(SQUAD_SHAPE))while(club.players.filter(p=>p.pos===pos).length<n)club.players.push(fakePlayer(club.id,k++,strength,pos,r))}
       clubs.push(club);bar.style.width=((i+1)/list.length*100)+'%';
     }
-    const data={source:'api',season,createdAt:new Date().toISOString(),clubs};
+    const data=mergeDivision(getData(),{source:'api',season,createdAt:new Date().toISOString(),clubs},serie);
+    if(data.clubs.length>clubs.length)out(`Juntado com os ${data.clubs.length-clubs.length} clubes da outra série já carregada.`);
     if(!store.set(DATA_KEY,data))out('Aviso: não consegui salvar no navegador. Use "Exportar dados".');
     window._lastData=data;
     out(`✅ Importação concluída: ${clubs.length} clubes, ${clubs.reduce((s,c)=>s+c.players.length,0)} jogadores. Inicie um novo jogo para usar os dados reais.`);
@@ -82,9 +87,19 @@ function exportData(){
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
   a.download=`brasileirao-${data.season}-${data.source}.json`;a.click();
 }
+// junta os clubes de uma série (div) aos dados atuais, substituindo só aquela série
+function mergeDivision(cur,inc,div){
+  const ids=new Set(inc.clubs.map(c=>c.id));
+  inc.clubs.forEach(c=>c.division=div);
+  const kept=(cur.clubs||[]).filter(c=>divOf(c)!==div&&!ids.has(c.id));
+  return {...inc,clubs:div==='B'?[...kept,...inc.clubs]:[...inc.clubs,...kept]};
+}
 function loadDataFile(ev){
   const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
-  rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!Array.isArray(d.clubs))throw 0;store.set(DATA_KEY,d);alert(`Dados carregados: ${d.clubs.length} clubes (${d.season}).`);render()}catch(e){alert('Arquivo inválido.')}};
+  rd.onload=()=>{try{let d=JSON.parse(rd.result);if(!Array.isArray(d.clubs))throw 0;
+    const fd=divsOf(d.clubs),cur=getData(),other=divsOf(cur.clubs).filter(x=>x!==fd[0]);
+    if(fd.length===1&&other.length&&confirm(`Este arquivo só tem a ${DIVS[fd[0]]}. Juntar com a ${DIVS[other[0]]} que já está carregada?\n(Cancelar = usar só este arquivo)`))d=mergeDivision(cur,d,fd[0]);
+    store.set(DATA_KEY,d);alert(`Dados carregados: ${d.clubs.length} clubes (${d.season}).`);render()}catch(e){alert('Arquivo inválido.')}};
   rd.readAsText(f);
 }
 function downloadJSON(obj,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}

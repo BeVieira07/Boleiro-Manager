@@ -9,6 +9,15 @@ function reindex(){P={};for(const c of S.clubs)for(const p of c.players){p.clubI
 function save(){if(S)store.set(SAVE_KEY,S)}
 function getData(){return store.get(DATA_KEY)||(typeof DADOS_PADRAO!=='undefined'?DADOS_PADRAO:sampleData())}
 
+/* ================= divisões ================= */
+const DIVS={A:'Série A',B:'Série B'};
+const divOf=c=>(c&&c.division)||'A';
+const divsOf=clubs=>[...new Set(clubs.map(divOf))].sort();
+const divisions=()=>divsOf(S.clubs);
+const hasTwoDivs=()=>divisions().length>1;
+const tvQuota=div=>div==='B'?0.5:1.2;
+const MOVE_N=()=>Math.min(4,...divisions().map(d=>S.clubs.filter(c=>divOf(c)===d).length-1));
+
 function newGame(clubId){
   const data=getData();
   const clubs=JSON.parse(JSON.stringify(data.clubs));
@@ -18,10 +27,10 @@ function newGame(clubId){
     c.formation='4-4-2';
   }
   S={season:data.season||2026,dataSource:data.source,round:0,userClubId:clubId,clubs,
-     fixtures:makeFixtures(clubs.map(c=>c.id)),news:[],offers:[],fin:[],history:[]};
+     fixtures:makeAllFixtures(clubs),news:[],offers:[],fin:[],history:[]};
   reindex();
   const uc=userClub();
-  S.balance=Math.round((10+(uc.strength-60)*1.5)*10)/10;
+  S.balance=divOf(uc)==='B'?Math.round(Math.max(2,3+(uc.strength-55)*0.5)*10)/10:Math.round((10+(uc.strength-60)*1.5)*10)/10;
   uc.lineup=autoXI(uc);
   addNews(`Você assumiu o comando do ${uc.name}! Caixa inicial: ${money(S.balance)}.`);
   save(); view='clube'; render();
@@ -44,10 +53,17 @@ function makeFixtures(ids){
   }
   return [...rounds,...rounds.map(g=>g.map(x=>({h:x.a,a:x.h})))];
 }
-function table(){
-  const T={};for(const c of S.clubs)T[c.id]={id:c.id,J:0,V:0,E:0,D:0,GP:0,GC:0,Pts:0};
+// calendário de todas as divisões: a rodada r junta os jogos da rodada r de cada série
+function makeAllFixtures(clubs){
+  const per=divsOf(clubs).map(d=>makeFixtures(clubs.filter(c=>divOf(c)===d).map(c=>c.id)));
+  const n=Math.max(...per.map(f=>f.length));
+  return Array.from({length:n},(_,r)=>per.flatMap(f=>f[r]||[]));
+}
+function table(div){
+  div=div||divOf(userClub());
+  const T={};for(const c of S.clubs)if(divOf(c)===div)T[c.id]={id:c.id,J:0,V:0,E:0,D:0,GP:0,GC:0,Pts:0};
   for(let r=0;r<S.round;r++)for(const g of S.fixtures[r]){
-    if(g.hg==null)continue;const h=T[g.h],a=T[g.a];
+    if(g.hg==null||!T[g.h])continue;const h=T[g.h],a=T[g.a];
     h.J++;a.J++;h.GP+=g.hg;h.GC+=g.ag;a.GP+=g.ag;a.GC+=g.hg;
     if(g.hg>g.ag){h.V++;a.D++;h.Pts+=3}else if(g.hg<g.ag){a.V++;h.D++;a.Pts+=3}else{h.E++;a.E++;h.Pts++;a.Pts++}
   }

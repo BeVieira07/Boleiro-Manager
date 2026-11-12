@@ -57,7 +57,7 @@ function playRound(){
   const games=S.fixtures[S.round].map(simulate);
   const uc=userClub();
   // finanças do usuário
-  addFin(`Cota de TV — rodada ${S.round+1}`,1.2);
+  addFin(`Cota de TV — rodada ${S.round+1}`,tvQuota(divOf(uc)));
   const mine=games.find(g=>g.h===uc.id||g.a===uc.id);
   if(mine&&mine.h===uc.id){
     const pos=table().findIndex(t=>t.id===uc.id);

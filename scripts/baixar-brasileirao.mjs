@@ -1,14 +1,20 @@
-// Baixa os dados da Série A (API-Football) e salva em JSON.
-// Uso: npm run dados            (lê API_FOOTBALL_KEY do arquivo .env)
-//  ou: node scripts/baixar-brasileirao.mjs SUA_CHAVE [temporada]
-// Gera: brasileirao-<temporada>.json      -> formato do jogo (use "Carregar JSON" na tela Dados)
-//       brasileirao-<temporada>-raw.json  -> respostas brutas da API, para usar no seu próprio código
+// Baixa os dados da Série A ou B (API-Football) e salva em JSON.
+// Uso: npm run dados                 Série A (lê API_FOOTBALL_KEY do arquivo .env)
+//      npm run dados:b               Série B 2024
+//  ou: node scripts/baixar-brasileirao.mjs [SUA_CHAVE] [--temporada=2024] [--serie=b]
+// Gera: brasileirao-<temporada>.json (Série A) ou brasileirao-serie-b-<temporada>.json (Série B)
+//       -> formato do jogo (use "Carregar JSON" na tela Dados; o jogo oferece juntar com a outra série)
+//       ...-raw.json -> respostas brutas da API, para usar no seu próprio código
 import { writeFileSync, mkdirSync } from 'node:fs';
 
-const KEY = process.argv[2] || process.env.API_FOOTBALL_KEY;
-const SEASON = parseInt(process.argv[3] || process.env.API_FOOTBALL_SEASON || '2026', 10);
+const args = process.argv.slice(2), flag = n => (args.find(a => a.startsWith('--' + n + '=')) || '').split('=')[1];
+const pos = args.filter(a => !a.startsWith('--'));
+const KEY = pos[0] || process.env.API_FOOTBALL_KEY;
+const SERIE = (flag('serie') || process.env.API_FOOTBALL_SERIE || 'a').toUpperCase() === 'B' ? 'B' : 'A';
+const LEAGUE = SERIE === 'B' ? 72 : 71;
+const SEASON = parseInt(flag('temporada') || pos[1] || process.env.API_FOOTBALL_SEASON || '2026', 10);
 const DELAY = 7000; // plano gratuito: 10 requisições/minuto
-if (!KEY) { console.error('Uso: node baixar-brasileirao.mjs SUA_CHAVE [temporada]'); process.exit(1); }
+if (!KEY) { console.error('Uso: node baixar-brasileirao.mjs SUA_CHAVE [--temporada=2024] [--serie=b]  (ou coloque API_FOOTBALL_KEY no .env)'); process.exit(1); }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function api(path) {
@@ -37,25 +43,28 @@ const raw = { season: SEASON, mode: null, teams: [], standings: null, squads: {}
 const rank = {};
 let list = null; // [{ t: time da API, name }]
 try {
-  console.log(`Times da Série A ${SEASON}...`);
-  const j = await api(`/teams?league=71&season=${SEASON}`);
+  console.log(`Times da Série ${SERIE} ${SEASON}...`);
+  const j = await api(`/teams?league=${LEAGUE}&season=${SEASON}`);
   if (j.results > 0) { raw.mode = 'season'; raw.teams = j.response; list = j.response.map(x => ({ t: x.team, name: x.team.name })); }
 } catch (e) { console.log(`  ${SEASON}: ${e.message}`); }
 
 if (list) {
   try {
     await sleep(DELAY);
-    const st = await api(`/standings?league=71&season=${SEASON}`);
+    const st = await api(`/standings?league=${LEAGUE}&season=${SEASON}`);
     raw.standings = st.response;
     (st.response?.[0]?.league?.standings?.[0] || []).forEach(r => rank[r.team.id] = r.rank);
   } catch (e) { console.log('Classificação indisponível: ' + e.message); }
+} else if (SERIE === 'B') {
+  console.error(`Seu plano não libera a Série B ${SEASON}. Use --temporada=2024 (no plano gratuito vale de 2022 a 2024).`);
+  process.exit(1);
 } else {
   console.log('Plano não libera essa temporada -> montando os 20 clubes de 2026 com os elencos atuais.');
   raw.mode = 'current-squads';
   let known = [];
   for (const s of [2024, 2023, 2022]) {
     await sleep(DELAY);
-    try { const j = await api(`/teams?league=71&season=${s}`); known = j.response.map(x => x.team); console.log(`IDs obtidos da temporada ${s}.`); break; }
+    try { const j = await api(`/teams?league=${LEAGUE}&season=${s}`); known = j.response.map(x => x.team); console.log(`IDs obtidos da temporada ${s}.`); break; }
     catch (e) { console.log(`  ${s}: ${e.message}`); }
   }
   const match = (t, keys) => keys.some(k => norm(t.name).includes(k));
@@ -88,15 +97,19 @@ for (const [i, { t, name }] of list.entries()) {
         .map(p => ({ id: 'p' + p.id, name: p.name, age: p.age || 24, pos: POS[p.position], number: p.number, photo: p.photo }));
     } catch (e) { console.log(`  erro no elenco: ${e.message}`); }
   }
-  let strength = baseStrength(name);
-  if (t && rank[t.id] && Object.keys(rank).length >= 10) strength = Math.round((strength + 80 - (rank[t.id] - 1) * 0.8) / 2);
-  clubs.push({ id: 'c' + (t ? t.id : i), name, short: ((t && t.code) || name.slice(0, 3)).toUpperCase(), color: '#335', logo: t ? t.logo : null, strength, players });
+  // Série B: força base menor (64, ou a da Série A menos 4 para clubes conhecidos)
+  const known = Object.keys(STRENGTH).some(k => norm(name).includes(k));
+  let strength = SERIE === 'B' ? (known ? baseStrength(name) - 4 : 64) : baseStrength(name);
+  const fromRank = r => SERIE === 'B' ? 70 - (r - 1) * 0.5 : 80 - (r - 1) * 0.8;
+  if (t && rank[t.id] && Object.keys(rank).length >= 10) strength = Math.round((strength + fromRank(rank[t.id])) / 2);
+  clubs.push({ id: 'c' + (t ? t.id : i), name, short: ((t && t.code) || name.slice(0, 3)).toUpperCase(), color: '#335', logo: t ? t.logo : null, strength, division: SERIE, players });
   console.log(`(${i + 1}/${list.length}) ${name}: ${players.length} jogadores`);
 }
 const season = SEASON;
 
 const data = { source: 'api', season, createdAt: new Date().toISOString(), clubs };
 mkdirSync('data', { recursive: true });
-writeFileSync(`data/brasileirao-${season}.json`, JSON.stringify(data, null, 2));
-writeFileSync(`data/brasileirao-${season}-raw.json`, JSON.stringify(raw, null, 2));
-console.log(`\nPronto! data/brasileirao-${season}.json e data/brasileirao-${season}-raw.json salvos.`);
+const base = `data/brasileirao-${SERIE === 'B' ? 'serie-b-' : ''}${season}`;
+writeFileSync(`${base}.json`, JSON.stringify(data, null, 2));
+writeFileSync(`${base}-raw.json`, JSON.stringify(raw, null, 2));
+console.log(`\nPronto! ${base}.json e ${base}-raw.json salvos.`);
