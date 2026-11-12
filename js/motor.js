@@ -1,24 +1,17 @@
 /* ================= escalação e força ================= */
-function autoXI(club,formation){
-  const f=FORMS[formation||club.formation||'4-4-2'];
-  const pool=club.players.filter(p=>!unavailable(p)),jog=pool.length>=11?pool:club.players;
-  const by=pos=>jog.filter(p=>p.pos===pos).sort((a,b)=>b.ovr-a.ovr);
-  const xi=[];
-  xi.push(...by('G').slice(0,1));
-  xi.push(...by('D').slice(0,f[0]));xi.push(...by('M').slice(0,f[1]));xi.push(...by('A').slice(0,f[2]));
-  const rest=jog.filter(p=>!xi.includes(p)&&p.pos!=='G').sort((a,b)=>b.ovr-a.ovr);
-  while(xi.length<11&&rest.length)xi.push(rest.shift());
-  return xi.map(p=>p.id);
-}
+function autoXI(club,formation){return autoSlotXI(club,formation)} // em escalacao.js: já na ordem das vagas
 function getXI(club){
   if(club.id===S.userClubId){club.lineup=(club.lineup||[]).filter(id=>P[id]&&P[id].clubId===club.id);return club.lineup}
   return autoXI(club);
 }
 function power(club){
   const xi=getXI(club).map(id=>P[id]).filter(Boolean);
-  const grp=pos=>xi.filter(p=>p.pos===pos);
+  // com 11 titulares na ordem das vagas, quem joga fora de posição rende menos
+  const sl=xi.length===11?slotsDe(club.formation||'4-4-2'):null;
+  const xe=xi.map((p,i)=>({pos:p.pos,ovr:sl?ovrNaPosicao(p,sl[i]):p.ovr}));
+  const grp=pos=>xe.filter(p=>p.pos===pos);
   const avg=(arr,f)=>arr.length?arr.reduce((s,p)=>s+p.ovr,0)/arr.length:f;
-  const base=avg(xi,45),g=grp('G'),d=grp('D'),m=grp('M'),a=grp('A');
+  const base=avg(xe,45),g=grp('G'),d=grp('D'),m=grp('M'),a=grp('A');
   let def=0.30*avg(g,30)+0.45*avg(d,base-10)+0.25*avg(m,base-10);
   let att=0.55*avg(a,base-12)+0.35*avg(m,base-10)+0.10*avg(d,base-10);
   let mid=avg(m,base-10);

@@ -19,21 +19,42 @@ function aplicarDisponibilidade(games){
     }
   }
 }
-// grupos de cada vaga, em ordem: goleiro, defesa, meio, ataque
-function slotGroups(f){const s=FORMS[f]||FORMS['4-4-2'];return ['G',...Array(s[0]).fill('D'),...Array(s[1]).fill('M'),...Array(s[2]).fill('A')]}
-// reposiciona os ids nas vagas da formação: cada um na vaga da sua posição, o resto completa as vagas livres
+// vagas detalhadas de cada formação, em ordem: goleiro, defesa, meio, ataque (mesmas contagens de FORMS)
+const SLOTS={
+ '4-4-2':'GOL LD ZAG ZAG LE VOL MEI MEI MAT CEN CEN','4-3-3':'GOL LD ZAG ZAG LE VOL MEI MAT PON CEN PON',
+ '3-5-2':'GOL ZAG ZAG ZAG VOL VOL MEI MEI MAT CEN CEN','4-5-1':'GOL LD ZAG ZAG LE VOL VOL MEI MEI MAT CEN',
+ '5-3-2':'GOL LD ZAG ZAG ZAG LE VOL MEI MAT CEN CEN','3-4-3':'GOL ZAG ZAG ZAG VOL MEI MEI MAT PON CEN PON'
+};
+for(const k in SLOTS)SLOTS[k]=SLOTS[k].split(' ');
+const slotsDe=f=>SLOTS[f]||SLOTS['4-4-2'];
+// cada vaga recebe quem perde menos ali (posição principal, secundária, depois o mais próximo); o resto completa as vagas livres
 function reslot(ids,f){
-  const groups=slotGroups(f),left=[...ids],out=groups.map(()=>null);
-  groups.forEach((g,i)=>{const k=left.findIndex(id=>P[id]&&P[id].pos===g);if(k>=0)out[i]=left.splice(k,1)[0]});
-  out.forEach((v,i)=>{if(v==null&&left.length)out[i]=left.shift()});
+  const slots=slotsDe(f),left=ids.filter(id=>P[id]),out=slots.map(()=>null);
+  slots.forEach((s,i)=>{
+    let best=-1,bp=9;
+    left.forEach((id,k)=>{const pen=penalidadePosicao(P[id],s).pen;if(pen<bp||(pen===bp&&best>=0&&P[id].ovr>P[left[best]].ovr)){bp=pen;best=k}});
+    if(best>=0)out[i]=left.splice(best,1)[0];
+  });
   return out.filter(v=>v!=null);
 }
-function setFormation(f){const uc=userClub();uc.formation=f;uc.lineup=reslot(getXI(uc),f);save();render()}
+// melhor time para a formação, já na ordem das vagas; evita indisponíveis
+function autoSlotXI(club,f){
+  const slots=slotsDe(f||club.formation||'4-4-2');
+  const pool=club.players.filter(p=>!unavailable(p)),jog=[...(pool.length>=11?pool:club.players)];
+  const out=[];
+  for(const s of slots){
+    let best=-1,bv=-1;
+    jog.forEach((p,k)=>{const v=ovrNaPosicao(p,s);if(v>bv){bv=v;best=k}});
+    if(best>=0)out.push(jog.splice(best,1)[0].id);
+  }
+  return out;
+}
+function setFormation(f){const uc=userClub();uc.formation=f;uc.lineup=autoSlotXI(uc,f);save();render()} // nova formação: remonta o melhor time para as vagas novas
 // vaga i da formação = lineup[i] (com 11 titulares); com menos que isso, reposiciona automaticamente
 function slotLayout(uc){
   const xi=getXI(uc);
   const ids=xi.length===11?xi:reslot(xi,uc.formation);
-  return slotGroups(uc.formation).map((g,i)=>({g,id:ids[i]||null}));
+  return slotsDe(uc.formation).map((d,i)=>({g:POSD[d].grupo,d,id:ids[i]||null}));
 }
 let selEsc=null;
 function clickEsc(pid){
@@ -58,17 +79,17 @@ function vEscalacao(){
     if(!s.id){avisos.push('Há vaga sem jogador: escale 11 titulares.');break}
     const p=P[s.id],u=unavailable(p);
     if(u)avisos.push(`${p.name} está ${u} e não pode jogar: troque por um reserva.`);
-    else if(p.pos!==s.g)avisos.push(`${p.name} (${POSL[p.pos]}) está fora de posição (vaga de ${POSL[s.g]}).`);
+    else{const pp=penalidadePosicao(p,s.d);if(pp.aviso)avisos.push(pp.aviso)}
   }
-  const chip=(p,g)=>{
+  const chip=(p,d)=>{
     if(!p)return `<div class="ec vazio">vaga</div>`;
-    const u=unavailable(p),fora=g&&p.pos!==g;
+    const u=unavailable(p),fora=d&&penalidadePosicao(p,d).tipo==='fora';
     return `<div class="ec ${selEsc===p.id?'sel':''} ${u?'indisp':fora?'fora':''}" onclick="clickEsc('${p.id}')" title="${esc(p.name)}${u?' — '+u:fora?' — fora de posição':''}">
-      <span class="pos ${p.pos}">${POSL[p.pos]}</span><b>${p.ovr}</b><span class="en">${esc(p.name.split(' ').slice(-1)[0])}</span>${u?'<i>🩹</i>':fora?'<i>⚠️</i>':''}</div>`;
+      <span class="pos ${p.pos}">${posDSigla(p)}</span><b>${d?ovrNaPosicao(p,d):p.ovr}</b><span class="en">${esc(p.name.split(' ').slice(-1)[0])}</span>${u?'<i>🩹</i>':fora?'<i>⚠️</i>':''}</div>`;
   };
   const sz=FORMS[uc.formation]||FORMS['4-4-2'];
   const rows=[['A',sz[2],1+sz[0]+sz[1]],['M',sz[1],1+sz[0]],['D',sz[0],1],['G',1,0]]
-    .map(([g,n,off])=>`<div class="linha">${Array.from({length:n},(_,k)=>chip(lay[off+k].id&&P[lay[off+k].id],g)).join('')}</div>`).join('');
+    .map(([g,n,off])=>`<div class="linha">${Array.from({length:n},(_,k)=>chip(lay[off+k].id&&P[lay[off+k].id],lay[off+k].d)).join('')}</div>`).join('');
   return `<h2>Escalação — ${esc(uc.name)}</h2>
   <div class="card row">
     <label>Formação <select onchange="setFormation(this.value)">${Object.keys(FORMS).map(f=>`<option ${uc.formation===f?'selected':''}>${f}</option>`).join('')}</select></label>
