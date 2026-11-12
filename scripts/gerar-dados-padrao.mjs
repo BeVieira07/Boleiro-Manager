@@ -90,6 +90,12 @@ if (existsSync(mf)) {
   console.log(`Manual: ${manual} overalls ajustados à mão.`);
 }
 
+/* ================= 3. escudos locais ================= */
+// Se img/escudos/<id>.png existe (npm run escudos), o jogo usa o arquivo em vez do link da API.
+let locais = 0;
+for (const c of clubs) if (existsSync(`img/escudos/${c.id}.png`)) { c.logo = `img/escudos/${c.id}.png`; locais++; }
+console.log(`Escudos: ${locais}/${clubs.length} usando arquivo local.`);
+
 const data = { source: 'api', season: a.season, createdAt: a.createdAt, clubs };
 writeFileSync('js/dados-padrao.js', `// Dados padrão do jogo (API-Football), temporada ${a.season}. NÃO EDITE: gerado por scripts/gerar-dados-padrao.mjs a partir de data/.\nconst DADOS_PADRAO=${JSON.stringify(data)};\n`);
 console.log(`js/dados-padrao.js: ${Object.entries(series).map(([d, x]) => `Série ${d} ${x.clubs.length} clubes`).join(' + ')}, ${ids.size} jogadores.`);

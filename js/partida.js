@@ -1,7 +1,9 @@
 /* ================= jogo ao vivo ================= */
 function crest(c,cls=''){
-  if(c.logo)return `<img class="crest ${cls}" src="${esc(c.logo)}" alt="">`;
-  return `<span class="crest ${cls}" style="background:${c.color||'#335'};color:#fff">${esc(c.short||c.name.slice(0,3))}</span>`;
+  const sigla=`<span class="crest ${cls}" style="background:${c.color||'#335'};color:#fff">${esc(c.short||c.name.slice(0,3))}</span>`;
+  // se a imagem não carregar, troca pela sigla colorida em vez de deixar o círculo vazio
+  if(c.logo)return `<img class="crest ${cls}" src="${esc(c.logo)}" alt="" data-f="${esc(sigla)}" onerror="this.outerHTML=this.dataset.f">`;
+  return sigla;
 }
 function showLive(g,done){
   const H=clubById(g.h),A=clubById(g.a);let min=0,hs=0,as=0,timer=null;
