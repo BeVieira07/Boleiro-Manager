@@ -125,11 +125,11 @@ function loadSaveFile(ev){
   const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
   rd.onload=()=>{try{const j=JSON.parse(rd.result);const sv=j.type==='brasfoot-save'?j.save:j;
     if(!sv||!Array.isArray(sv.clubs)||!Array.isArray(sv.fixtures)||!sv.userClubId)throw 0;
-    if(S&&!confirm('Substituir o jogo atual por este save?'))return;
-    S=sv;migrarPosicoes(S);reindex();save();view='clube';render();alert(`Save carregado: ${userClub().name}, temporada ${S.season}, rodada ${S.round+1}.`)}
+    if(!podeCriarSave())return; // importar cria um save novo na lista, sem substituir os outros
+    delete sv.saveId;S=sv;migrarPosicoes(S);reindex();migrarDiretoria(S);save();view='clube';render();alert(`Save carregado: ${userClub().name}, temporada ${S.season}, rodada ${S.round+1}.`)}
   catch(e){alert('Arquivo de save inválido.')}};
   rd.readAsText(f);
 }
 function resetData(){if(confirm('Voltar para os dados padrão (Brasileirão 2024)?')){store.del(DATA_KEY);render()}}
-function resetGame(){if(confirm('Apagar o jogo salvo e começar de novo?')){store.del(SAVE_KEY);S=null;view='inicio';render()}}
+function resetGame(){if(S&&S.saveId)excluirSave(S.saveId)}
 

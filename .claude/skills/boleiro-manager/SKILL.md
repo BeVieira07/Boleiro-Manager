@@ -52,7 +52,7 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 - O `localStorage` é separado por origem: save feito em `file://` não aparece em `localhost`. Para mudar de origem, usar **Exportar save** e **Importar save** na aba **Dados**.
 
 ## Persistência no navegador
-- A campanha fica em `localStorage` (`save()` em `js/estado.js`). Backup: **Exportar save (JSON)**.
+- As campanhas ficam em `localStorage`, uma por save (até 5): `brasfoot_save_v2_<id>` mais o índice `brasfoot_saves_v2`. Tudo em `js/saves.js` (`save()` de `js/estado.js` chama `salvarJogo()`). O jogo abre na tela inicial (Continuar, Novo jogo, lista de saves); o save antigo de slot único (`brasfoot_save_v1`) é migrado na primeira abertura. Backup: **Exportar save (JSON)**; importar cria um save novo.
 - Dados importados pela aba Dados (`DATA_KEY`) ficam só no navegador e **têm prioridade** sobre `dados-padrao.js`. Se o jogo mostrar menos jogadores ou escudos antigos: aba **Dados**, **Voltar aos dados padrão**, `Ctrl+F5` e começar campanha nova (dados novos só valem a partir de um jogo novo).
 - Para guardar algo importado pela aba Dados: **Exportar dados**, salvar em `data/` e rodar `npm run dados:padrao`.
 - O overall é recalculado a cada campanha nova (`rate()` em `js/dados.js`), exceto os `ovrM`.

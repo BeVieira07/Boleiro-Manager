@@ -11,14 +11,15 @@ function divTabs(){
 }
 function render(){
   const nav=document.getElementById('nav'),hi=document.getElementById('hinfo');
-  if(!S){nav.innerHTML='';hi.innerHTML='';if(view!=='dados')view='inicio';}
+  if(!S){nav.innerHTML=view==='menu'?'':`<button onclick="go('menu')">☰ Menu</button>`;hi.innerHTML='';if(view!=='dados'&&view!=='inicio')view='menu';}
   else{
     const uc=userClub(),pos=table().findIndex(t=>t.id===uc.id)+1;
     hi.innerHTML=`<span>${crest(uc)} <b>${esc(uc.name)}</b></span>${hasTwoDivs()?`<span><b>${DIVS[divOf(uc)]}</b></span>`:''}<span>Temporada <b>${S.season}</b></span><span>Rodada <b>${Math.min(S.round+1,S.fixtures.length)}/${S.fixtures.length}</b></span><span>Posição <b>${S.round?pos+'º':'-'}</b></span><span>Caixa <b class="${S.balance<0?'bad':'ok'}">${money(S.balance)}</b></span>`;
     nav.innerHTML=NAV.map(([k,l])=>`<button class="${view===k?'on':''}" onclick="go('${k}')">${l}</button>`).join('')+
-      (S.round<S.fixtures.length?`<button class="on" style="margin-left:auto" onclick="playRound()">▶ Jogar rodada ${S.round+1}</button>`:'');
+      (S.round<S.fixtures.length?`<button class="on" style="margin-left:auto" onclick="playRound()">▶ Jogar rodada ${S.round+1}</button>`:'')+
+      `<button onclick="voltarMenu()" title="Salvar e voltar à tela inicial"${S.round<S.fixtures.length?'':' style="margin-left:auto"'}>☰ Menu</button>`;
   }
-  const V={inicio:vInicio,clube:vClube,elenco:vElenco,escalacao:vEscalacao,tabela:vTabela,jogos:vJogos,artilharia:vArt,mercado:vMercado,financas:vFin,dados:vDados,rodada:vRodada};
+  const V={menu:vMenu,inicio:vInicio,clube:vClube,elenco:vElenco,escalacao:vEscalacao,tabela:vTabela,jogos:vJogos,artilharia:vArt,mercado:vMercado,financas:vFin,dados:vDados,rodada:vRodada};
   document.getElementById('app').innerHTML=(V[view]||vClube)();
 }
 function stars(s){const n=clamp(Math.round((s-62)/4),1,5);return '★'.repeat(n)+'☆'.repeat(5-n)}
@@ -145,7 +146,7 @@ function vDados(){
   <div class="row"><button class="btn sec" onclick="exportData()">Exportar dados dos clubes (JSON)</button>
   <label class="btn sec">Carregar JSON<input type="file" accept=".json" style="display:none" onchange="loadDataFile(event)"></label>
   ${store.get(DATA_KEY)?'<button class="btn sec" onclick="resetData()">Voltar aos dados padrão</button>':''}
-  ${S?'<button class="btn red" onclick="resetGame()">Apagar jogo salvo</button>':'<button class="btn" onclick="go(\'inicio\')">Escolher clube</button>'}</div>
+  ${S?'<button class="btn red" onclick="resetGame()">Excluir este jogo salvo</button>':'<button class="btn" onclick="go(\'menu\')">Tela inicial</button>'}</div>
   <p class="muted">Dados novos valem a partir do próximo jogo novo. Seu jogo atual continua com os dados com que começou.</p></div>
   <div class="card"><h3>Backup do jogo (save)</h3>
    <p class="muted">Salva a campanha inteira (elenco, tabela, finanças, histórico) num arquivo JSON. Use para não perder o progresso ou para continuar em outro navegador/computador.</p>
