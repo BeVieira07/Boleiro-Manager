@@ -80,10 +80,10 @@ function vElenco(){
   <p class="muted">"Escalar melhores" usa a formação escolhida. Marque ou desmarque os titulares manualmente na primeira coluna.</p>
   <div class="card tw"><table><tr><th>Tit.</th><th>Pos</th><th>#</th><th>Nome</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Gols</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th>Mercado</th></tr>
   ${ps.map(p=>`<tr${xi.includes(p.id)?' class="me"':''}><td><input type="checkbox" ${xi.includes(p.id)?'checked':''} onchange="toggleStarter('${p.id}')"></td>
-   <td><span class="pos ${p.pos}">${POSL[p.pos]}</span></td><td class="muted">${p.number??''}</td><td>${esc(p.name)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${p.goals||0}</td>
+   <td><span class="pos ${p.pos}">${POSL[p.pos]}</span></td><td class="muted">${p.number??''}</td><td>${esc(p.name)}${loanTag(p)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${p.goals||0}</td>
    <td class="n">${money(p.value)}</td><td class="n">${money(p.wage)}</td>
-   <td><button class="btn sm ${p.listed?'red':'sec'}" onclick="toggleListed('${p.id}')">${p.listed?'À venda ✓':'Pôr à venda'}</button> <button class="btn sec sm" onclick="quickSell('${p.id}')">Vender já</button></td></tr>`).join('')}
-  </table></div>`;
+   <td>${loanOf(p.id)?'':`<button class="btn sm ${p.listed?'red':'sec'}" onclick="toggleListed('${p.id}')">${p.listed?'À venda ✓':'Pôr à venda'}</button> <button class="btn sec sm" onclick="quickSell('${p.id}')">Vender já</button> `}${loanBtn(p,'out')}</td></tr>`).join('')}
+  </table></div>${vLoans()}`;
 }
 function vTabela(){
   const d=curDiv(),T=table(d),me=S.userClubId,two=hasTwoDivs(),mv=two?MOVE_N():4;
@@ -136,11 +136,11 @@ function vMercado(){
   </div>
   <p class="muted">${total} jogadores${total>120?' (mostrando os 120 melhores)':''}. Craques do time vendedor custam mais caro. Uma proposta por jogador a cada rodada.</p>
   <div class="card tw"><table><tr><th>Pos</th><th>Nome</th><th>Clube</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th></th></tr>
-  ${L.map(p=>`<tr><td><span class="pos ${p.pos}">${POSL[p.pos]}</span></td><td>${esc(p.name)}</td><td>${esc(clubById(p.clubId).name)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${money(p.value)}</td><td class="n">${money(p.wage)}</td><td><button class="btn sm" onclick="makeBid('${p.id}')">Proposta</button></td></tr>`).join('')}
+  ${L.map(p=>`<tr><td><span class="pos ${p.pos}">${POSL[p.pos]}</span></td><td>${esc(p.name)}${loanTag(p)}</td><td>${esc(clubById(p.clubId).name)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${money(p.value)}</td><td class="n">${money(p.wage)}</td><td>${loanOf(p.id)?'':`<button class="btn sm" onclick="makeBid('${p.id}')">Proposta</button> ${loanBtn(p,'in')}`}</td></tr>`).join('')}
   </table></div>`;
 }
 function vFin(){
-  const uc=userClub(),w=uc.players.reduce((s,p)=>s+p.wage,0);
+  const uc=userClub(),w=wageBill(uc);
   const val=uc.players.reduce((s,p)=>s+p.value,0);
   return `<h2>Finanças</h2>
   <div class="grid">

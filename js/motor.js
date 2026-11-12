@@ -64,7 +64,7 @@ function playRound(){
     const bonus=pos<4?1.3:pos<10?1.1:1;
     addFin(`Bilheteria vs ${clubById(mine.a).name}`,Math.round((0.5+(uc.strength-60)*0.06)*bonus*100)/100);
   }
-  const wages=uc.players.reduce((s,p)=>s+p.wage,0);
+  const wages=wageBill(uc);
   addFin('Salários do elenco',-Math.round(wages*1000)/1000);
   if(mine){const gf=mine.h===uc.id?mine.hg:mine.ag,ga=mine.h===uc.id?mine.ag:mine.hg;if(gf>ga)addFin('Bicho por vitória',-Math.round(wages*0.15*1000)/1000)}
   // ofertas por jogadores à venda
@@ -77,7 +77,7 @@ function playRound(){
         addNews(`💼 ${b.name} ofereceu ${money(amt)} por ${p.name}.`);}
     }
   }
-  S.round++;
+  S.round++;processLoans();
   if(S.balance<0)addNews('⚠️ Caixa negativo! Venda jogadores para equilibrar as contas.');
   lastRound={round:S.round,games};
   save();
