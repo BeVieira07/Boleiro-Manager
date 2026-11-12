@@ -53,6 +53,7 @@ function playRound(){
   const err=validateLineup();if(err){alert(err);view='escalacao';render();return}
   const games=S.fixtures[S.round].map(simulate);
   aplicarDisponibilidade(games);
+  atualizarForma(games);
   const uc=userClub();
   // finanças do usuário
   addFin(`Cota de TV — rodada ${S.round+1}`,tvQuota(divOf(uc)));

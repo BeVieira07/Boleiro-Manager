@@ -96,11 +96,70 @@ let locais = 0;
 for (const c of clubs) if (existsSync(`img/escudos/${c.id}.png`)) { c.logo = `img/escudos/${c.id}.png`; locais++; }
 console.log(`Escudos: ${locais}/${clubs.length} usando arquivo local.`);
 
-/* ================= 4. posições detalhadas ================= */
-// Usa a mesma lógica do jogo (js/posicoes.js): a API só traz goleiro/defensor/meia/atacante, então a posição detalhada vem da camisa e do equilíbrio do elenco.
+/* ================= 4. posições detalhadas reais ================= */
+// Ordem: 1. data/posicoes-manual.json (à mão)  2. data/posicoes-<ano>.json (npm run posicoes: Transfermarkt)  3. inferência (js/posicoes.js), só para quem sobrar.
 const hashStr = s => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619) } return h >>> 0 };
+const GRUPO = { GOL: 'G', ZAG: 'D', LD: 'D', LE: 'D', VOL: 'M', MEI: 'M', MAT: 'M', PON: 'A', CEN: 'A' };
+const TM = { 'Goalkeeper': 'GOL', 'Centre-Back': 'ZAG', 'Right-Back': 'LD', 'Left-Back': 'LE', 'Defensive Midfield': 'VOL', 'Central Midfield': 'MEI', 'Attacking Midfield': 'MAT', 'Right Midfield': 'MEI', 'Left Midfield': 'MEI', 'Right Winger': 'PON', 'Left Winger': 'PON', 'Centre-Forward': 'CEN', 'Second Striker': 'MAT' };
+let reais = 0, trocouGrupo = 0, manualPos = 0;
+const pendentes = {};
+const pf = `data/posicoes-${ANO}.json`, pos = existsSync(pf) ? ler(pf) : null;
+const mapa = new Set(Object.keys(TM));
+if (pos) {
+  const porTime = {}; // id do clube no jogo -> jogadores do Transfermarkt
+  for (const [tid, t] of Object.entries(pos.times)) if (t.ok) (porTime[t.nossoId] ||= []).push(...Object.entries(pos.jogadores).filter(([, j]) => j.t === tid).map(([id, j]) => ({ id, ...j, k: norm(j.n).split(' ') })));
+  const todos = Object.entries(pos.jogadores).map(([id, j]) => ({ id, ...j, k: norm(j.n).split(' ') }));
+  const nasc = j => j.nasc ? +j.nasc.slice(0, 4) : null;
+  const anoAtual = pos.anoElenco || pos.season;
+  // todas as palavras do nome do jogo aparecem no nome do Transfermarkt (iniciais "G." casam com a primeira letra de alguma palavra)
+  const casa = (p, lista, exigeIdade) => {
+    const toks = norm(p.name).split(' ').filter(Boolean);
+    return lista.filter(j => {
+      if (!toks.every(x => x.length === 1 ? j.k.some(y => y[0] === x) : j.k.includes(x))) return false;
+      const ny = nasc(j);
+      if (ny && p.age) { const dif = Math.abs(((pos.anoElenco || pos.season) - ny) - p.age); if (dif > (exigeIdade ? 1 : 2)) return false }
+      return true;
+    });
+  };
+  for (const c of clubs) for (const p of c.players) {
+    let r = casa(p, porTime[c.id] || [], false);
+    if (r.length > 1) { // desempata pelo número da camisa e depois pela idade mais próxima
+      const n = r.filter(j => j.num === p.number); if (n.length === 1) r = n;
+      else { const ag = anoAtual - 0; const dif = j => Math.abs((ag - nasc(j)) - p.age); const o = [...r].sort((x, y) => dif(x) - dif(y)); if (dif(o[0]) < dif(o[1])) r = [o[0]] }
+    }
+    if (!r.length) { const g = casa(p, todos, true); if (g.length === 1) r = g } // mudou de clube: nome e idade (±1) batem com um único jogador
+    const j = r.length === 1 ? r[0] : null, pd = j && TM[j.p];
+    if (!pd) { (pendentes[c.name] ||= []).push(p.name + (r.length > 1 ? ' (ambíguo)' : j ? ' (posição "' + j.p + '")' : '')); continue; }
+    if (GRUPO[pd] !== p.pos) trocouGrupo++;
+    p.pd = pd; p.pos = GRUPO[pd]; p.ps = []; p.real = 1; reais++;
+  }
+  console.log(`Posições reais: ${reais}/${ids.size} jogadores casados com o Transfermarkt (${trocouGrupo} mudaram de grupo em relação à API).`);
+} else console.log('Sem data/posicoes-' + ANO + '.json: rode npm run posicoes para usar as posições reais.');
+const mp = 'data/posicoes-manual.json';
+if (existsSync(mp)) {
+  for (const [clube, jogs] of Object.entries(ler(mp))) {
+    if (clube.startsWith('_')) continue;
+    const c = clubs.find(c => norm(c.name) === norm(clube));
+    if (!c) { console.log(`Posição manual: clube "${clube}" não encontrado.`); continue; }
+    for (const [nome, v] of Object.entries(jogs)) {
+      const [pd, ...sec] = String(v).split(/[ ,/]+/).filter(Boolean);
+      const toks = norm(nome).split(' ');
+      let r = c.players.filter(p => norm(p.name) === norm(nome));
+      if (!r.length) r = c.players.filter(p => toks.every(t => norm(p.name).split(' ').includes(t)));
+      if (r.length !== 1 || !GRUPO[pd] || sec.some(s => !GRUPO[s])) { console.log(`Posição manual: "${nome}" (${clube}) ${r.length !== 1 ? (r.length ? 'ambíguo' : 'não encontrado') : 'posição inválida (' + v + ')'}.`); continue; }
+      const p = r[0]; if (!p.real) reais++; p.pd = pd; p.pos = GRUPO[pd]; p.ps = sec; p.real = 1; manualPos++;
+      const l = pendentes[c.name]; if (l) { const k = l.findIndex(x => norm(x).startsWith(norm(p.name))); if (k >= 0) l.splice(k, 1) }
+    }
+  }
+  console.log(`Posição manual: ${manualPos} ajustadas à mão.`);
+}
+for (const k of Object.keys(pendentes)) if (!pendentes[k].length) delete pendentes[k];
+writeFileSync('data/posicoes-pendentes.json', JSON.stringify(pendentes, null, 1));
+console.log(`Pendentes (posição inferida, a conferir): ${Object.values(pendentes).reduce((s, v) => s + v.length, 0)} jogadores, lista em data/posicoes-pendentes.json.`);
+// Quem sobrou recebe a posição inferida, com a mesma lógica do jogo (js/posicoes.js).
 const { atribuirPosicoes } = new Function('hashStr', 'clamp', readFileSync('js/posicoes.js', 'utf8') + '\nreturn { atribuirPosicoes };')(hashStr, clamp);
 for (const c of clubs) atribuirPosicoes(c.players);
+for (const c of clubs) for (const p of c.players) delete p.real;
 console.log(`Posições: ${clubs.reduce((s, c) => s + c.players.filter(p => p.pd).length, 0)}/${ids.size} jogadores com posição detalhada.`);
 
 const data = { source: 'api', season: a.season, createdAt: a.createdAt, clubs };
