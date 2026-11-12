@@ -47,10 +47,11 @@ function validateLineup(){
   if(ind.length)return `Jogador(es) indisponível(is) na escalação: ${ind.map(p=>p.name+' ('+unavailable(p)+')').join(', ')}.`;
   return null;
 }
-function playRound(){
-  if(S.demitido){demissao();return}
-  if(S.round>=S.fixtures.length)return;
-  const err=validateLineup();if(err){alert(err);view='escalacao';render();return}
+// regra: joga a rodada atual. Devolve {erro}, {demitido}, {fim} ou {jogos, meu}.
+function jogarRodada(){
+  if(S.demitido)return {demitido:true};
+  if(S.round>=S.fixtures.length)return {fim:true};
+  const erro=validateLineup();if(erro)return {erro};
   S.rng=semente(S.seed,S.season,S.round); // a rodada depende só do estado e das escolhas, não do que foi sorteado antes
   const games=S.fixtures[S.round].map(simulate);
   aplicarDisponibilidade(games);
@@ -79,6 +80,14 @@ function playRound(){
   }
   S.round++;processLoans();atualizarConfianca(mine);
   if(S.balance<0)addNews('⚠️ Caixa negativo! Venda jogadores para equilibrar as contas.');
+  return {jogos:games,meu:mine};
+}
+function playRound(){
+  const r=jogarRodada();
+  if(r.demitido){demissao();return}
+  if(r.fim)return;
+  if(r.erro){alert(r.erro);view='escalacao';render();return}
+  const games=r.jogos,mine=r.meu;
   lastRound={round:S.round,games};
   save();
   if(mine)showLive(mine,()=>{view='rodada';render();if(S.round>=S.fixtures.length)seasonEnd();if(S.demitido)demissao()});

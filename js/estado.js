@@ -22,9 +22,8 @@ const seasonPrize=(div,pos)=>Math.round(({A:5+(20-pos)*2.1,B:1+(20-pos)*0.5,C:0.
 const startBalance=(div,s)=>Math.round(({A:10+(s-60)*1.5,B:Math.max(2,3+(s-55)*0.5),C:Math.max(1,1.5+(s-50)*0.2),D:Math.max(0.8,1+(s-48)*0.1)})[div]*10)/10;
 const MOVE_N=()=>Math.min(4,...divisions().map(d=>S.clubs.filter(c=>divOf(c)===d).length-1));
 
-function newGame(clubId){
-  if(!podeCriarSave())return;
-  const data=getData();
+// regra: monta a campanha nova a partir dos dados (sem tela nem armazenamento)
+function criarJogo(clubId,data){
   const clubs=JSON.parse(JSON.stringify(data.clubs));
   for(const c of clubs){
     if(data.posv!==2)converterPosicoesAntigas(c.players); // dados antigos (aba Dados) usam as siglas de antes da #23
@@ -42,8 +41,9 @@ function newGame(clubId){
   S.balance=startBalance(divOf(uc),uc.strength);
   uc.lineup=autoXI(uc);migrarDiretoria(S);
   addNews(`Você assumiu o comando do ${uc.name}! Caixa inicial: ${money(S.balance)}.`);
-  save(); view='clube'; render();
+  return S;
 }
+function newGame(clubId){if(!podeCriarSave())return;criarJogo(clubId,getData());save();view='clube';render()}
 function addNews(t){S.news.unshift({r:S.round,t});S.news=S.news.slice(0,40)}
 function addFin(desc,amount){S.balance=Math.round((S.balance+amount)*1000)/1000;S.fin.unshift({s:S.season,r:S.round,desc,amount});S.fin=S.fin.slice(0,80)}
 

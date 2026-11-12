@@ -37,15 +37,21 @@ function openModal(html){document.getElementById('mbox').innerHTML=html;document
 function closeModal(){document.getElementById('modal').style.display='none'}
 
 /* ================= fim de temporada ================= */
-function seasonEnd(){
-  if(S.seasonClosed===S.season)return;
+// regra: fecha a temporada (premiação, histórico, diretoria). Devolve o resumo, ou null se já foi fechada.
+function fecharTemporada(){
+  if(S.seasonClosed===S.season)return null;
   const uc=userClub(),div=divOf(uc),T=table(div),pos=T.findIndex(t=>t.id===uc.id)+1,two=hasTwoDivs(),mv=MOVE_N();
   const prize=seasonPrize(div,pos),ds=divisions(),di=ds.indexOf(div);
   addFin(`Premiação ${DIVS[div]} — ${pos}º lugar`,prize);
   const champs=divisions().map(d=>({d,c:clubById(table(d)[0].id)}));
   const top=topScorers(1,divisions()[0])[0];
   S.history.unshift({season:S.season,champ:champs[0].c.name,champs:Object.fromEntries(champs.map(x=>[x.d,x.c.name])),me:pos,div,scorer:top?`${top.name} (${top.goals})`:'-'});
-  confiancaFimTemporada(pos);S.seasonClosed=S.season;save();
+  confiancaFimTemporada(pos);S.seasonClosed=S.season;
+  return {div,T,pos,two,mv,prize,ds,di,champs,top};
+}
+function seasonEnd(){
+  const r=fecharTemporada();if(!r)return;save();
+  const {div,T,pos,two,mv,prize,ds,di,champs,top}=r;
   const fate=!two?(pos>=17?'<p class="bad">Seu time terminou na zona de rebaixamento… a diretoria está de olho!</p>':'')
     :di<ds.length-1&&pos>T.length-mv?`<p class="bad">⬇️ Seu time foi rebaixado para a ${DIVS[ds[di+1]]}.</p>`
     :di>0&&pos<=mv?`<p class="ok">⬆️ Acesso! Seu time vai disputar a ${DIVS[ds[di-1]]}.</p>`:'';
@@ -56,8 +62,8 @@ function seasonEnd(){
    ${fate}
    <div class="row" style="justify-content:flex-end"><button class="btn sec" onclick="closeModal()">Ver tabela</button><button class="btn" onclick="closeModal();newSeason()">Iniciar temporada ${S.season+1}</button></div>`);
 }
-function newSeason(){
-  const r=rnd;
+// regra: começa a temporada seguinte (acesso/rebaixamento, idade, aposentadoria, calendário)
+function iniciarTemporada(){
   if(hasTwoDivs()){ // acesso e rebaixamento entre séries vizinhas, com base nas tabelas finais
     const ds=divisions(),n=MOVE_N(),moves=[];
     for(let i=0;i<ds.length-1;i++)moves.push({hi:ds[i],lo:ds[i+1],down:table(ds[i]).slice(-n).map(t=>clubById(t.id)),up:table(ds[i+1]).slice(0,n).map(t=>clubById(t.id))});
@@ -82,8 +88,9 @@ function newSeason(){
   S.season++;confiancaNovaTemporada();S.round=0;S.fixtures=makeAllFixtures(S.clubs);S.offers=[];
   reindex();
   const uc=userClub();uc.lineup=getXI(uc);if(uc.lineup.length<11)uc.lineup=autoXI(uc);
-  addNews(`📅 Começa a temporada ${S.season}!`);save();view='clube';render();
+  addNews(`📅 Começa a temporada ${S.season}!`);
 }
+function newSeason(){iniciarTemporada();save();view='clube';render()}
 function ensureSquad(c){
   const r=rnd;let i=c.players.length+100;
   for(const [pos,n] of Object.entries({G:2,D:5,M:5,A:3})){

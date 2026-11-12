@@ -44,7 +44,7 @@ function novosGols(g,ph,pa,nh,na,de,ate){
   for(let i=0;i<nh;i++)gol('h',ph.xi);for(let i=0;i<na;i++)gol('a',pa.xi);
 }
 function mudarTatica(campo,valor){
-  const uc=userClub();uc.tatica=Object.assign(taticaUser(uc),{[campo]:valor});save();
+  const uc=userClub();uc.tatica=Object.assign(taticaUser(uc),{[campo]:valor});
 }
 // jogo ao vivo: refaz os gols dos minutos seguintes com a tática nova
 function ressimularDepois(g,min){
@@ -64,7 +64,6 @@ function ressimularDepois(g,min){
   const bicho=Math.round(userClub().players.reduce((s,p)=>s+p.wage,0)*0.15*1000)/1000,depois=saldo();
   if(antes>0&&depois<=0)addFin('Bicho por vitória (ajuste)',bicho);
   if(antes<=0&&depois>0)addFin('Bicho por vitória (ajuste)',-bicho);
-  save();
 }
 
 /* ---------- controles ---------- */
@@ -79,6 +78,6 @@ function painelTatica(){
   return `<div class="card"><h3>Estilo de jogo e modo</h3><div class="row">${controlesTatica('tvPainel')}</div>
   <p class="muted">${esc(ESTILOS[t.estilo].desc)} ${esc(MODOS[t.modo].desc)} Você também pode mudar durante a partida.</p></div>`;
 }
-function tvPainel(c,v){mudarTatica(c,v);render()}
+function tvPainel(c,v){mudarTatica(c,v);save();render()}
 let tvAoVivo=null; // {g,min()} do jogo ao vivo em andamento
-function tvLive(c,v){mudarTatica(c,v);if(tvAoVivo)ressimularDepois(tvAoVivo.g,tvAoVivo.min())}
+function tvLive(c,v){mudarTatica(c,v);if(tvAoVivo)ressimularDepois(tvAoVivo.g,tvAoVivo.min());save()}

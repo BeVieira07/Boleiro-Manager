@@ -36,18 +36,23 @@ function loanForm(pid,mode){
    <label><input id="lnBuy" type="checkbox"> Opção de compra por <input id="lnBuyV" type="number" step="0.1" min="0.1" style="width:90px" value="${(p.value*1.1).toFixed(1)}"> mi</label></div>
    <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn sec" onclick="closeModal()">Cancelar</button><button class="btn" onclick="submitLoan('${pid}','${mode}')">Propor</button></div>`);
 }
-function submitLoan(pid,mode){
+// regra: proposta de empréstimo. Devolve {erro} ou {ok, msg}. mode 'out' = emprestar meu jogador; 'in' = pegar emprestado.
+function proporEmprestimo({pid,mode,clubeId,dur,payer,buy}){
   const p=P[pid],uc=userClub();
-  const dur=parseInt(document.getElementById('lnDur').value),payer=document.getElementById('lnPay').value;
-  const buy=document.getElementById('lnBuy').checked?Math.round(parseFloat(document.getElementById('lnBuyV').value)*10)/10:null;
-  if(buy!==null&&!(buy>0)){alert('Valor da opção de compra inválido.');return}
-  const lender=mode==='out'?uc:clubById(p.clubId),borrower=mode==='out'?clubById(document.getElementById('lnClub').value):uc;
-  const l={pid,from:lender.id,to:borrower.id,until:Math.min(S.round+dur,S.fixtures.length),payer,buy};
-  const err=loanCheck(p,lender,borrower);if(err){alert(err);return}
-  closeModal();
+  if(buy!=null&&!(buy>0))return {erro:'Valor da opção de compra inválido.'};
+  const lender=mode==='out'?uc:clubById(p.clubId),borrower=mode==='out'?clubById(clubeId):uc;
+  const l={pid,from:lender.id,to:borrower.id,until:Math.min(S.round+dur,S.fixtures.length),payer,buy:buy??null};
+  const err=loanCheck(p,lender,borrower);if(err)return {erro:err};
   const other=mode==='out'?borrower:lender;
-  if(rnd()>=loanChance(p,lender,borrower,l,mode)){addNews(`❌ ${other.name} recusou o empréstimo de ${p.name}.`);alert(`${other.name} recusou a proposta de empréstimo.`);save();render();return}
-  startLoan(l);alert(`Empréstimo fechado! ${p.name} vai do ${lender.name} para o ${borrower.name} até a rodada ${l.until}.`);
+  if(rnd()>=loanChance(p,lender,borrower,l,mode)){addNews(`❌ ${other.name} recusou o empréstimo de ${p.name}.`);return {ok:false,msg:`${other.name} recusou a proposta de empréstimo.`}}
+  startLoan(l);return {ok:true,msg:`Empréstimo fechado! ${p.name} vai do ${lender.name} para o ${borrower.name} até a rodada ${l.until}.`};
+}
+function submitLoan(pid,mode){
+  const v=id=>document.getElementById(id);
+  const buy=v('lnBuy').checked?Math.round(parseFloat(v('lnBuyV').value)*10)/10:null;
+  const r=proporEmprestimo({pid,mode,clubeId:mode==='out'?v('lnClub').value:null,dur:parseInt(v('lnDur').value),payer:v('lnPay').value,buy});
+  if(r.erro){alert(r.erro);return}
+  closeModal();save();render();alert(r.msg);
 }
 function loanCheck(p,lender,borrower){
   if(loanOf(p.id))return `${p.name} já está emprestado.`;
@@ -71,7 +76,7 @@ function loanChance(p,lender,borrower,l,mode){
 function startLoan(l){
   const p=P[l.pid];movePlayer(p,clubById(l.to)); // movePlayer garante o elenco mínimo de quem cedeu
   loans().push(l);
-  addNews(`🤝 ${p.name} emprestado do ${clubById(l.from).name} ao ${clubById(l.to).name} até a rodada ${l.until}.`);save();render();
+  addNews(`🤝 ${p.name} emprestado do ${clubById(l.from).name} ao ${clubById(l.to).name} até a rodada ${l.until}.`);
 }
 function endLoan(l,back){ // back: devolve ao clube de origem
   S.loans=loans().filter(x=>x!==l);
@@ -92,12 +97,17 @@ function processLoans(){
     endLoan(l,true);
   }
 }
-function buyLoaned(pid){
-  const l=loanOf(pid),p=P[pid];if(!l||!l.buy||l.to!==S.userClubId)return;
-  if(l.buy>S.balance){alert('Caixa insuficiente.');return}
-  if(!confirm(`Exercer a opção de compra de ${p.name} por ${money(l.buy)}?`))return;
+// regra: exerce a opção de compra de um jogador que peguei emprestado
+function exercerOpcaoCompra(pid){
+  const l=loanOf(pid),p=P[pid];if(!l||!l.buy||l.to!==S.userClubId)return {erro:'Sem opção de compra.'};
+  if(l.buy>S.balance)return {erro:'Caixa insuficiente.'};
   addFin(`Compra de ${p.name} (opção de compra, ${clubById(l.from).name})`,-l.buy);
-  S.loans=loans().filter(x=>x!==l);addNews(`✅ Opção de compra exercida: ${p.name} por ${money(l.buy)}.`);save();render();
+  S.loans=loans().filter(x=>x!==l);addNews(`✅ Opção de compra exercida: ${p.name} por ${money(l.buy)}.`);return {ok:true};
+}
+function buyLoaned(pid){
+  const l=loanOf(pid);if(!l||!l.buy)return;
+  if(!confirm(`Exercer a opção de compra de ${P[pid].name} por ${money(l.buy)}?`))return;
+  const r=exercerOpcaoCompra(pid);if(r.erro){alert(r.erro);return}save();render();
 }
 function vLoans(){
   const uc=userClub(),inn=loansIn(uc),out=loansOut(uc);

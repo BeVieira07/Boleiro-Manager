@@ -49,7 +49,20 @@ function autoSlotXI(club,f){
   }
   return out;
 }
-function setFormation(f){const uc=userClub();uc.formation=f;uc.lineup=autoSlotXI(uc,f);save();render()} // nova formação: remonta o melhor time para as vagas novas
+// regras da escalação do usuário
+function definirFormacao(f){const uc=userClub();uc.formation=f;uc.lineup=autoSlotXI(uc,f)} // nova formação: remonta o melhor time para as vagas novas
+function escalarMelhores(){const uc=userClub();uc.lineup=autoXI(uc)}
+// troca dois jogadores (titular x titular ou titular x reserva). Devolve {erro} ou {ok}.
+function trocarNaEscalacao(a,b){
+  const uc=userClub(),L=slotLayout(uc).map(s=>s.id).filter(Boolean),ia=L.indexOf(a),ib=L.indexOf(b);
+  if(ia<0&&ib<0)return {erro:'Escolha ao menos um titular.'};
+  if(ia>=0&&ib>=0){[L[ia],L[ib]]=[L[ib],L[ia]]}
+  else{const out=ia>=0?a:b,inn=ia>=0?b:a,r=unavailable(P[inn]);
+    if(r)return {erro:`${P[inn].name} está ${r} e não pode ser escalado.`};
+    L[L.indexOf(out)]=inn}
+  uc.lineup=L;return {ok:true};
+}
+function setFormation(f){definirFormacao(f);save();render()}
 // vaga i da formação = lineup[i] (com 11 titulares); com menos que isso, reposiciona automaticamente
 function slotLayout(uc){
   const xi=getXI(uc);
@@ -61,15 +74,10 @@ function clickEsc(pid){
   const uc=userClub();
   if(selEsc==null||selEsc===pid){selEsc=selEsc===pid?null:pid;render();return}
   const a=selEsc,b=pid;selEsc=null;
-  const L=slotLayout(uc).map(s=>s.id).filter(Boolean),ia=L.indexOf(a),ib=L.indexOf(b);
-  if(ia<0&&ib<0){selEsc=b;render();return}
-  if(ia>=0&&ib>=0){[L[ia],L[ib]]=[L[ib],L[ia]]}
-  else{ // titular x reserva
-    const out=ia>=0?a:b,inn=ia>=0?b:a,r=unavailable(P[inn]);
-    if(r){alert(`${P[inn].name} está ${r} e não pode ser escalado.`);render();return}
-    L[L.indexOf(out)]=inn;
-  }
-  uc.lineup=L;save();render();
+  const L=slotLayout(uc).map(s=>s.id).filter(Boolean);
+  if(!L.includes(a)&&!L.includes(b)){selEsc=b;render();return}
+  const r=trocarNaEscalacao(a,b);if(r.erro){alert(r.erro);render();return}
+  save();render();
 }
 function vEscalacao(){
   const uc=userClub(),lay=slotLayout(uc),xi=lay.map(s=>s.id).filter(Boolean),pw=power(uc);
