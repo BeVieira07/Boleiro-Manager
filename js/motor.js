@@ -35,10 +35,10 @@ function simulate(g){
   const H=clubById(g.h),A=clubById(g.a),ph=power(H),pa=power(A);
   const lh=clamp(1.1*Math.pow(ph.att/pa.def,3)*Math.pow(ph.mid/pa.mid,0.8)*1.12,0.15,4.5);
   const la=clamp(1.1*Math.pow(pa.att/ph.def,3)*Math.pow(pa.mid/ph.mid,0.8)*0.9,0.15,4.5);
-  g.hg=poisson(lh);g.ag=poisson(la);
-  const ev=[];
-  const goal=(side,xi)=>{if(!xi.length)return;const p=pickScorer(xi);p.goals=(p.goals||0)+1;ev.push({m:ri(1,93),t:'gol',side,pid:p.id,name:p.name})};
-  for(let i=0;i<g.hg;i++)goal('h',ph.xi);for(let i=0;i<g.ag;i++)goal('a',pa.xi);
+  g.lh=lh;g.la=la;g.hg=0;g.ag=0;g.ev=[]; // estilo e modo entram em golsSegmento (taticas.js)
+  const sg=golsSegmento(lh,la,taticaDe(H,A),taticaDe(A,H),1,93);
+  novosGols(g,ph,pa,poisson(sg.h),poisson(sg.a),1,93);
+  const ev=g.ev;
   for(const [side,xi] of [['h',ph.xi],['a',pa.xi]])for(let k=ri(0,3);k>0;k--){if(!xi.length)break;const p=pick(xi);ev.push({m:ri(5,90),t:'cartao',side,name:p.name})}
   ev.sort((x,y)=>x.m-y.m);g.ev=ev;
   return g;
