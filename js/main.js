@@ -1,6 +1,6 @@
 /* ================= início ================= */
 (function boot(){
-  S=store.get(SAVE_KEY);
-  if(S&&S.clubs){migrarPosicoes(S);reindex();migrarDiretoria(S);view='clube'}else{S=null;view='inicio'}
+  migrarSaveAntigo(); // save de slot único (versões antigas) vira o primeiro da lista
+  S=null;view='menu'; // tela inicial: continuar, carregar ou começar um jogo
   render();
 })();

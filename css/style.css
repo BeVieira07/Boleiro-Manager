@@ -53,3 +53,8 @@ td.n,th.n{text-align:right}
 .bar{height:10px;background:var(--panel2);border-radius:6px;overflow:hidden}
 .bar>div{height:100%;background:var(--accent)}
 .pill{display:inline-block;padding:2px 8px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);font-size:12px}
+/* tela inicial (#21) */
+.menu-ini{max-width:860px;margin:0 auto}
+.menu-ini h1{font-size:34px;margin:18px 0 14px}
+.menu-ini>.row{margin-bottom:16px;flex-wrap:wrap}
+.menu-ini td img{width:28px;height:28px;object-fit:contain}

@@ -42,7 +42,7 @@ function confiancaFimTemporada(pos){
 function confiancaNovaTemporada(){S.conf=Math.round((S.conf+CONF_INICIO)/2);S.confBaixa=0;definirMeta();addNews(`🎯 Meta da diretoria: ${S.meta.texto}.`)}
 function demissao(){
   openModal(`<h2>🔥 Você foi demitido</h2><p>A diretoria do ${esc(userClub().name)} perdeu a confiança (${S.conf}/100) e encerrou seu contrato.</p>
-   <div class="row" style="justify-content:flex-end"><button class="btn sec" onclick="exportSave();">Exportar save</button><button class="btn" onclick="closeModal();store.del(SAVE_KEY);S=null;view='inicio';render()">Escolher outro clube</button></div>`);
+   <div class="row" style="justify-content:flex-end"><button class="btn sec" onclick="exportSave();">Exportar save</button><button class="btn" onclick="closeModal();apagarSave(S.saveId);S=null;novoJogo()">Escolher outro clube</button></div>`);
 }
 function painelDiretoria(){
   const c=S.conf,cor=c>=55?'var(--ok,#3a3)':c>=30?'var(--warn,#e90)':'var(--danger,#d33)';

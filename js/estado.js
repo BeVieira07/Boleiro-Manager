@@ -6,7 +6,7 @@ let lastRound=null; // resultados da última rodada
 const userClub=()=>S.clubs.find(c=>c.id===S.userClubId);
 const clubById=id=>S.clubs.find(c=>c.id===id);
 function reindex(){P={};for(const c of S.clubs)for(const p of c.players){p.clubId=c.id;P[p.id]=p}}
-function save(){if(S)store.set(SAVE_KEY,S)}
+function save(){if(S)salvarJogo()} // js/saves.js: grava no save da campanha atual
 function getData(){return store.get(DATA_KEY)||(typeof DADOS_PADRAO!=='undefined'?DADOS_PADRAO:sampleData())}
 
 /* ================= divisões ================= */
@@ -22,6 +22,7 @@ const startBalance=(div,s)=>Math.round(({A:10+(s-60)*1.5,B:Math.max(2,3+(s-55)*0
 const MOVE_N=()=>Math.min(4,...divisions().map(d=>S.clubs.filter(c=>divOf(c)===d).length-1));
 
 function newGame(clubId){
+  if(!podeCriarSave())return;
   const data=getData();
   const clubs=JSON.parse(JSON.stringify(data.clubs));
   for(const c of clubs){
