@@ -12,6 +12,7 @@
     "escudos": "node scripts/baixar-escudos.mjs",
     "dados:c": "node --env-file=.env scripts/baixar-brasileirao.mjs --serie=c --temporada=2024",
     "dados:d": "node --env-file=.env scripts/baixar-brasileirao.mjs --serie=d --temporada=2024",
+    "posicoes": "node scripts/baixar-posicoes.mjs",
     "notas": "node --env-file=.env scripts/baixar-notas.mjs"
   }
 }
