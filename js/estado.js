@@ -5,7 +5,8 @@ let view='clube';
 let lastRound=null; // resultados da última rodada
 const userClub=()=>S.clubs.find(c=>c.id===S.userClubId);
 const clubById=id=>S.clubs.find(c=>c.id===id);
-function reindex(){P={};for(const c of S.clubs)for(const p of c.players){p.clubId=c.id;P[p.id]=p}}
+function reindex(){if(S&&S.seed==null){S.seed=novaSemente();S.rng=S.seed} // saves antigos ganham semente
+  P={};for(const c of S.clubs)for(const p of c.players){p.clubId=c.id;P[p.id]=p}}
 function save(){if(S)salvarJogo()} // js/saves.js: grava no save da campanha atual
 function getData(){return store.get(DATA_KEY)||(typeof DADOS_PADRAO!=='undefined'?DADOS_PADRAO:sampleData())}
 
@@ -33,7 +34,8 @@ function newGame(clubId){
     c.players.forEach(p=>{p.ovr=rate(p,ref);refreshEconomics(p);p.goals=0;p.listed=false});
     c.formation='4-4-2';
   }
-  S={posv:2,season:data.season||2026,dataSource:data.source,round:0,userClubId:clubId,clubs,
+  const seed=novaSemente();
+  S={seed,rng:seed,posv:2,season:data.season||2026,dataSource:data.source,round:0,userClubId:clubId,clubs,
      fixtures:makeAllFixtures(clubs),news:[],offers:[],fin:[],history:[]};
   reindex();
   const uc=userClub();
