@@ -1,0 +1,8 @@
+{
+  "_fonte": "Wikipédia pt (Campeonato Brasileiro de Futebol de 2026 - Série A/B/C/D), conferida em 2026-11-12. Ids = c<id da API-Football>.",
+  "A": ["c118","c119","c120","c121","c124","c126","c127","c130","c131","c133","c134","c135","c136","c794","c1062","c132","c147","c1198","c7848","c128"],
+  "B": ["c125","c13975","c144","c145","c2618","c129","c146","c140","c1193","c154","c151","c152","c148","c755","c7834","c1223","c139","c7865","c123","c142"],
+  "C": ["c10862","c7852","c1197","c1211","c7770","c7772","c7826","c137","c7774","c138","c1201","c2204","c7779","c7832","c7833","c149","c7814","c1221","c150","c754"],
+  "D": ["c13098","c2208","c7787","c15505","c18308","c7782","c12946","c7835","c1203","c2214","c1194","c141","c2233","c7862","c18831","c155","c1195","c1202","c2227","c2232"],
+  "_divergencias": "Barra-SC e Santa Cruz (Série C 2026) não existem nos dados e a API-Football está suspensa, então CSA (c150) e ABC (c754) ficam na Série C no lugar deles. Princesa Solimões e Itabuna ficam na D sem confirmação de que estão na D 2026 (a lista tem 96 clubes e o jogo usa 20)."
+}
