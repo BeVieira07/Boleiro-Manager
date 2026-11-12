@@ -53,6 +53,7 @@ function vClube(){
      <h3>Últimos jogos</h3><table>${last.map(g=>resultLine(g)).join('')||'<tr><td class="muted">—</td></tr>'}</table></div>
   </div>
   ${offers.length?`<div class="card"><h3>Propostas recebidas</h3><table>${offers.map(o=>`<tr><td>${esc(P[o.pid].name)}</td><td>${esc(clubById(o.from).name)}</td><td class="n">${money(o.amount)}</td><td class="muted">valor ${money(P[o.pid].value)}</td><td><button class="btn sm" onclick="acceptOffer('${o.id}')">Aceitar</button> <button class="btn sec sm" onclick="rejectOffer('${o.id}')">Recusar</button></td></tr>`).join('')}</table></div>`:''}
+  ${painelDiretoria()}
   ${painelTatica()}
   <div class="card"><h3>Notícias</h3><ul class="news">${S.news.slice(0,12).map(n=>`<li>${esc(n.t)}</li>`).join('')}</ul></div>
   ${S.history.length?(()=>{const ch=h=>h.champs||{A:h.champ,...(h.champB?{B:h.champB}:{})};const hd=[...new Set(S.history.flatMap(h=>Object.keys(ch(h))))].sort(),many=hd.length>1;

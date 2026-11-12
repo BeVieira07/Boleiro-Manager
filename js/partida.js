@@ -45,7 +45,7 @@ function seasonEnd(){
   const champs=divisions().map(d=>({d,c:clubById(table(d)[0].id)}));
   const top=topScorers(1,divisions()[0])[0];
   S.history.unshift({season:S.season,champ:champs[0].c.name,champs:Object.fromEntries(champs.map(x=>[x.d,x.c.name])),me:pos,div,scorer:top?`${top.name} (${top.goals})`:'-'});
-  S.seasonClosed=S.season;save();
+  confiancaFimTemporada(pos);S.seasonClosed=S.season;save();
   const fate=!two?(pos>=17?'<p class="bad">Seu time terminou na zona de rebaixamento… a diretoria está de olho!</p>':'')
     :di<ds.length-1&&pos>T.length-mv?`<p class="bad">⬇️ Seu time foi rebaixado para a ${DIVS[ds[di+1]]}.</p>`
     :di>0&&pos<=mv?`<p class="ok">⬆️ Acesso! Seu time vai disputar a ${DIVS[ds[di-1]]}.</p>`:'';
@@ -79,7 +79,7 @@ function newSeason(){
     }
     c.players=keep;ensureSquad(c);
   }
-  S.season++;S.round=0;S.fixtures=makeAllFixtures(S.clubs);S.offers=[];
+  S.season++;confiancaNovaTemporada();S.round=0;S.fixtures=makeAllFixtures(S.clubs);S.offers=[];
   reindex();
   const uc=userClub();uc.lineup=getXI(uc);if(uc.lineup.length<11)uc.lineup=autoXI(uc);
   addNews(`📅 Começa a temporada ${S.season}!`);save();view='clube';render();
