@@ -11,7 +11,7 @@ function resumoSave(s){
 function salvarJogo(){
   if(!S)return true;
   const idx=indiceSaves();
-  if(!S.saveId)S.saveId=Date.now().toString(36)+Math.floor(rnd()*1e4).toString(36);
+  if(!S.saveId)S.saveId=Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36); // id do save não é regra do jogo
   if(!store.set(SAVE_PREFIX+S.saveId,S)){
     if(!salvarJogo.avisou)alert('Não há espaço para salvar no navegador. Exclua um jogo salvo na tela inicial (ou exporte e apague algum).');
     salvarJogo.avisou=true;return false;

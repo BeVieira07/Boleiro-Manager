@@ -51,6 +51,7 @@ function playRound(){
   if(S.demitido){demissao();return}
   if(S.round>=S.fixtures.length)return;
   const err=validateLineup();if(err){alert(err);view='escalacao';render();return}
+  S.rng=semente(S.seed,S.season,S.round); // a rodada depende só do estado e das escolhas, não do que foi sorteado antes
   const games=S.fixtures[S.round].map(simulate);
   aplicarDisponibilidade(games);
   atualizarForma(games);
@@ -72,7 +73,7 @@ function playRound(){
     if(rnd()<0.35){
       const buyers=S.clubs.filter(c=>c.id!==uc.id&&c.players.length<32);
       if(buyers.length){const b=pick(buyers);const amt=Math.round(p.value*(0.75+rnd()*0.5)*10)/10;
-        S.offers.push({id:'o'+Date.now()+Math.floor(rnd()*1e4),pid:p.id,from:b.id,amount:amt,until:S.round+3});
+        S.offers.push({id:'o'+S.season+'_'+S.round+'_'+p.id,pid:p.id,from:b.id,amount:amt,until:S.round+3});
         addNews(`💼 ${b.name} ofereceu ${money(amt)} por ${p.name}.`);}
     }
   }

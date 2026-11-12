@@ -7,7 +7,17 @@ const store={
 };
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function hashStr(s){let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
-const rnd=Math.random;
+// Sorteio com semente (#26): as regras usam rnd(), que avança S.rng (estado do gerador mulberry32 guardado no jogo).
+// Mesmo estado + mesmas entradas = mesmo resultado. Cada rodada recomeça de semente(S.seed, temporada, rodada).
+// Sem jogo carregado (S nulo) cai no Math.random, que só serve para coisas fora das regras.
+function rnd(){
+  if(typeof S==='undefined'||!S||S.rng==null)return Math.random();
+  const a=S.rng=(S.rng+0x6D2B79F5)|0;
+  let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return((t^t>>>14)>>>0)/4294967296;
+}
+const semente=(...partes)=>hashStr(partes.join('|'))|0;
+const novaSemente=()=>(Math.random()*4294967296)|0; // único uso de Math.random ligado às regras: a semente de uma campanha nova
 const ri=(a,b,r=rnd)=>a+Math.floor(r()*(b-a+1));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const pick=(arr,r=rnd)=>arr[Math.floor(r()*arr.length)];
