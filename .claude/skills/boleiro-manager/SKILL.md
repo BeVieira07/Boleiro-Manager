@@ -11,6 +11,7 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 - Repositório: `BeVieira07/Boleiro-Manager`. Usar a conta **BeVieira07** (o `gh` tem outras contas logadas).
 - Commitar e dar push no `main` com a BeVieira07, **sem** `Co-Authored-By` do Claude.
 - Issues: criar com `gh issue create --repo BeVieira07/Boleiro-Manager`, com título curto, descrição (contexto, proposta, critérios de aceite) e label (`enhancement`, `bug`, `documentation`). Mostrar o rascunho antes de criar, salvo quando o pedido já for explícito. Tarefas independentes viram issues separadas.
+- **Issues numeradas:** o título começa com o número sequencial da issue, no formato `N. Título` (ex.: `5. Adicionar Copa do Brasil`). O número é o próximo do repositório: ver o último com `gh issue list --repo BeVieira07/Boleiro-Manager --state all --limit 1` e somar 1. Ao criar várias de uma vez, numerar em sequência. As #1 a #4 foram criadas antes desta regra e estão sem número no título.
 - Issues abertas: #1 empréstimo de jogadores, #2 escalar o time, #3 estilos de jogo e modo ataque/defesa, #4 posições detalhadas (zagueiro/lateral, volante/meia). A #4 é base da #2 e da #3.
 
 ## Onde ficam os dados (já persistidos no git)
