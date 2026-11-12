@@ -21,9 +21,9 @@ function aplicarDisponibilidade(games){
 }
 // vagas detalhadas de cada formação, em ordem: goleiro, defesa, meio, ataque (mesmas contagens de FORMS)
 const SLOTS={
- '4-4-2':'GOL LD ZAG ZAG LE VOL MEI MEI MAT CEN CEN','4-3-3':'GOL LD ZAG ZAG LE VOL MEI MAT PON CEN PON',
- '3-5-2':'GOL ZAG ZAG ZAG VOL VOL MEI MEI MAT CEN CEN','4-5-1':'GOL LD ZAG ZAG LE VOL VOL MEI MEI MAT CEN',
- '5-3-2':'GOL LD ZAG ZAG ZAG LE VOL MEI MAT CEN CEN','3-4-3':'GOL ZAG ZAG ZAG VOL MEI MEI MAT PON CEN PON'
+ '4-4-2':'GOL LD ZAG ZAG LE VOL MC MC MEI ATA ATA','4-3-3':'GOL LD ZAG ZAG LE VOL MC MEI PE ATA PD',
+ '3-5-2':'GOL ZAG ZAG ZAG VOL VOL MC MC MEI ATA ATA','4-5-1':'GOL LD ZAG ZAG LE VOL VOL MC MC MEI ATA',
+ '5-3-2':'GOL LD ZAG ZAG ZAG LE VOL MC MEI ATA ATA','3-4-3':'GOL ZAG ZAG ZAG VOL MC MC MEI PE ATA PD'
 };
 for(const k in SLOTS)SLOTS[k]=SLOTS[k].split(' ');
 const slotsDe=f=>SLOTS[f]||SLOTS['4-4-2'];
@@ -101,6 +101,6 @@ function vEscalacao(){
   <p class="muted">Clique em um jogador e depois em outro para trocar (titular com titular, ou titular com reserva). Lesionados e suspensos não podem entrar.</p>
   <div class="cols">
     <div class="campo">${rows}</div>
-    <div class="card tw"><h3>Reservas (${bench.length})</h3><table>${bench.map(p=>{const u=unavailable(p);return `<tr class="${selEsc===p.id?'me':''}" style="cursor:pointer;${u?'opacity:.55':''}" onclick="clickEsc('${p.id}')"><td><span class="pos ${p.pos}">${POSL[p.pos]}</span></td><td>${esc(p.name)}</td><td class="n ovr">${p.ovr}</td><td class="${u?'bad':'muted'}">${u?'🩹 '+u:''}</td></tr>`}).join('')}</table></div>
+    <div class="card tw"><h3>Reservas (${bench.length})</h3><table>${bench.map(p=>{const u=unavailable(p);return `<tr class="${selEsc===p.id?'me':''}" style="cursor:pointer;${u?'opacity:.55':''}" onclick="clickEsc('${p.id}')"><td><span class="pos ${p.pos}">${posDSigla(p)}</span></td><td>${esc(p.name)}</td><td class="n ovr">${p.ovr}</td><td class="${u?'bad':'muted'}">${u?'🩹 '+u:''}</td></tr>`}).join('')}</table></div>
   </div>`;
 }

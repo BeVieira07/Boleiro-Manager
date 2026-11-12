@@ -99,8 +99,8 @@ console.log(`Escudos: ${locais}/${clubs.length} usando arquivo local.`);
 /* ================= 4. posições detalhadas reais ================= */
 // Ordem: 1. data/posicoes-manual.json (à mão)  2. data/posicoes-<ano>.json (npm run posicoes: Transfermarkt)  3. inferência (js/posicoes.js), só para quem sobrar.
 const hashStr = s => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619) } return h >>> 0 };
-const GRUPO = { GOL: 'G', ZAG: 'D', LD: 'D', LE: 'D', VOL: 'M', MEI: 'M', MAT: 'M', PON: 'A', CEN: 'A' };
-const TM = { 'Goalkeeper': 'GOL', 'Centre-Back': 'ZAG', 'Right-Back': 'LD', 'Left-Back': 'LE', 'Defensive Midfield': 'VOL', 'Central Midfield': 'MEI', 'Attacking Midfield': 'MAT', 'Right Midfield': 'MEI', 'Left Midfield': 'MEI', 'Right Winger': 'PON', 'Left Winger': 'PON', 'Centre-Forward': 'CEN', 'Second Striker': 'MAT' };
+const GRUPO = { GOL: 'G', ZAG: 'D', LD: 'D', LE: 'D', VOL: 'M', MC: 'M', MEI: 'M', PE: 'A', PD: 'A', ATA: 'A' };
+const TM = { 'Goalkeeper': 'GOL', 'Centre-Back': 'ZAG', 'Right-Back': 'LD', 'Left-Back': 'LE', 'Defensive Midfield': 'VOL', 'Central Midfield': 'MC', 'Attacking Midfield': 'MEI', 'Right Midfield': 'MC', 'Left Midfield': 'MC', 'Right Winger': 'PD', 'Left Winger': 'PE', 'Centre-Forward': 'ATA', 'Second Striker': 'MEI' };
 let reais = 0, trocouGrupo = 0, manualPos = 0;
 const pendentes = {};
 const pf = `data/posicoes-${ANO}.json`, pos = existsSync(pf) ? ler(pf) : null;
@@ -162,6 +162,6 @@ for (const c of clubs) atribuirPosicoes(c.players);
 for (const c of clubs) for (const p of c.players) delete p.real;
 console.log(`Posições: ${clubs.reduce((s, c) => s + c.players.filter(p => p.pd).length, 0)}/${ids.size} jogadores com posição detalhada.`);
 
-const data = { source: 'api', season: a.season, createdAt: a.createdAt, clubs };
+const data = { posv: 2, source: 'api', season: a.season, createdAt: a.createdAt, clubs };
 writeFileSync('js/dados-padrao.js', `// Dados padrão do jogo (API-Football), temporada ${a.season}. NÃO EDITE: gerado por scripts/gerar-dados-padrao.mjs a partir de data/.\nconst DADOS_PADRAO=${JSON.stringify(data)};\n`);
 console.log(`js/dados-padrao.js: ${Object.entries(series).map(([d, x]) => `Série ${d} ${x.clubs.length} clubes`).join(' + ')}, ${ids.size} jogadores.`);

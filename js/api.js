@@ -126,7 +126,7 @@ function loadSaveFile(ev){
   rd.onload=()=>{try{const j=JSON.parse(rd.result);const sv=j.type==='brasfoot-save'?j.save:j;
     if(!sv||!Array.isArray(sv.clubs)||!Array.isArray(sv.fixtures)||!sv.userClubId)throw 0;
     if(S&&!confirm('Substituir o jogo atual por este save?'))return;
-    S=sv;reindex();save();view='clube';render();alert(`Save carregado: ${userClub().name}, temporada ${S.season}, rodada ${S.round+1}.`)}
+    S=sv;migrarPosicoes(S);reindex();save();view='clube';render();alert(`Save carregado: ${userClub().name}, temporada ${S.season}, rodada ${S.round+1}.`)}
   catch(e){alert('Arquivo de save inválido.')}};
   rd.readAsText(f);
 }

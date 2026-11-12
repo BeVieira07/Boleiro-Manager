@@ -29,7 +29,7 @@ function loanForm(pid,mode){
   const clubSel=mode==='out'?`<label>Emprestar para <select id="lnClub">${S.clubs.filter(c=>c.id!==uc.id).sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label>`
     :`<p>Clube de origem: <b>${esc(clubById(p.clubId).name)}</b></p>`;
   openModal(`<h2>Empréstimo — ${esc(p.name)}</h2>
-   <p class="muted">${POSL[p.pos]} · força ${p.ovr} · valor ${money(p.value)} · salário ${money(p.wage)}/rod.</p>
+   <p class="muted">${posDSigla(p)} · força ${p.ovr} · valor ${money(p.value)} · salário ${money(p.wage)}/rod.</p>
    <div class="row" style="flex-direction:column;align-items:flex-start;gap:10px">${clubSel}
    <label>Duração <select id="lnDur">${durs.map(n=>`<option value="${n}">${n===left?'Até o fim da temporada ('+n+' rod.)':n+' rodadas'}</option>`).join('')}</select></label>
    <label>Quem paga o salário <select id="lnPay"><option value="to">${mode==='out'?'Clube que recebe':'Eu (clube que recebe)'}</option><option value="from">${mode==='out'?'Eu (clube que cede)':'Clube que cede'}</option></select></label>
@@ -102,7 +102,7 @@ function buyLoaned(pid){
 function vLoans(){
   const uc=userClub(),inn=loansIn(uc),out=loansOut(uc);
   if(!inn.length&&!out.length)return '';
-  const row=(l,isIn)=>{const p=P[l.pid];return `<tr><td><span class="pos ${p.pos}">${POSL[p.pos]}</span> ${esc(p.name)}</td><td class="n ovr">${p.ovr}</td><td>${isIn?'de '+esc(clubById(l.from).name):'para '+esc(clubById(l.to).name)}</td><td>até a rodada ${l.until} (${loanLeft(l)} rod.)</td><td>Salário: ${l.payer==='from'?'clube que cede':'clube que recebe'}</td><td>${l.buy?'Opção de compra '+money(l.buy)+(isIn?` <button class="btn sm" onclick="buyLoaned('${l.pid}')">Comprar</button>`:''):'Sem opção de compra'}</td></tr>`};
+  const row=(l,isIn)=>{const p=P[l.pid];return `<tr><td><span class="pos ${p.pos}">${posDSigla(p)}</span> ${esc(p.name)}</td><td class="n ovr">${p.ovr}</td><td>${isIn?'de '+esc(clubById(l.from).name):'para '+esc(clubById(l.to).name)}</td><td>até a rodada ${l.until} (${loanLeft(l)} rod.)</td><td>Salário: ${l.payer==='from'?'clube que cede':'clube que recebe'}</td><td>${l.buy?'Opção de compra '+money(l.buy)+(isIn?` <button class="btn sm" onclick="buyLoaned('${l.pid}')">Comprar</button>`:''):'Sem opção de compra'}</td></tr>`};
   return `<div class="card tw"><h3>Empréstimos</h3>
    ${inn.length?`<p class="muted">Emprestados ao meu clube</p><table>${inn.map(l=>row(l,true)).join('')}</table>`:''}
    ${out.length?`<p class="muted">Emprestados pelo meu clube</p><table>${out.map(l=>row(l,false)).join('')}</table>`:''}</div>`;

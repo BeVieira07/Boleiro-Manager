@@ -16,6 +16,6 @@ function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function norm(s){return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()}
 function money(m){const neg=m<0;m=Math.abs(m);const s=m>=1?'R$ '+m.toFixed(1).replace('.',',')+' mi':'R$ '+Math.round(m*1000)+' mil';return (neg?'-':'')+s}
 function poisson(l){const L=Math.exp(-l);let k=0,p=1;do{k++;p*=rnd()}while(p>L);return k-1}
-const POSL={G:'GOL',D:'DEF',M:'MEI',A:'ATA'}, PORD={G:0,D:1,M:2,A:3};
+const PORD={G:0,D:1,M:2,A:3};
 const FORMS={'4-4-2':[4,4,2],'4-3-3':[4,3,3],'3-5-2':[3,5,2],'4-5-1':[4,5,1],'5-3-2':[5,3,2],'3-4-3':[3,4,3]};
 
