@@ -64,8 +64,8 @@ function vElenco(){
   const uc=userClub(),xi=getXI(uc),ps=[...uc.players].sort((a,b)=>POSD_ORDEM.indexOf(posDSigla(a))-POSD_ORDEM.indexOf(posDSigla(b))||b.ovr-a.ovr);
   return `<h2>Elenco — ${esc(uc.name)}</h2>
   <p class="muted">Titulares (linha destacada), reservas e formação são definidos na tela de Escalação.</p>
-  <div class="card tw"><table><tr><th>Pos</th><th>#</th><th>Nome</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Gols</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th>Mercado</th></tr>
-  ${ps.map(p=>`<tr${xi.includes(p.id)?' class="me"':''}><td>${posTag(p)}</td><td class="muted">${p.number??''}</td><td>${esc(p.name)}${loanTag(p)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${p.goals||0}</td>
+  <div class="card tw"><table><tr><th>Pos</th><th>#</th><th>Nome</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Tend.</th><th class="n">Gols</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th>Mercado</th></tr>
+  ${ps.map(p=>`<tr${xi.includes(p.id)?' class="me"':''}><td>${posTag(p)}</td><td class="muted">${p.number??''}</td><td>${esc(p.name)}${loanTag(p)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${tendenciaTag(p)}</td><td class="n">${p.goals||0}</td>
    <td class="n">${money(p.value)}</td><td class="n">${money(p.wage)}</td>
    <td>${loanOf(p.id)?'':`<button class="btn sm ${p.listed?'red':'sec'}" onclick="toggleListed('${p.id}')">${p.listed?'À venda ✓':'Pôr à venda'}</button> <button class="btn sec sm" onclick="quickSell('${p.id}')">Vender já</button> `}${loanBtn(p,'out')}</td></tr>`).join('')}
   </table></div>${vLoans()}`;
