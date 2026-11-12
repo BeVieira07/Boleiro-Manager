@@ -62,5 +62,6 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 
 ## Posições detalhadas (#4)
 - `p.pos` continua sendo o grupo (G/D/M/A); `p.pd` é a posição detalhada (GOL, ZAG, LD, LE, VOL, MEI, MAT, PON, CEN) e `p.ps` as secundárias. Tudo em `js/posicoes.js`.
-- A API só traz o grupo; `npm run dados:padrao` atribui `pd`/`ps` pela camisa e pelo equilíbrio do elenco. Saves e dados antigos são migrados no carregamento (`migrarPosicoes`).
+- A API só traz o grupo. As posições reais vêm do Transfermarkt (#10): `npm run posicoes` baixa o elenco detalhado de cada clube para `data/posicoes-2024.json` (retomável, com pausa entre pedidos; os clubes que não casam por nome entram em `data/posicoes-clubes.json` como `"<id do jogo>": <id do Transfermarkt>`). O elenco baixado é o ATUAL (`--saison=2025`), porque a API devolve o elenco atual.
+- `npm run dados:padrao` aplica, nesta ordem: `data/posicoes-manual.json` (à mão: `"Clube": {"Nome": "ZAG"}`, com secundárias opcionais, ex.: `"LD LE"`), as posições reais do Transfermarkt e, só para quem sobrar, a inferência pela camisa e pelo equilíbrio do elenco. Quem ficou na inferência está em `data/posicoes-pendentes.json`. Se a posição real mudar o grupo, `p.pos` acompanha. Saves e dados antigos são migrados no carregamento (`migrarPosicoes`).
 - Para escalar: `penalidadePosicao(p, slot)` devolve `{pen, tipo, aviso}` e `ovrNaPosicao(p, slot)` o overall já penalizado.
