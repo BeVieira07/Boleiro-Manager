@@ -54,7 +54,8 @@ function vClube(){
   </div>
   ${offers.length?`<div class="card"><h3>Propostas recebidas</h3><table>${offers.map(o=>`<tr><td>${esc(P[o.pid].name)}</td><td>${esc(clubById(o.from).name)}</td><td class="n">${money(o.amount)}</td><td class="muted">valor ${money(P[o.pid].value)}</td><td><button class="btn sm" onclick="acceptOffer('${o.id}')">Aceitar</button> <button class="btn sec sm" onclick="rejectOffer('${o.id}')">Recusar</button></td></tr>`).join('')}</table></div>`:''}
   <div class="card"><h3>Notícias</h3><ul class="news">${S.news.slice(0,12).map(n=>`<li>${esc(n.t)}</li>`).join('')}</ul></div>
-  ${S.history.length?(()=>{const hb=S.history.some(h=>h.champB);return `<div class="card"><h3>Histórico</h3><table><tr><th>Temporada</th><th>Campeão${hb?' Série A':''}</th>${hb?'<th>Campeão Série B</th>':''}<th>Sua posição</th><th>Artilheiro</th></tr>${S.history.map(h=>`<tr><td>${h.season}</td><td>${esc(h.champ)}</td>${hb?`<td>${esc(h.champB||'-')}</td>`:''}<td>${h.me}º${hb&&h.div?' ('+DIVS[h.div]+')':''}</td><td>${esc(h.scorer)}</td></tr>`).join('')}</table></div>`})():''}`;
+  ${S.history.length?(()=>{const ch=h=>h.champs||{A:h.champ,...(h.champB?{B:h.champB}:{})};const hd=[...new Set(S.history.flatMap(h=>Object.keys(ch(h))))].sort(),many=hd.length>1;
+   return `<div class="card"><h3>Histórico</h3><table><tr><th>Temporada</th>${hd.map(x=>`<th>Campeão${many?' '+DIVS[x]:''}</th>`).join('')}<th>Sua posição</th><th>Artilheiro</th></tr>${S.history.map(h=>`<tr><td>${h.season}</td>${hd.map(x=>`<td>${esc(ch(h)[x]||'-')}</td>`).join('')}<td>${h.me}º${many&&h.div?' ('+DIVS[h.div]+')':''}</td><td>${esc(h.scorer)}</td></tr>`).join('')}</table></div>`})():''}`;
 }
 function setFormation(f){const uc=userClub();uc.formation=f;save();render()}
 function autoLineup(){const uc=userClub();uc.lineup=autoXI(uc);save();render()}
@@ -86,9 +87,10 @@ function vElenco(){
 }
 function vTabela(){
   const d=curDiv(),T=table(d),me=S.userClubId,two=hasTwoDivs(),mv=two?MOVE_N():4;
-  const top=d==='B'?mv:6,bottom=d==='B'?0:mv;
+  const ds=divisions(),di=ds.indexOf(d),last=di===ds.length-1;
+  const top=di===0?6:mv,bottom=!two?4:last?0:mv;
   return `<h2>Classificação — ${two?DIVS[d]+' ':'Brasileirão '}${S.season}</h2>${divTabs()}
-  <p class="muted"><span style="color:var(--info)">▌</span> ${d==='B'?`Acesso à Série A (G${mv})`:'Libertadores (G6)'}${bottom?` &nbsp; <span style="color:var(--danger)">▌</span> Rebaixamento (Z${mv})`:''}</p>
+  <p class="muted"><span style="color:var(--info)">▌</span> ${di===0?'Libertadores (G6)':`Acesso à ${DIVS[ds[di-1]]} (G${mv})`}${bottom?` &nbsp; <span style="color:var(--danger)">▌</span> Rebaixamento${two?' para a '+DIVS[ds[di+1]]:''} (Z${bottom})`:''}</p>
   <div class="card tw"><table><tr><th>#</th><th>Clube</th><th class="n">Pts</th><th class="n">J</th><th class="n">V</th><th class="n">E</th><th class="n">D</th><th class="n">GP</th><th class="n">GC</th><th class="n">SG</th></tr>
   ${T.map((t,i)=>{const c=clubById(t.id);return `<tr class="${t.id===me?'me':''}"><td class="${i<top?'zone-lib':bottom&&i>=T.length-bottom?'zone-z4':''}">${i+1}</td><td><span class="club">${crest(c)} ${esc(c.name)}</span></td><td class="n"><b>${t.Pts}</b></td><td class="n">${t.J}</td><td class="n">${t.V}</td><td class="n">${t.E}</td><td class="n">${t.D}</td><td class="n">${t.GP}</td><td class="n">${t.GC}</td><td class="n">${t.GP-t.GC}</td></tr>`}).join('')}
   </table></div>`;
@@ -164,9 +166,9 @@ function vDados(){
    <div class="row">${S?'<button class="btn" onclick="exportSave()">Exportar save (JSON)</button>':''}
    <label class="btn sec">Importar save<input type="file" accept=".json" style="display:none" onchange="loadSaveFile(event)"></label></div></div>
   <div class="card"><h3>Importar da API-Football</h3>
-   <p class="muted">Busca os times da série escolhida (Série A = liga 71, Série B = liga 72), a classificação (para calibrar a força) e o elenco de cada clube. A série importada substitui só ela mesma nos dados atuais, então dá para importar a Série A e depois a Série B. São cerca de 22 a 27 requisições. Se o seu plano não liberar a temporada, a Série A é montada com os 20 clubes de 2026 e os elencos atuais. A Série B precisa de uma temporada liberada (no plano gratuito, de 2022 a 2024). No plano gratuito o limite é de 10 por minuto, por isso há uma pausa entre elas e a importação leva uns 3 a 4 minutos. As requisições saem do seu navegador direto para a API.</p>
+   <p class="muted">Busca os times da série escolhida (Série A = liga 71, Série B = liga 72, Série C = liga 75), a classificação (para calibrar a força) e o elenco de cada clube. A série importada substitui só ela mesma nos dados atuais, então dá para importar a Série A e depois a Série B. São cerca de 22 a 27 requisições. Se o seu plano não liberar a temporada, a Série A é montada com os 20 clubes de 2026 e os elencos atuais. As Séries B e C precisam de uma temporada liberada (no plano gratuito, de 2022 a 2024). No plano gratuito o limite é de 10 por minuto, por isso há uma pausa entre elas e a importação leva uns 3 a 4 minutos. As requisições saem do seu navegador direto para a API.</p>
    <div class="row"><input id="apikey" type="password" placeholder="Sua chave x-apisports-key" style="flex:1;min-width:220px" value="${esc(k)}">
-    <label>Série <select id="serie"><option value="A">Série A</option><option value="B">Série B</option></select></label>
+    <label>Série <select id="serie"><option value="A">Série A</option><option value="B">Série B</option><option value="C">Série C</option></select></label>
     <label>Temporada <input id="season" type="number" value="${d.season||2026}" style="width:90px"></label>
     <label>Pausa (s) <input id="delay" type="number" value="7" style="width:70px"></label>
     <label><input id="remember" type="checkbox" ${k?'checked':''}> lembrar chave</label>

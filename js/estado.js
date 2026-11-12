@@ -10,12 +10,15 @@ function save(){if(S)store.set(SAVE_KEY,S)}
 function getData(){return store.get(DATA_KEY)||(typeof DADOS_PADRAO!=='undefined'?DADOS_PADRAO:sampleData())}
 
 /* ================= divisões ================= */
-const DIVS={A:'Série A',B:'Série B'};
+const DIVS={A:'Série A',B:'Série B',C:'Série C'};
 const divOf=c=>(c&&c.division)||'A';
 const divsOf=clubs=>[...new Set(clubs.map(divOf))].sort();
 const divisions=()=>divsOf(S.clubs);
 const hasTwoDivs=()=>divisions().length>1;
-const tvQuota=div=>div==='B'?0.5:1.2;
+const tvQuota=div=>({A:1.2,B:0.5,C:0.2})[div];
+// premiação de fim de temporada e caixa inicial, por série
+const seasonPrize=(div,pos)=>Math.round(({A:5+(20-pos)*2.1,B:1+(20-pos)*0.5,C:0.3+(20-pos)*0.15})[div]*10)/10;
+const startBalance=(div,s)=>Math.round(({A:10+(s-60)*1.5,B:Math.max(2,3+(s-55)*0.5),C:Math.max(1,1.5+(s-50)*0.2)})[div]*10)/10;
 const MOVE_N=()=>Math.min(4,...divisions().map(d=>S.clubs.filter(c=>divOf(c)===d).length-1));
 
 function newGame(clubId){
@@ -30,7 +33,7 @@ function newGame(clubId){
      fixtures:makeAllFixtures(clubs),news:[],offers:[],fin:[],history:[]};
   reindex();
   const uc=userClub();
-  S.balance=divOf(uc)==='B'?Math.round(Math.max(2,3+(uc.strength-55)*0.5)*10)/10:Math.round((10+(uc.strength-60)*1.5)*10)/10;
+  S.balance=startBalance(divOf(uc),uc.strength);
   uc.lineup=autoXI(uc);
   addNews(`Você assumiu o comando do ${uc.name}! Caixa inicial: ${money(S.balance)}.`);
   save(); view='clube'; render();

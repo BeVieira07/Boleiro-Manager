@@ -36,16 +36,15 @@ function closeModal(){document.getElementById('modal').style.display='none'}
 function seasonEnd(){
   if(S.seasonClosed===S.season)return;
   const uc=userClub(),div=divOf(uc),T=table(div),pos=T.findIndex(t=>t.id===uc.id)+1,two=hasTwoDivs(),mv=MOVE_N();
-  const prize=div==='B'?Math.round((1+(20-pos)*0.5)*10)/10:Math.round((5+(20-pos)*2.1)*10)/10;
+  const prize=seasonPrize(div,pos),ds=divisions(),di=ds.indexOf(div);
   addFin(`Premiação ${DIVS[div]} — ${pos}º lugar`,prize);
   const champs=divisions().map(d=>({d,c:clubById(table(d)[0].id)}));
   const top=topScorers(1,divisions()[0])[0];
-  const champA=champs[0].c,champB=two?champs[1].c:null;
-  S.history.unshift({season:S.season,champ:champA.name,champB:champB?champB.name:null,me:pos,div,scorer:top?`${top.name} (${top.goals})`:'-'});
+  S.history.unshift({season:S.season,champ:champs[0].c.name,champs:Object.fromEntries(champs.map(x=>[x.d,x.c.name])),me:pos,div,scorer:top?`${top.name} (${top.goals})`:'-'});
   S.seasonClosed=S.season;save();
   const fate=!two?(pos>=17?'<p class="bad">Seu time terminou na zona de rebaixamento… a diretoria está de olho!</p>':'')
-    :div==='A'&&pos>T.length-mv?'<p class="bad">⬇️ Seu time foi rebaixado para a Série B.</p>'
-    :div==='B'&&pos<=mv?'<p class="ok">⬆️ Acesso! Seu time vai disputar a Série A.</p>':'';
+    :di<ds.length-1&&pos>T.length-mv?`<p class="bad">⬇️ Seu time foi rebaixado para a ${DIVS[ds[di+1]]}.</p>`
+    :di>0&&pos<=mv?`<p class="ok">⬆️ Acesso! Seu time vai disputar a ${DIVS[ds[di-1]]}.</p>`:'';
   openModal(`<h2>🏆 Fim da temporada ${S.season}</h2>
    ${champs.map(x=>`<p>Campeão${two?' da '+DIVS[x.d]:''}: <b class="gold">${esc(x.c.name)}</b></p>`).join('')}
    <p>Seu time terminou em <b>${pos}º lugar</b>${two?' na '+DIVS[div]:''} e recebeu ${money(prize)} de premiação.</p>
@@ -55,11 +54,14 @@ function seasonEnd(){
 }
 function newSeason(){
   const r=rnd;
-  if(hasTwoDivs()){ // acesso e rebaixamento, com base na tabela final
-    const n=MOVE_N(),down=table('A').slice(-n).map(t=>clubById(t.id)),up=table('B').slice(0,n).map(t=>clubById(t.id));
-    down.forEach(c=>c.division='B');up.forEach(c=>c.division='A');
-    addNews(`⬆️ Sobem para a Série A: ${up.map(c=>c.name).join(', ')}.`);
-    addNews(`⬇️ Caem para a Série B: ${down.map(c=>c.name).join(', ')}.`);
+  if(hasTwoDivs()){ // acesso e rebaixamento entre séries vizinhas, com base nas tabelas finais
+    const ds=divisions(),n=MOVE_N(),moves=[];
+    for(let i=0;i<ds.length-1;i++)moves.push({hi:ds[i],lo:ds[i+1],down:table(ds[i]).slice(-n).map(t=>clubById(t.id)),up:table(ds[i+1]).slice(0,n).map(t=>clubById(t.id))});
+    for(const m of moves){ // aplica só depois de calcular todas as tabelas
+      m.down.forEach(c=>c.division=m.lo);m.up.forEach(c=>c.division=m.hi);
+      addNews(`⬆️ Sobem para a ${DIVS[m.hi]}: ${m.up.map(c=>c.name).join(', ')}.`);
+      addNews(`⬇️ Caem para a ${DIVS[m.lo]}: ${m.down.map(c=>c.name).join(', ')}.`);
+    }
   }
   for(const c of S.clubs){
     const keep=[];

@@ -28,6 +28,7 @@ const SQUAD_SHAPE={G:3,D:8,M:9,A:6};
 
 function baseInfo(apiName){
   const n=norm(apiName);
+  if(/botafogo.*(sp|pb)\b/.test(n))return null; // homônimos de outros estados não são o Botafogo da Série A
   for(const b of BASE_CLUBS){ if(b[4].some(k=>n.includes(k))) return b; }
   return null;
 }

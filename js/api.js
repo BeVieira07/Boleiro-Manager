@@ -12,7 +12,7 @@ async function apiGet(path,key){
 async function importFromApi(){
   const key=document.getElementById('apikey').value.replace(/[^A-Za-z0-9]/g,'');
   const season=parseInt(document.getElementById('season').value,10);
-  const serie=document.getElementById('serie').value==='B'?'B':'A',league=serie==='B'?72:71;
+  const LEAGUES={A:71,B:72,C:75},serie=LEAGUES[document.getElementById('serie').value]?document.getElementById('serie').value:'A',league=LEAGUES[serie];
   const delay=parseInt(document.getElementById('delay').value,10)*1000;
   const log=document.getElementById('implog'),bar=document.getElementById('impbar');
   const out=t=>{log.insertAdjacentHTML('beforeend',`<div>${esc(t)}</div>`);log.scrollTop=1e9};
@@ -30,8 +30,8 @@ async function importFromApi(){
         const rows=st.response?.[0]?.league?.standings?.[0]||[];rows.forEach(r=>rank[r.team.id]=r.rank);
         out(rows.length?'Classificação obtida — força dos times ajustada pela tabela.':'Sem classificação disponível.');}
       catch(e){out('Classificação indisponível: '+e.message)}
-    }else if(serie==='B'){
-      throw new Error(`Seu plano não libera a Série B ${season}. Tente uma temporada liberada (no plano gratuito, de 2022 a 2024).`);
+    }else if(serie!=='A'){
+      throw new Error(`Seu plano não libera a ${DIVS[serie]} ${season}. Tente uma temporada liberada (no plano gratuito, de 2022 a 2024).`);
     }else{
       out('Seu plano não libera essa temporada. Vou montar a Série A 2026 (20 clubes) com os ELENCOS ATUAIS, que não dependem de temporada.');
       let known=[];
@@ -58,9 +58,10 @@ async function importFromApi(){
     const clubs=[];
     for(let i=0;i<list.length;i++){
       const {t,b}=list[i];
-      // Série B: força base menor (64, ou a da Série A menos 4 para clubes conhecidos)
-      let strength=serie==='B'?(b?b[2]-4:64):(b?b[2]:68);
-      if(t&&rank[t.id]&&Object.values(rank).length>=10){const fromRank=serie==='B'?70-(rank[t.id]-1)*0.5:80-(rank[t.id]-1)*0.8;strength=Math.round((strength+fromRank)/2)}
+      // força base por série: B = 64 (ou a da Série A menos 4 para clubes conhecidos), C = 59 (ou menos 9)
+      const DROP={A:0,B:4,C:9},BASE={A:68,B:64,C:59},TOP={A:80,B:70,C:64},STEP={A:0.8,B:0.5,C:0.4};
+      let strength=b?b[2]-DROP[serie]:BASE[serie];
+      if(t&&rank[t.id]&&Object.values(rank).length>=10){const fromRank=TOP[serie]-(rank[t.id]-1)*STEP[serie];strength=Math.round((strength+fromRank)/2)}
       const club={id:'c'+(t?t.id:b[1]),name:b?b[0]:t.name,short:((t&&t.code)||(b&&b[1])||t.name.slice(0,3)).toUpperCase(),color:b?b[3]:'#335',logo:t?t.logo:null,strength,division:serie,players:[]};
       if(t){await sleep(delay);
       try{
@@ -92,13 +93,13 @@ function mergeDivision(cur,inc,div){
   const ids=new Set(inc.clubs.map(c=>c.id));
   inc.clubs.forEach(c=>c.division=div);
   const kept=(cur.clubs||[]).filter(c=>divOf(c)!==div&&!ids.has(c.id));
-  return {...inc,clubs:div==='B'?[...kept,...inc.clubs]:[...inc.clubs,...kept]};
+  return {...inc,clubs:[...kept,...inc.clubs].sort((x,y)=>divOf(x).localeCompare(divOf(y)))};
 }
 function loadDataFile(ev){
   const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
   rd.onload=()=>{try{let d=JSON.parse(rd.result);if(!Array.isArray(d.clubs))throw 0;
     const fd=divsOf(d.clubs),cur=getData(),other=divsOf(cur.clubs).filter(x=>x!==fd[0]);
-    if(fd.length===1&&other.length&&confirm(`Este arquivo só tem a ${DIVS[fd[0]]}. Juntar com a ${DIVS[other[0]]} que já está carregada?\n(Cancelar = usar só este arquivo)`))d=mergeDivision(cur,d,fd[0]);
+    if(fd.length===1&&other.length&&confirm(`Este arquivo só tem a ${DIVS[fd[0]]}. Juntar com o que já está carregado (${other.map(x=>DIVS[x]).join(', ')})?\n(Cancelar = usar só este arquivo)`))d=mergeDivision(cur,d,fd[0]);
     store.set(DATA_KEY,d);alert(`Dados carregados: ${d.clubs.length} clubes (${d.season}).`);render()}catch(e){alert('Arquivo inválido.')}};
   rd.readAsText(f);
 }
@@ -117,6 +118,6 @@ function loadSaveFile(ev){
   catch(e){alert('Arquivo de save inválido.')}};
   rd.readAsText(f);
 }
-function resetData(){if(confirm('Voltar para os dados padrão (Séries A e B 2024)?')){store.del(DATA_KEY);render()}}
+function resetData(){if(confirm('Voltar para os dados padrão (Brasileirão 2024)?')){store.del(DATA_KEY);render()}}
 function resetGame(){if(confirm('Apagar o jogo salvo e começar de novo?')){store.del(SAVE_KEY);S=null;view='inicio';render()}}
 
