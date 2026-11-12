@@ -1,0 +1,3571 @@
+{
+ "source": "api",
+ "season": 2024,
+ "createdAt": "2026-11-12T01:06:03.900Z",
+ "clubs": [
+  {
+   "id": "c13098",
+   "name": "Retrô",
+   "short": "RET",
+   "color": "#c8102e",
+   "logo": "https://media.api-sports.io/football/teams/13098.png",
+   "strength": 57,
+   "division": "D",
+   "players": [
+    {
+     "id": "p9731",
+     "name": "Jefferson Paulino",
+     "age": 34,
+     "pos": "G",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/9731.png"
+    },
+    {
+     "id": "p54001",
+     "name": "Paulo Ricardo",
+     "age": 29,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/54001.png"
+    },
+    {
+     "id": "p458955",
+     "name": "Helter Danillo",
+     "age": 21,
+     "pos": "D",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/458955.png"
+    },
+    {
+     "id": "p33233",
+     "name": "Dankler",
+     "age": 34,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/33233.png"
+    },
+    {
+     "id": "p54227",
+     "name": "David Junio",
+     "age": 31,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/54227.png"
+    },
+    {
+     "id": "p632065",
+     "name": "Guilherme",
+     "age": 23,
+     "pos": "D",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/632065.png"
+    },
+    {
+     "id": "p115521",
+     "name": "Israel",
+     "age": 32,
+     "pos": "D",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/115521.png"
+    },
+    {
+     "id": "p317740",
+     "name": "João Rafael",
+     "age": 23,
+     "pos": "D",
+     "number": 13,
+     "photo": "https://media.api-sports.io/football/players/317740.png"
+    },
+    {
+     "id": "p106607",
+     "name": "Lucas Sampaio",
+     "age": 30,
+     "pos": "D",
+     "number": 18,
+     "photo": "https://media.api-sports.io/football/players/106607.png"
+    },
+    {
+     "id": "p402972",
+     "name": "Diego Guerra",
+     "age": 19,
+     "pos": "M",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/402972.png"
+    },
+    {
+     "id": "p238296",
+     "name": "Kady",
+     "age": 30,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/238296.png"
+    },
+    {
+     "id": "p54702",
+     "name": "Luiz Henrique",
+     "age": 29,
+     "pos": "M",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/54702.png"
+    },
+    {
+     "id": "p314535",
+     "name": "Murilo",
+     "age": 20,
+     "pos": "M",
+     "number": 25,
+     "photo": "https://media.api-sports.io/football/players/314535.png"
+    },
+    {
+     "id": "p588187",
+     "name": "Kevin Rivas",
+     "age": 21,
+     "pos": "M",
+     "number": 29,
+     "photo": "https://media.api-sports.io/football/players/588187.png"
+    },
+    {
+     "id": "p633447",
+     "name": "Gustavo de Macedo Silva Aquino",
+     "age": 18,
+     "pos": "M",
+     "number": 28,
+     "photo": "https://media.api-sports.io/football/players/633447.png"
+    },
+    {
+     "id": "p576700",
+     "name": "Bruno Marques",
+     "age": 26,
+     "pos": "A",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/576700.png"
+    },
+    {
+     "id": "p633448",
+     "name": "Cacau",
+     "age": 17,
+     "pos": "A",
+     "number": 30,
+     "photo": "https://media.api-sports.io/football/players/633448.png"
+    },
+    {
+     "id": "p12828",
+     "name": "Fernandinho",
+     "age": 40,
+     "pos": "A",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/12828.png"
+    },
+    {
+     "id": "p576847",
+     "name": "Joabe",
+     "age": 19,
+     "pos": "A",
+     "number": 23,
+     "photo": "https://media.api-sports.io/football/players/576847.png"
+    }
+   ]
+  },
+  {
+   "id": "c7852",
+   "name": "Anápolis",
+   "short": "ANA",
+   "color": "#c8102e",
+   "logo": "https://media.api-sports.io/football/teams/7852.png",
+   "strength": 57,
+   "division": "D",
+   "players": [
+    {
+     "id": "p576839",
+     "name": "Marcio Defendi",
+     "age": 21,
+     "pos": "G",
+     "number": 31,
+     "photo": "https://media.api-sports.io/football/players/576839.png"
+    },
+    {
+     "id": "p576801",
+     "name": "Ravel Pelegrini",
+     "age": 30,
+     "pos": "G",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/576801.png"
+    },
+    {
+     "id": "p195979",
+     "name": "Victor Hugo",
+     "age": 25,
+     "pos": "G",
+     "number": 23,
+     "photo": "https://media.api-sports.io/football/players/195979.png"
+    },
+    {
+     "id": "p575342",
+     "name": "Carioca",
+     "age": 25,
+     "pos": "D",
+     "number": 30,
+     "photo": "https://media.api-sports.io/football/players/575342.png"
+    },
+    {
+     "id": "p662854",
+     "name": "Danilo Regio",
+     "age": 22,
+     "pos": "D",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/662854.png"
+    },
+    {
+     "id": "p671192",
+     "name": "Espanhol",
+     "age": 26,
+     "pos": "D",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/671192.png"
+    },
+    {
+     "id": "p632622",
+     "name": "Helder",
+     "age": 25,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/632622.png"
+    },
+    {
+     "id": "p576750",
+     "name": "Igor Souza",
+     "age": 29,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/576750.png"
+    },
+    {
+     "id": "p9205",
+     "name": "Leonan",
+     "age": 30,
+     "pos": "D",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/9205.png"
+    },
+    {
+     "id": "p157447",
+     "name": "Rafael Costa",
+     "age": 25,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/157447.png"
+    },
+    {
+     "id": "p576691",
+     "name": "Rubinho",
+     "age": 22,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/576691.png"
+    },
+    {
+     "id": "p646713",
+     "name": "Vitinho",
+     "age": 28,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/646713.png"
+    },
+    {
+     "id": "p80666",
+     "name": "Cássio Gabriel",
+     "age": 33,
+     "pos": "M",
+     "number": 26,
+     "photo": "https://media.api-sports.io/football/players/80666.png"
+    },
+    {
+     "id": "p576811",
+     "name": "Gabriel Batista",
+     "age": 21,
+     "pos": "M",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/576811.png"
+    },
+    {
+     "id": "p588179",
+     "name": "Gharib",
+     "age": 26,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/588179.png"
+    },
+    {
+     "id": "p67200",
+     "name": "Giva",
+     "age": 26,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/67200.png"
+    },
+    {
+     "id": "p576706",
+     "name": "Joao Borim",
+     "age": 23,
+     "pos": "M",
+     "number": 41,
+     "photo": "https://media.api-sports.io/football/players/576706.png"
+    },
+    {
+     "id": "p636662",
+     "name": "Henrique Jose",
+     "age": 18,
+     "pos": "M",
+     "number": 29,
+     "photo": "https://media.api-sports.io/football/players/636662.png"
+    },
+    {
+     "id": "p635807",
+     "name": "Guilherme Kauan",
+     "age": 21,
+     "pos": "M",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/635807.png"
+    },
+    {
+     "id": "p350425",
+     "name": "Lucas Mila",
+     "age": 22,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/350425.png"
+    },
+    {
+     "id": "p54759",
+     "name": "Samuel",
+     "age": 26,
+     "pos": "M",
+     "number": 28,
+     "photo": "https://media.api-sports.io/football/players/54759.png"
+    },
+    {
+     "id": "p576774",
+     "name": "Vinicius Lucas",
+     "age": 33,
+     "pos": "M",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/576774.png"
+    },
+    {
+     "id": "p576740",
+     "name": "Fernandinho",
+     "age": 22,
+     "pos": "A",
+     "number": 11,
+     "photo": "https://media.api-sports.io/football/players/576740.png"
+    },
+    {
+     "id": "p9761",
+     "name": "Fernando Viana",
+     "age": 33,
+     "pos": "A",
+     "number": 19,
+     "photo": "https://media.api-sports.io/football/players/9761.png"
+    },
+    {
+     "id": "p166726",
+     "name": "Gustavo Henrique",
+     "age": 27,
+     "pos": "A",
+     "number": 27,
+     "photo": "https://media.api-sports.io/football/players/166726.png"
+    },
+    {
+     "id": "p576704",
+     "name": "Joao Vitor",
+     "age": 27,
+     "pos": "A",
+     "number": 19,
+     "photo": "https://media.api-sports.io/football/players/576704.png"
+    },
+    {
+     "id": "p354075",
+     "name": "William",
+     "age": 23,
+     "pos": "A",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/354075.png"
+    }
+   ]
+  },
+  {
+   "id": "c7833",
+   "name": "Maringá",
+   "short": "MRG",
+   "color": "#c9a400",
+   "logo": "https://media.api-sports.io/football/teams/7833.png",
+   "strength": 57,
+   "division": "D",
+   "players": [
+    {
+     "id": "p567234",
+     "name": "G. Affonso de Jesus",
+     "age": 26,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/567234.png"
+    },
+    {
+     "id": "p576814",
+     "name": "Neto",
+     "age": 30,
+     "pos": "G",
+     "number": 25,
+     "photo": "https://media.api-sports.io/football/players/576814.png"
+    },
+    {
+     "id": "p633495",
+     "name": "Romario",
+     "age": 25,
+     "pos": "G",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/633495.png"
+    },
+    {
+     "id": "p576734",
+     "name": "Caua Tavares",
+     "age": 21,
+     "pos": "D",
+     "number": 32,
+     "photo": "https://media.api-sports.io/football/players/576734.png"
+    },
+    {
+     "id": "p631763",
+     "name": "Felipe",
+     "age": 21,
+     "pos": "D",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/631763.png"
+    },
+    {
+     "id": "p567160",
+     "name": "Gabriel Santos",
+     "age": 24,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/567160.png"
+    },
+    {
+     "id": "p409398",
+     "name": "Gabriel",
+     "age": 23,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/409398.png"
+    },
+    {
+     "id": "p32947",
+     "name": "Jesiel",
+     "age": 31,
+     "pos": "D",
+     "number": 44,
+     "photo": "https://media.api-sports.io/football/players/32947.png"
+    },
+    {
+     "id": "p576747",
+     "name": "Jhow Alecxander",
+     "age": 22,
+     "pos": "D",
+     "number": 18,
+     "photo": "https://media.api-sports.io/football/players/576747.png"
+    },
+    {
+     "id": "p657906",
+     "name": "Keven",
+     "age": 23,
+     "pos": "D",
+     "number": 13,
+     "photo": "https://media.api-sports.io/football/players/657906.png"
+    },
+    {
+     "id": "p576720",
+     "name": "Ronald Carvalho",
+     "age": 25,
+     "pos": "D",
+     "number": 30,
+     "photo": "https://media.api-sports.io/football/players/576720.png"
+    },
+    {
+     "id": "p304069",
+     "name": "Thiago Rosa",
+     "age": 23,
+     "pos": "D",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/304069.png"
+    },
+    {
+     "id": "p238496",
+     "name": "Adeilson Maranhão",
+     "age": 27,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/238496.png"
+    },
+    {
+     "id": "p457505",
+     "name": "Bruno Cheron",
+     "age": 21,
+     "pos": "M",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/457505.png"
+    },
+    {
+     "id": "p351485",
+     "name": "Daniel",
+     "age": 23,
+     "pos": "M",
+     "number": 11,
+     "photo": "https://media.api-sports.io/football/players/351485.png"
+    },
+    {
+     "id": "p339807",
+     "name": "Iago Santana",
+     "age": 26,
+     "pos": "M",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/339807.png"
+    },
+    {
+     "id": "p196596",
+     "name": "Kelvi",
+     "age": 23,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/196596.png"
+    },
+    {
+     "id": "p576677",
+     "name": "Lucas Bonifacio",
+     "age": 24,
+     "pos": "M",
+     "number": 28,
+     "photo": "https://media.api-sports.io/football/players/576677.png"
+    },
+    {
+     "id": "p301692",
+     "name": "Paulinho",
+     "age": 27,
+     "pos": "M",
+     "number": 23,
+     "photo": "https://media.api-sports.io/football/players/301692.png"
+    },
+    {
+     "id": "p33222",
+     "name": "Serginho",
+     "age": 35,
+     "pos": "M",
+     "number": 37,
+     "photo": "https://media.api-sports.io/football/players/33222.png"
+    },
+    {
+     "id": "p197447",
+     "name": "Caíque",
+     "age": 25,
+     "pos": "A",
+     "number": 99,
+     "photo": "https://media.api-sports.io/football/players/197447.png"
+    },
+    {
+     "id": "p281082",
+     "name": "Edison Negueba",
+     "age": 25,
+     "pos": "A",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/281082.png"
+    },
+    {
+     "id": "p54821",
+     "name": "Giovane Gomes",
+     "age": 30,
+     "pos": "A",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/54821.png"
+    },
+    {
+     "id": "p306260",
+     "name": "Gui Pira",
+     "age": 26,
+     "pos": "A",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/306260.png"
+    },
+    {
+     "id": "p576675",
+     "name": "Julio Rodrigues",
+     "age": 24,
+     "pos": "A",
+     "number": 19,
+     "photo": "https://media.api-sports.io/football/players/576675.png"
+    },
+    {
+     "id": "p364465",
+     "name": "Pedrinho",
+     "age": 22,
+     "pos": "A",
+     "number": 35,
+     "photo": "https://media.api-sports.io/football/players/364465.png"
+    },
+    {
+     "id": "p404741",
+     "name": "Rafael",
+     "age": 25,
+     "pos": "A",
+     "number": 77,
+     "photo": "https://media.api-sports.io/football/players/404741.png"
+    },
+    {
+     "id": "p372607",
+     "name": "Rai",
+     "age": 21,
+     "pos": "A",
+     "number": 29,
+     "photo": "https://media.api-sports.io/football/players/372607.png"
+    },
+    {
+     "id": "p610985",
+     "name": "Rian Patric",
+     "age": 19,
+     "pos": "A",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/610985.png"
+    },
+    {
+     "id": "p291510",
+     "name": "Ronald Camarão",
+     "age": 25,
+     "pos": "A",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/291510.png"
+    }
+   ]
+  },
+  {
+   "id": "c2204",
+   "name": "Itabaiana",
+   "short": "IBA",
+   "color": "#0057a8",
+   "logo": "https://media.api-sports.io/football/teams/2204.png",
+   "strength": 57,
+   "division": "D",
+   "players": [
+    {
+     "id": "p159917",
+     "name": "Geaze",
+     "age": 31,
+     "pos": "G",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/159917.png"
+    },
+    {
+     "id": "p70892",
+     "name": "Jefferson",
+     "age": 32,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/70892.png"
+    },
+    {
+     "id": "p576755",
+     "name": "Leo Souza",
+     "age": 36,
+     "pos": "G",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/576755.png"
+    },
+    {
+     "id": "p643710",
+     "name": "William",
+     "age": 19,
+     "pos": "G",
+     "number": 33,
+     "photo": "https://media.api-sports.io/football/players/643710.png"
+    },
+    {
+     "id": "p651676",
+     "name": "L. F. Andrade",
+     "age": 20,
+     "pos": "D",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/651676.png"
+    },
+    {
+     "id": "p576671",
+     "name": "Betao",
+     "age": 34,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/576671.png"
+    },
+    {
+     "id": "p180920",
+     "name": "Caio",
+     "age": 26,
+     "pos": "D",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/180920.png"
+    },
+    {
+     "id": "p435445",
+     "name": "Gustavo Cintra",
+     "age": 20,
+     "pos": "D",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/435445.png"
+    },
+    {
+     "id": "p576821",
+     "name": "Gustavo Fagundes",
+     "age": 24,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/576821.png"
+    },
+    {
+     "id": "p567064",
+     "name": "Isaque",
+     "age": 24,
+     "pos": "D",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/567064.png"
+    },
+    {
+     "id": "p504973",
+     "name": "Júlio Henrique",
+     "age": 23,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/504973.png"
+    },
+    {
+     "id": "p668067",
+     "name": "Julio Lima",
+     "age": 28,
+     "pos": "D",
+     "number": 23,
+     "photo": "https://media.api-sports.io/football/players/668067.png"
+    },
+    {
+     "id": "p9456",
+     "name": "Ligger",
+     "age": 37,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/9456.png"
+    },
+    {
+     "id": "p328655",
+     "name": "Lucão",
+     "age": 28,
+     "pos": "D",
+     "number": 13,
+     "photo": "https://media.api-sports.io/football/players/328655.png"
+    },
+    {
+     "id": "p54229",
+     "name": "Manoel",
+     "age": 29,
+     "pos": "D",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/54229.png"
+    },
+    {
+     "id": "p33465",
+     "name": "Tito",
+     "age": 28,
+     "pos": "D",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/33465.png"
+    },
+    {
+     "id": "p310710",
+     "name": "Cleiton",
+     "age": 27,
+     "pos": "M",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/310710.png"
+    },
+    {
+     "id": "p9500",
+     "name": "Dione",
+     "age": 32,
+     "pos": "M",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/9500.png"
+    },
+    {
+     "id": "p576806",
+     "name": "Dudu",
+     "age": 17,
+     "pos": "M",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/576806.png"
+    },
+    {
+     "id": "p588666",
+     "name": "Dyego",
+     "age": 22,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/588666.png"
+    },
+    {
+     "id": "p623532",
+     "name": "Fabricio Moura",
+     "age": 21,
+     "pos": "M",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/623532.png"
+    },
+    {
+     "id": "p576779",
+     "name": "Gustavo Crecci",
+     "age": 30,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/576779.png"
+    },
+    {
+     "id": "p619390",
+     "name": "Lucas Bessa",
+     "age": 26,
+     "pos": "M",
+     "number": 23,
+     "photo": "https://media.api-sports.io/football/players/619390.png"
+    },
+    {
+     "id": "p10358",
+     "name": "Renatinho",
+     "age": 33,
+     "pos": "M",
+     "number": 11,
+     "photo": "https://media.api-sports.io/football/players/10358.png"
+    },
+    {
+     "id": "p159822",
+     "name": "Tarcísio",
+     "age": 33,
+     "pos": "M",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/159822.png"
+    },
+    {
+     "id": "p550390",
+     "name": "Valdenilson",
+     "age": 25,
+     "pos": "A",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/550390.png"
+    },
+    {
+     "id": "p576713",
+     "name": "Elimar",
+     "age": 27,
+     "pos": "A",
+     "number": 18,
+     "photo": "https://media.api-sports.io/football/players/576713.png"
+    },
+    {
+     "id": "p567112",
+     "name": "Everton Kanela",
+     "age": 29,
+     "pos": "A",
+     "number": 19,
+     "photo": "https://media.api-sports.io/football/players/567112.png"
+    },
+    {
+     "id": "p108457",
+     "name": "Leilson",
+     "age": 33,
+     "pos": "A",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/108457.png"
+    },
+    {
+     "id": "p544939",
+     "name": "Luan Silva",
+     "age": 33,
+     "pos": "A",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/544939.png"
+    },
+    {
+     "id": "p80483",
+     "name": "Rodrigo Alves",
+     "age": 30,
+     "pos": "A",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/80483.png"
+    },
+    {
+     "id": "p642493",
+     "name": "Vitinho",
+     "age": 16,
+     "pos": "A",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/642493.png"
+    }
+   ]
+  },
+  {
+   "id": "c2208",
+   "name": "Brasiliense",
+   "short": "BSE",
+   "color": "#c9a400",
+   "logo": "https://media.api-sports.io/football/teams/2208.png",
+   "strength": 56,
+   "division": "D",
+   "players": [
+    {
+     "id": "p276733",
+     "name": "Keynan",
+     "age": 30,
+     "pos": "D",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/276733.png"
+    },
+    {
+     "id": "p115495",
+     "name": "Allan Dias",
+     "age": 35,
+     "pos": "M",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/115495.png"
+    },
+    {
+     "id": "p459706",
+     "name": "Kaua",
+     "age": 21,
+     "pos": "M",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/459706.png"
+    },
+    {
+     "id": "p9357",
+     "name": "Elyeser",
+     "age": 35,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/9357.png"
+    },
+    {
+     "id": "p159760",
+     "name": "Gui Mendes",
+     "age": 25,
+     "pos": "M",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/159760.png"
+    },
+    {
+     "id": "p10450",
+     "name": "Apodi",
+     "age": 39,
+     "pos": "A",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/10450.png"
+    },
+    {
+     "id": "p689",
+     "name": "Dentinho",
+     "age": 36,
+     "pos": "A",
+     "number": 31,
+     "photo": "https://media.api-sports.io/football/players/689.png"
+    },
+    {
+     "id": "p307451",
+     "name": "Yan",
+     "age": 22,
+     "pos": "A",
+     "number": 19,
+     "photo": "https://media.api-sports.io/football/players/307451.png"
+    }
+   ]
+  },
+  {
+   "id": "c7787",
+   "name": "Treze",
+   "short": "TRE",
+   "color": "#111",
+   "logo": "https://media.api-sports.io/football/teams/7787.png",
+   "strength": 56,
+   "division": "D",
+   "players": [
+    {
+     "id": "p636650",
+     "name": "Davi Marcos",
+     "age": 21,
+     "pos": "G",
+     "number": 33,
+     "photo": "https://media.api-sports.io/football/players/636650.png"
+    },
+    {
+     "id": "p80705",
+     "name": "Bruno Ré",
+     "age": 36,
+     "pos": "D",
+     "number": 19,
+     "photo": "https://media.api-sports.io/football/players/80705.png"
+    },
+    {
+     "id": "p402723",
+     "name": "Caio Gomes",
+     "age": 23,
+     "pos": "D",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/402723.png"
+    },
+    {
+     "id": "p640890",
+     "name": "Diego Clemente",
+     "age": 32,
+     "pos": "D",
+     "number": 23,
+     "photo": "https://media.api-sports.io/football/players/640890.png"
+    },
+    {
+     "id": "p636026",
+     "name": "Pianco Juninho",
+     "age": 20,
+     "pos": "D",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/636026.png"
+    },
+    {
+     "id": "p344882",
+     "name": "Luan",
+     "age": 22,
+     "pos": "D",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/344882.png"
+    },
+    {
+     "id": "p635345",
+     "name": "Mateus Neto",
+     "age": 18,
+     "pos": "D",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/635345.png"
+    },
+    {
+     "id": "p664873",
+     "name": "Barbosa Matheus",
+     "age": 26,
+     "pos": "D",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/664873.png"
+    },
+    {
+     "id": "p237693",
+     "name": "Natan Masiero",
+     "age": 23,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/237693.png"
+    },
+    {
+     "id": "p404796",
+     "name": "Renilson",
+     "age": 22,
+     "pos": "D",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/404796.png"
+    },
+    {
+     "id": "p349000",
+     "name": "Ryan",
+     "age": 22,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/349000.png"
+    },
+    {
+     "id": "p54079",
+     "name": "Yan",
+     "age": 26,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/54079.png"
+    },
+    {
+     "id": "p636649",
+     "name": "Lukaku Douglas",
+     "age": 23,
+     "pos": "M",
+     "number": 19,
+     "photo": "https://media.api-sports.io/football/players/636649.png"
+    },
+    {
+     "id": "p636973",
+     "name": "Lucas Gomes Vieira",
+     "age": 30,
+     "pos": "M",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/636973.png"
+    },
+    {
+     "id": "p576596",
+     "name": "Gustavo Petrocelli",
+     "age": 25,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/576596.png"
+    },
+    {
+     "id": "p635339",
+     "name": "Marquinhos",
+     "age": 31,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/635339.png"
+    },
+    {
+     "id": "p54939",
+     "name": "Thiago Alagoano",
+     "age": 36,
+     "pos": "M",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/54939.png"
+    },
+    {
+     "id": "p195519",
+     "name": "Vinicius Bala",
+     "age": 28,
+     "pos": "M",
+     "number": 18,
+     "photo": "https://media.api-sports.io/football/players/195519.png"
+    },
+    {
+     "id": "p576792",
+     "name": "Brinquedo",
+     "age": 23,
+     "pos": "A",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/576792.png"
+    },
+    {
+     "id": "p96389",
+     "name": "Buba",
+     "age": 32,
+     "pos": "A",
+     "number": 11,
+     "photo": "https://media.api-sports.io/football/players/96389.png"
+    },
+    {
+     "id": "p544935",
+     "name": "Dioran",
+     "age": 22,
+     "pos": "A",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/544935.png"
+    },
+    {
+     "id": "p9504",
+     "name": "Jean Carlo",
+     "age": 32,
+     "pos": "A",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/9504.png"
+    },
+    {
+     "id": "p54610",
+     "name": "Pedro Maycon",
+     "age": 31,
+     "pos": "A",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/54610.png"
+    },
+    {
+     "id": "p567065",
+     "name": "Rafael Tanque",
+     "age": 33,
+     "pos": "A",
+     "number": 99,
+     "photo": "https://media.api-sports.io/football/players/567065.png"
+    }
+   ]
+  },
+  {
+   "id": "c15505",
+   "name": "Iguatu",
+   "short": "IGU",
+   "color": "#c8102e",
+   "logo": "https://media.api-sports.io/football/teams/15505.png",
+   "strength": 56,
+   "division": "D",
+   "players": [
+    {
+     "id": "p289269",
+     "name": "Geferson",
+     "age": 28,
+     "pos": "G",
+     "number": 38,
+     "photo": "https://media.api-sports.io/football/players/289269.png"
+    },
+    {
+     "id": "p159874",
+     "name": "Ytalo",
+     "age": 25,
+     "pos": "G",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/159874.png"
+    },
+    {
+     "id": "p631990",
+     "name": "Ze Rafael",
+     "age": 23,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/631990.png"
+    },
+    {
+     "id": "p238098",
+     "name": "Biel Potiguar",
+     "age": 28,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/238098.png"
+    },
+    {
+     "id": "p10414",
+     "name": "Diguinho",
+     "age": 24,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/10414.png"
+    },
+    {
+     "id": "p631975",
+     "name": "Eric",
+     "age": 25,
+     "pos": "D",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/631975.png"
+    },
+    {
+     "id": "p456698",
+     "name": "João Pedro",
+     "age": 21,
+     "pos": "D",
+     "number": 13,
+     "photo": "https://media.api-sports.io/football/players/456698.png"
+    },
+    {
+     "id": "p672059",
+     "name": "Marquinhos",
+     "age": 22,
+     "pos": "D",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/672059.png"
+    },
+    {
+     "id": "p633548",
+     "name": "Tafinha",
+     "age": 22,
+     "pos": "D",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/633548.png"
+    },
+    {
+     "id": "p53978",
+     "name": "Talisson Calcinha",
+     "age": 28,
+     "pos": "D",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/53978.png"
+    },
+    {
+     "id": "p402678",
+     "name": "Menezes",
+     "age": 23,
+     "pos": "M",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/402678.png"
+    },
+    {
+     "id": "p403691",
+     "name": "Danilo",
+     "age": 25,
+     "pos": "M",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/403691.png"
+    },
+    {
+     "id": "p664865",
+     "name": "Joao Neto",
+     "age": 21,
+     "pos": "M",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/664865.png"
+    },
+    {
+     "id": "p353718",
+     "name": "Pedrinho",
+     "age": 24,
+     "pos": "M",
+     "number": 18,
+     "photo": "https://media.api-sports.io/football/players/353718.png"
+    },
+    {
+     "id": "p115493",
+     "name": "Rogério",
+     "age": 39,
+     "pos": "M",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/115493.png"
+    },
+    {
+     "id": "p631979",
+     "name": "Uchoa",
+     "age": 24,
+     "pos": "M",
+     "number": 23,
+     "photo": "https://media.api-sports.io/football/players/631979.png"
+    },
+    {
+     "id": "p55125",
+     "name": "Victor Salvador",
+     "age": 31,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/55125.png"
+    },
+    {
+     "id": "p631978",
+     "name": "Ze Oliveira",
+     "age": 26,
+     "pos": "M",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/631978.png"
+    },
+    {
+     "id": "p657200",
+     "name": "J. Klaivert",
+     "age": 22,
+     "pos": "A",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/657200.png"
+    },
+    {
+     "id": "p631997",
+     "name": "Leandrinho",
+     "age": 25,
+     "pos": "A",
+     "number": 18,
+     "photo": "https://media.api-sports.io/football/players/631997.png"
+    },
+    {
+     "id": "p644347",
+     "name": "Marcos Otacilio",
+     "age": 30,
+     "pos": "A",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/644347.png"
+    }
+   ]
+  },
+  {
+   "id": "c1201",
+   "name": "Inter de Limeira",
+   "short": "ILI",
+   "color": "#c8102e",
+   "logo": "https://media.api-sports.io/football/teams/1201.png",
+   "strength": 56,
+   "division": "D",
+   "players": [
+    {
+     "id": "p278346",
+     "name": "Emerson Júnior",
+     "age": 25,
+     "pos": "G",
+     "number": 23,
+     "photo": "https://media.api-sports.io/football/players/278346.png"
+    },
+    {
+     "id": "p656780",
+     "name": "Pedro Nagel",
+     "age": 23,
+     "pos": "G",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/656780.png"
+    },
+    {
+     "id": "p54073",
+     "name": "Renan",
+     "age": 28,
+     "pos": "G",
+     "number": 24,
+     "photo": "https://media.api-sports.io/football/players/54073.png"
+    },
+    {
+     "id": "p80732",
+     "name": "Saulo",
+     "age": 40,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/80732.png"
+    },
+    {
+     "id": "p632718",
+     "name": "Adryel Itaqui",
+     "age": 22,
+     "pos": "D",
+     "number": 28,
+     "photo": "https://media.api-sports.io/football/players/632718.png"
+    },
+    {
+     "id": "p44629",
+     "name": "Alemão",
+     "age": 35,
+     "pos": "D",
+     "number": 44,
+     "photo": "https://media.api-sports.io/football/players/44629.png"
+    },
+    {
+     "id": "p10427",
+     "name": "Gabriel Dias",
+     "age": 31,
+     "pos": "D",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/10427.png"
+    },
+    {
+     "id": "p658040",
+     "name": "Juan Tavares",
+     "age": 24,
+     "pos": "D",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/658040.png"
+    },
+    {
+     "id": "p408664",
+     "name": "Léo Paraíso",
+     "age": 25,
+     "pos": "D",
+     "number": 34,
+     "photo": "https://media.api-sports.io/football/players/408664.png"
+    },
+    {
+     "id": "p197457",
+     "name": "Lucas Santos",
+     "age": 32,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/197457.png"
+    },
+    {
+     "id": "p462430",
+     "name": "Nassom",
+     "age": 22,
+     "pos": "D",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/462430.png"
+    },
+    {
+     "id": "p195327",
+     "name": "Robson",
+     "age": 32,
+     "pos": "D",
+     "number": 30,
+     "photo": "https://media.api-sports.io/football/players/195327.png"
+    },
+    {
+     "id": "p53936",
+     "name": "Vidal",
+     "age": 29,
+     "pos": "D",
+     "number": 27,
+     "photo": "https://media.api-sports.io/football/players/53936.png"
+    },
+    {
+     "id": "p634506",
+     "name": "Yan Silva",
+     "age": 29,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/634506.png"
+    },
+    {
+     "id": "p196097",
+     "name": "Claudinho",
+     "age": 25,
+     "pos": "M",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/196097.png"
+    },
+    {
+     "id": "p55095",
+     "name": "Emerson Santos",
+     "age": 33,
+     "pos": "M",
+     "number": 31,
+     "photo": "https://media.api-sports.io/football/players/55095.png"
+    },
+    {
+     "id": "p403910",
+     "name": "Fabrício Dias",
+     "age": 21,
+     "pos": "M",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/403910.png"
+    },
+    {
+     "id": "p197368",
+     "name": "Gabriel Santiago",
+     "age": 25,
+     "pos": "M",
+     "number": 27,
+     "photo": "https://media.api-sports.io/football/players/197368.png"
+    },
+    {
+     "id": "p10062",
+     "name": "Gustavo Bochecha",
+     "age": 29,
+     "pos": "M",
+     "number": 11,
+     "photo": "https://media.api-sports.io/football/players/10062.png"
+    },
+    {
+     "id": "p299140",
+     "name": "Heitor Roca",
+     "age": 27,
+     "pos": "M",
+     "number": 29,
+     "photo": "https://media.api-sports.io/football/players/299140.png"
+    },
+    {
+     "id": "p576777",
+     "name": "Lucas Buchecha",
+     "age": 25,
+     "pos": "M",
+     "number": 25,
+     "photo": "https://media.api-sports.io/football/players/576777.png"
+    },
+    {
+     "id": "p635001",
+     "name": "Luiz Guilherme",
+     "age": 22,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/635001.png"
+    },
+    {
+     "id": "p10035",
+     "name": "Marco Antônio",
+     "age": 28,
+     "pos": "M",
+     "number": 26,
+     "photo": "https://media.api-sports.io/football/players/10035.png"
+    },
+    {
+     "id": "p633240",
+     "name": "Romarinho",
+     "age": 31,
+     "pos": "M",
+     "number": 35,
+     "photo": "https://media.api-sports.io/football/players/633240.png"
+    },
+    {
+     "id": "p9572",
+     "name": "Ronaldo",
+     "age": 31,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/9572.png"
+    },
+    {
+     "id": "p9224",
+     "name": "Felipe Saraiva",
+     "age": 27,
+     "pos": "A",
+     "number": 98,
+     "photo": "https://media.api-sports.io/football/players/9224.png"
+    },
+    {
+     "id": "p419844",
+     "name": "Getúlio",
+     "age": 28,
+     "pos": "A",
+     "number": 99,
+     "photo": "https://media.api-sports.io/football/players/419844.png"
+    },
+    {
+     "id": "p27043",
+     "name": "Miguel Bianconi",
+     "age": 33,
+     "pos": "A",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/27043.png"
+    },
+    {
+     "id": "p576781",
+     "name": "Rafael Oller",
+     "age": 30,
+     "pos": "A",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/576781.png"
+    },
+    {
+     "id": "p634228",
+     "name": "Richard",
+     "age": 24,
+     "pos": "A",
+     "number": 32,
+     "photo": "https://media.api-sports.io/football/players/634228.png"
+    },
+    {
+     "id": "p54710",
+     "name": "Robinho",
+     "age": 27,
+     "pos": "A",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/54710.png"
+    },
+    {
+     "id": "p208790",
+     "name": "Vitor Leque",
+     "age": 24,
+     "pos": "A",
+     "number": 19,
+     "photo": "https://media.api-sports.io/football/players/208790.png"
+    }
+   ]
+  },
+  {
+   "id": "c18308",
+   "name": "Manauara",
+   "short": "MNA",
+   "color": "#0a3a8c",
+   "logo": "https://media.api-sports.io/football/teams/18308.png",
+   "strength": 56,
+   "division": "D",
+   "players": [
+    {
+     "id": "p306968",
+     "name": "Matheus",
+     "age": 25,
+     "pos": "G",
+     "number": 23,
+     "photo": "https://media.api-sports.io/football/players/306968.png"
+    },
+    {
+     "id": "p646711",
+     "name": "D. Becker",
+     "age": 30,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/646711.png"
+    },
+    {
+     "id": "p646715",
+     "name": "F. Conceicao",
+     "age": 28,
+     "pos": "D",
+     "number": 25,
+     "photo": "https://media.api-sports.io/football/players/646715.png"
+    },
+    {
+     "id": "p10014",
+     "name": "Éverson Bispo Pereira",
+     "age": 28,
+     "pos": "D",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/10014.png"
+    },
+    {
+     "id": "p119148",
+     "name": "Felipe Camargo",
+     "age": 26,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/119148.png"
+    },
+    {
+     "id": "p646701",
+     "name": "Giba",
+     "age": 30,
+     "pos": "D",
+     "number": 95,
+     "photo": "https://media.api-sports.io/football/players/646701.png"
+    },
+    {
+     "id": "p576699",
+     "name": "Maicon",
+     "age": 30,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/576699.png"
+    },
+    {
+     "id": "p637565",
+     "name": "Paulinho",
+     "age": 29,
+     "pos": "D",
+     "number": 96,
+     "photo": "https://media.api-sports.io/football/players/637565.png"
+    },
+    {
+     "id": "p640130",
+     "name": "C. Ribeiro",
+     "age": 29,
+     "pos": "D",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/640130.png"
+    },
+    {
+     "id": "p303971",
+     "name": "Wesley",
+     "age": 23,
+     "pos": "D",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/303971.png"
+    },
+    {
+     "id": "p646716",
+     "name": "Falcao",
+     "age": 24,
+     "pos": "M",
+     "number": 44,
+     "photo": "https://media.api-sports.io/football/players/646716.png"
+    },
+    {
+     "id": "p646714",
+     "name": "Juninho",
+     "age": 26,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/646714.png"
+    },
+    {
+     "id": "p645136",
+     "name": "Marinho",
+     "age": 30,
+     "pos": "M",
+     "number": 18,
+     "photo": "https://media.api-sports.io/football/players/645136.png"
+    },
+    {
+     "id": "p643556",
+     "name": "Pablo Pardal",
+     "age": 26,
+     "pos": "M",
+     "number": 99,
+     "photo": "https://media.api-sports.io/football/players/643556.png"
+    },
+    {
+     "id": "p659487",
+     "name": "Paulinho",
+     "age": 29,
+     "pos": "M",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/659487.png"
+    },
+    {
+     "id": "p646597",
+     "name": "Quadrado",
+     "age": 31,
+     "pos": "M",
+     "number": 37,
+     "photo": "https://media.api-sports.io/football/players/646597.png"
+    },
+    {
+     "id": "p200855",
+     "name": "Clessione",
+     "age": 31,
+     "pos": "A",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/200855.png"
+    },
+    {
+     "id": "p304603",
+     "name": "Fabricio",
+     "age": 27,
+     "pos": "A",
+     "number": 23,
+     "photo": "https://media.api-sports.io/football/players/304603.png"
+    },
+    {
+     "id": "p583928",
+     "name": "Joao Guilherme",
+     "age": 31,
+     "pos": "A",
+     "number": 27,
+     "photo": "https://media.api-sports.io/football/players/583928.png"
+    },
+    {
+     "id": "p638750",
+     "name": "Rafael Ibiapino",
+     "age": 33,
+     "pos": "A",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/638750.png"
+    },
+    {
+     "id": "p216550",
+     "name": "Rone",
+     "age": 30,
+     "pos": "A",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/216550.png"
+    }
+   ]
+  },
+  {
+   "id": "c7782",
+   "name": "Nova Iguaçu",
+   "short": "NIG",
+   "color": "#c9a400",
+   "logo": "https://media.api-sports.io/football/teams/7782.png",
+   "strength": 56,
+   "division": "D",
+   "players": [
+    {
+     "id": "p634516",
+     "name": "Arthur Vidal",
+     "age": 18,
+     "pos": "G",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/634516.png"
+    },
+    {
+     "id": "p400146",
+     "name": "Matheus Miranda",
+     "age": 27,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/400146.png"
+    },
+    {
+     "id": "p54002",
+     "name": "Mota",
+     "age": 40,
+     "pos": "G",
+     "number": 31,
+     "photo": "https://media.api-sports.io/football/players/54002.png"
+    },
+    {
+     "id": "p634507",
+     "name": "Augusto",
+     "age": 24,
+     "pos": "D",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/634507.png"
+    },
+    {
+     "id": "p637336",
+     "name": "Zavoli Daniel",
+     "age": 20,
+     "pos": "D",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/637336.png"
+    },
+    {
+     "id": "p306865",
+     "name": "Davi",
+     "age": 22,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/306865.png"
+    },
+    {
+     "id": "p632479",
+     "name": "Gabriel Saulo",
+     "age": 24,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/632479.png"
+    },
+    {
+     "id": "p667633",
+     "name": "Kaua Leite",
+     "age": 21,
+     "pos": "D",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/667633.png"
+    },
+    {
+     "id": "p350433",
+     "name": "Wender",
+     "age": 27,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/350433.png"
+    },
+    {
+     "id": "p634508",
+     "name": "Ze Gabriel",
+     "age": 22,
+     "pos": "D",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/634508.png"
+    },
+    {
+     "id": "p634519",
+     "name": "Iago Lacerda",
+     "age": 19,
+     "pos": "M",
+     "number": 11,
+     "photo": "https://media.api-sports.io/football/players/634519.png"
+    },
+    {
+     "id": "p632416",
+     "name": "Joao Paulo",
+     "age": 32,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/632416.png"
+    },
+    {
+     "id": "p634509",
+     "name": "Joao Pedro",
+     "age": 21,
+     "pos": "M",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/634509.png"
+    },
+    {
+     "id": "p576660",
+     "name": "Pedro Thomaz",
+     "age": 25,
+     "pos": "M",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/576660.png"
+    },
+    {
+     "id": "p667455",
+     "name": "K. Ancantara",
+     "age": 20,
+     "pos": "A",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/667455.png"
+    },
+    {
+     "id": "p10181",
+     "name": "Bill",
+     "age": 26,
+     "pos": "A",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/10181.png"
+    },
+    {
+     "id": "p667870",
+     "name": "Isaque",
+     "age": 21,
+     "pos": "A",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/667870.png"
+    },
+    {
+     "id": "p632417",
+     "name": "Leo Muchacho",
+     "age": 25,
+     "pos": "A",
+     "number": 31,
+     "photo": "https://media.api-sports.io/football/players/632417.png"
+    },
+    {
+     "id": "p412342",
+     "name": "Lucas Cruz",
+     "age": 21,
+     "pos": "A",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/412342.png"
+    },
+    {
+     "id": "p667634",
+     "name": "H. Nunes",
+     "age": 18,
+     "pos": "A",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/667634.png"
+    },
+    {
+     "id": "p306215",
+     "name": "Weverton",
+     "age": 23,
+     "pos": "A",
+     "number": 18,
+     "photo": "https://media.api-sports.io/football/players/306215.png"
+    },
+    {
+     "id": "p404733",
+     "name": "Xandinho",
+     "age": 28,
+     "pos": "A",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/404733.png"
+    }
+   ]
+  },
+  {
+   "id": "c12946",
+   "name": "Porto Velho",
+   "short": "PVE",
+   "color": "#c8102e",
+   "logo": "https://media.api-sports.io/football/teams/12946.png",
+   "strength": 56,
+   "division": "D",
+   "players": [
+    {
+     "id": "p646724",
+     "name": "Digao",
+     "age": 28,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/646724.png"
+    },
+    {
+     "id": "p666584",
+     "name": "Aisley",
+     "age": 23,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/666584.png"
+    },
+    {
+     "id": "p646827",
+     "name": "Cesar Julio",
+     "age": 25,
+     "pos": "D",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/646827.png"
+    },
+    {
+     "id": "p646731",
+     "name": "Geovani",
+     "age": 28,
+     "pos": "D",
+     "number": 98,
+     "photo": "https://media.api-sports.io/football/players/646731.png"
+    },
+    {
+     "id": "p54991",
+     "name": "João Victor",
+     "age": 30,
+     "pos": "D",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/54991.png"
+    },
+    {
+     "id": "p646725",
+     "name": "M. Leal",
+     "age": 38,
+     "pos": "D",
+     "number": 44,
+     "photo": "https://media.api-sports.io/football/players/646725.png"
+    },
+    {
+     "id": "p646667",
+     "name": "Lucas Bala",
+     "age": 28,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/646667.png"
+    },
+    {
+     "id": "p646666",
+     "name": "Rodrigo Ramos",
+     "age": 30,
+     "pos": "D",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/646666.png"
+    },
+    {
+     "id": "p655080",
+     "name": "Barbosa Willian",
+     "age": 23,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/655080.png"
+    },
+    {
+     "id": "p646726",
+     "name": "Renna",
+     "age": 29,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/646726.png"
+    },
+    {
+     "id": "p646728",
+     "name": "D. dos Santos Moreira",
+     "age": 33,
+     "pos": "D",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/646728.png"
+    },
+    {
+     "id": "p643582",
+     "name": "Anderson",
+     "age": 30,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/643582.png"
+    },
+    {
+     "id": "p633198",
+     "name": "Esquerdinha",
+     "age": 35,
+     "pos": "M",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/633198.png"
+    },
+    {
+     "id": "p643663",
+     "name": "Franca",
+     "age": 34,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/643663.png"
+    },
+    {
+     "id": "p55226",
+     "name": "Lagoa",
+     "age": 32,
+     "pos": "M",
+     "number": 66,
+     "photo": "https://media.api-sports.io/football/players/55226.png"
+    },
+    {
+     "id": "p652030",
+     "name": "Samuel",
+     "age": 24,
+     "pos": "M",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/652030.png"
+    },
+    {
+     "id": "p159556",
+     "name": "Walfrido",
+     "age": 31,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/159556.png"
+    },
+    {
+     "id": "p67288",
+     "name": "Edrean",
+     "age": 29,
+     "pos": "A",
+     "number": 96,
+     "photo": "https://media.api-sports.io/football/players/67288.png"
+    },
+    {
+     "id": "p646598",
+     "name": "Emerson",
+     "age": 31,
+     "pos": "A",
+     "number": 50,
+     "photo": "https://media.api-sports.io/football/players/646598.png"
+    },
+    {
+     "id": "p651612",
+     "name": "Pablo Henrique",
+     "age": 26,
+     "pos": "A",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/651612.png"
+    },
+    {
+     "id": "p646730",
+     "name": "Jeferson",
+     "age": 28,
+     "pos": "A",
+     "number": 77,
+     "photo": "https://media.api-sports.io/football/players/646730.png"
+    },
+    {
+     "id": "p640259",
+     "name": "Kadu Barone",
+     "age": 31,
+     "pos": "A",
+     "number": 11,
+     "photo": "https://media.api-sports.io/football/players/640259.png"
+    },
+    {
+     "id": "p643669",
+     "name": "Luan Viana",
+     "age": 30,
+     "pos": "A",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/643669.png"
+    },
+    {
+     "id": "p160041",
+     "name": "Tcharlles",
+     "age": 33,
+     "pos": "A",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/160041.png"
+    },
+    {
+     "id": "p631744",
+     "name": "Wellington Nunes",
+     "age": 27,
+     "pos": "A",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/631744.png"
+    }
+   ]
+  },
+  {
+   "id": "c7835",
+   "name": "Portuguesa-RJ",
+   "short": "PRJ",
+   "color": "#c8102e",
+   "logo": "https://media.api-sports.io/football/teams/7835.png",
+   "strength": 55,
+   "division": "D",
+   "players": [
+    {
+     "id": "p159477",
+     "name": "Douglas Borges",
+     "age": 35,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/159477.png"
+    },
+    {
+     "id": "p80191",
+     "name": "Vinicius Barreta",
+     "age": 26,
+     "pos": "G",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/80191.png"
+    },
+    {
+     "id": "p157678",
+     "name": "Alex Reinaldo",
+     "age": 34,
+     "pos": "D",
+     "number": 66,
+     "photo": "https://media.api-sports.io/football/players/157678.png"
+    },
+    {
+     "id": "p9418",
+     "name": "Guilherme Santos",
+     "age": 37,
+     "pos": "D",
+     "number": 33,
+     "photo": "https://media.api-sports.io/football/players/9418.png"
+    },
+    {
+     "id": "p635861",
+     "name": "Kaue",
+     "age": 21,
+     "pos": "D",
+     "number": 19,
+     "photo": "https://media.api-sports.io/football/players/635861.png"
+    },
+    {
+     "id": "p55179",
+     "name": "Lucas Costa",
+     "age": 30,
+     "pos": "D",
+     "number": 13,
+     "photo": "https://media.api-sports.io/football/players/55179.png"
+    },
+    {
+     "id": "p635858",
+     "name": "Patrick",
+     "age": 30,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/635858.png"
+    },
+    {
+     "id": "p238537",
+     "name": "Albert",
+     "age": 29,
+     "pos": "M",
+     "number": 25,
+     "photo": "https://media.api-sports.io/football/players/238537.png"
+    },
+    {
+     "id": "p468159",
+     "name": "Alex Moretti",
+     "age": 22,
+     "pos": "M",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/468159.png"
+    },
+    {
+     "id": "p54095",
+     "name": "Anderson Rosa",
+     "age": 32,
+     "pos": "M",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/54095.png"
+    },
+    {
+     "id": "p297888",
+     "name": "Henrique",
+     "age": 26,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/297888.png"
+    },
+    {
+     "id": "p567056",
+     "name": "Juninho",
+     "age": 24,
+     "pos": "M",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/567056.png"
+    },
+    {
+     "id": "p9739",
+     "name": "Lenon",
+     "age": 35,
+     "pos": "M",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/9739.png"
+    },
+    {
+     "id": "p115523",
+     "name": "Wellington Cézar",
+     "age": 32,
+     "pos": "M",
+     "number": 30,
+     "photo": "https://media.api-sports.io/football/players/115523.png"
+    },
+    {
+     "id": "p280746",
+     "name": "Willian",
+     "age": 29,
+     "pos": "M",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/280746.png"
+    },
+    {
+     "id": "p238351",
+     "name": "Guilherme Silveira",
+     "age": 26,
+     "pos": "A",
+     "number": 11,
+     "photo": "https://media.api-sports.io/football/players/238351.png"
+    },
+    {
+     "id": "p10471",
+     "name": "Lohan",
+     "age": 30,
+     "pos": "A",
+     "number": 19,
+     "photo": "https://media.api-sports.io/football/players/10471.png"
+    },
+    {
+     "id": "p80482",
+     "name": "Matheus Iacovelli",
+     "age": 27,
+     "pos": "A",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/80482.png"
+    },
+    {
+     "id": "p159527",
+     "name": "Romarinho",
+     "age": 32,
+     "pos": "A",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/159527.png"
+    },
+    {
+     "id": "p9300",
+     "name": "Uelber",
+     "age": 27,
+     "pos": "A",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/9300.png"
+    }
+   ]
+  },
+  {
+   "id": "c1203",
+   "name": "Altos",
+   "short": "ALT",
+   "color": "#00843d",
+   "logo": "https://media.api-sports.io/football/teams/1203.png",
+   "strength": 55,
+   "division": "D",
+   "players": [
+    {
+     "id": "p588544",
+     "name": "Ferreira Lucas",
+     "age": 28,
+     "pos": "G",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/588544.png"
+    },
+    {
+     "id": "p351389",
+     "name": "Alberte",
+     "age": 28,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/351389.png"
+    },
+    {
+     "id": "p588545",
+     "name": "Sobral Anderson",
+     "age": 33,
+     "pos": "D",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/588545.png"
+    },
+    {
+     "id": "p64036",
+     "name": "Joécio",
+     "age": 40,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/64036.png"
+    },
+    {
+     "id": "p588546",
+     "name": "Maciel Savio",
+     "age": 26,
+     "pos": "D",
+     "number": 13,
+     "photo": "https://media.api-sports.io/football/players/588546.png"
+    },
+    {
+     "id": "p588547",
+     "name": "Dieguinho",
+     "age": 35,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/588547.png"
+    },
+    {
+     "id": "p588548",
+     "name": "Digao",
+     "age": 22,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/588548.png"
+    },
+    {
+     "id": "p588549",
+     "name": "Esquerdinha",
+     "age": 34,
+     "pos": "M",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/588549.png"
+    },
+    {
+     "id": "p588550",
+     "name": "Sales Felipe",
+     "age": 24,
+     "pos": "M",
+     "number": 11,
+     "photo": "https://media.api-sports.io/football/players/588550.png"
+    },
+    {
+     "id": "p80688",
+     "name": "Jalysson",
+     "age": 24,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/80688.png"
+    },
+    {
+     "id": "p588551",
+     "name": "Jonathan",
+     "age": 23,
+     "pos": "M",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/588551.png"
+    },
+    {
+     "id": "p588552",
+     "name": "Wesley",
+     "age": 28,
+     "pos": "M",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/588552.png"
+    },
+    {
+     "id": "p353082",
+     "name": "Francisco das Chagas Araújo Filho",
+     "age": 21,
+     "pos": "A",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/353082.png"
+    },
+    {
+     "id": "p588553",
+     "name": "Mandacaru Junior",
+     "age": 32,
+     "pos": "A",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/588553.png"
+    },
+    {
+     "id": "p588554",
+     "name": "Mikael",
+     "age": 24,
+     "pos": "A",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/588554.png"
+    },
+    {
+     "id": "p588555",
+     "name": "Pratti Wesley",
+     "age": 24,
+     "pos": "A",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/588555.png"
+    }
+   ]
+  },
+  {
+   "id": "c2214",
+   "name": "Manaus",
+   "short": "MFC",
+   "color": "#c9a400",
+   "logo": "https://media.api-sports.io/football/teams/2214.png",
+   "strength": 55,
+   "division": "D",
+   "players": [
+    {
+     "id": "p646732",
+     "name": "Eugenio Neto",
+     "age": 27,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/646732.png"
+    },
+    {
+     "id": "p646734",
+     "name": "William Menezes",
+     "age": 36,
+     "pos": "G",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/646734.png"
+    },
+    {
+     "id": "p635689",
+     "name": "David Luis",
+     "age": 30,
+     "pos": "D",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/635689.png"
+    },
+    {
+     "id": "p646672",
+     "name": "Gutierrez",
+     "age": 29,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/646672.png"
+    },
+    {
+     "id": "p567103",
+     "name": "Handerson",
+     "age": 28,
+     "pos": "D",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/567103.png"
+    },
+    {
+     "id": "p646671",
+     "name": "Henrique",
+     "age": 24,
+     "pos": "D",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/646671.png"
+    },
+    {
+     "id": "p646733",
+     "name": "D. Mota",
+     "age": 24,
+     "pos": "D",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/646733.png"
+    },
+    {
+     "id": "p646736",
+     "name": "Uche",
+     "age": 29,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/646736.png"
+    },
+    {
+     "id": "p646669",
+     "name": "B. Bietkoski",
+     "age": 19,
+     "pos": "M",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/646669.png"
+    },
+    {
+     "id": "p265293",
+     "name": "João Felipe",
+     "age": 23,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/265293.png"
+    },
+    {
+     "id": "p326885",
+     "name": "Neko",
+     "age": 24,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/326885.png"
+    },
+    {
+     "id": "p640181",
+     "name": "C. L. Silverio Ribeiro",
+     "age": 21,
+     "pos": "M",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/640181.png"
+    },
+    {
+     "id": "p646670",
+     "name": "Wallace",
+     "age": 22,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/646670.png"
+    },
+    {
+     "id": "p633211",
+     "name": "S. Araujo da Silva",
+     "age": 25,
+     "pos": "A",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/633211.png"
+    },
+    {
+     "id": "p632677",
+     "name": "Caique Valdivia",
+     "age": 33,
+     "pos": "A",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/632677.png"
+    },
+    {
+     "id": "p634727",
+     "name": "Leo Bahia",
+     "age": 34,
+     "pos": "A",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/634727.png"
+    },
+    {
+     "id": "p646356",
+     "name": "Leo Para",
+     "age": 31,
+     "pos": "A",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/646356.png"
+    },
+    {
+     "id": "p54627",
+     "name": "Léo Reis",
+     "age": 26,
+     "pos": "A",
+     "number": 18,
+     "photo": "https://media.api-sports.io/football/players/54627.png"
+    },
+    {
+     "id": "p630609",
+     "name": "Lucas Vieira",
+     "age": 32,
+     "pos": "A",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/630609.png"
+    },
+    {
+     "id": "p567089",
+     "name": "Maycon",
+     "age": 21,
+     "pos": "A",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/567089.png"
+    },
+    {
+     "id": "p195850",
+     "name": "Nicolas",
+     "age": 25,
+     "pos": "A",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/195850.png"
+    },
+    {
+     "id": "p661198",
+     "name": "Anderson Reis",
+     "age": 20,
+     "pos": "A",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/661198.png"
+    },
+    {
+     "id": "p239785",
+     "name": "Ronald",
+     "age": 23,
+     "pos": "A",
+     "number": 11,
+     "photo": "https://media.api-sports.io/football/players/239785.png"
+    }
+   ]
+  },
+  {
+   "id": "c1194",
+   "name": "Cianorte",
+   "short": "CIA",
+   "color": "#0057a8",
+   "logo": "https://media.api-sports.io/football/teams/1194.png",
+   "strength": 55,
+   "division": "D",
+   "players": [
+    {
+     "id": "p649917",
+     "name": "Igor",
+     "age": 37,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/649917.png"
+    },
+    {
+     "id": "p633555",
+     "name": "Fabiano Luiz",
+     "age": 20,
+     "pos": "G",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/633555.png"
+    },
+    {
+     "id": "p649919",
+     "name": "Allan Passos",
+     "age": 21,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/649919.png"
+    },
+    {
+     "id": "p633178",
+     "name": "David Cabeca",
+     "age": 19,
+     "pos": "D",
+     "number": 19,
+     "photo": "https://media.api-sports.io/football/players/633178.png"
+    },
+    {
+     "id": "p80186",
+     "name": "Cristovam",
+     "age": 35,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/80186.png"
+    },
+    {
+     "id": "p611659",
+     "name": "I. Motta",
+     "age": 22,
+     "pos": "D",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/611659.png"
+    },
+    {
+     "id": "p631675",
+     "name": "Jackson",
+     "age": 24,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/631675.png"
+    },
+    {
+     "id": "p468222",
+     "name": "Paulo Roberto",
+     "age": 20,
+     "pos": "D",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/468222.png"
+    },
+    {
+     "id": "p636457",
+     "name": "Soares Ramom",
+     "age": 23,
+     "pos": "D",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/636457.png"
+    },
+    {
+     "id": "p80660",
+     "name": "Dener",
+     "age": 30,
+     "pos": "M",
+     "number": 13,
+     "photo": "https://media.api-sports.io/football/players/80660.png"
+    },
+    {
+     "id": "p576760",
+     "name": "Ibson",
+     "age": 21,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/576760.png"
+    },
+    {
+     "id": "p659037",
+     "name": "Kaka",
+     "age": 24,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/659037.png"
+    },
+    {
+     "id": "p631756",
+     "name": "Wagner Manaus",
+     "age": 26,
+     "pos": "M",
+     "number": 13,
+     "photo": "https://media.api-sports.io/football/players/631756.png"
+    },
+    {
+     "id": "p638680",
+     "name": "Daniel Adisa",
+     "age": 20,
+     "pos": "A",
+     "number": 17,
+     "photo": "https://media.api-sports.io/football/players/638680.png"
+    },
+    {
+     "id": "p460850",
+     "name": "Carlito",
+     "age": 20,
+     "pos": "A",
+     "number": 18,
+     "photo": "https://media.api-sports.io/football/players/460850.png"
+    },
+    {
+     "id": "p632983",
+     "name": "Felipe Laurindo",
+     "age": 21,
+     "pos": "A",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/632983.png"
+    },
+    {
+     "id": "p146062",
+     "name": "Reifit",
+     "age": 24,
+     "pos": "A",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/146062.png"
+    },
+    {
+     "id": "p574836",
+     "name": "Robinho",
+     "age": 21,
+     "pos": "A",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/574836.png"
+    }
+   ]
+  },
+  {
+   "id": "c141",
+   "name": "Brasil de Pelotas",
+   "short": "GEB",
+   "color": "#c8102e",
+   "logo": "https://media.api-sports.io/football/teams/141.png",
+   "strength": 55,
+   "division": "D",
+   "players": [
+    {
+     "id": "p9801",
+     "name": "Carlos Eduardo",
+     "age": 33,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/9801.png"
+    },
+    {
+     "id": "p352219",
+     "name": "Vitor Becker",
+     "age": 24,
+     "pos": "D",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/352219.png"
+    },
+    {
+     "id": "p77883",
+     "name": "Gedeílson",
+     "age": 33,
+     "pos": "D",
+     "number": 59,
+     "photo": "https://media.api-sports.io/football/players/77883.png"
+    },
+    {
+     "id": "p115518",
+     "name": "Lula",
+     "age": 33,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/115518.png"
+    },
+    {
+     "id": "p506309",
+     "name": "Matheus Streit",
+     "age": 20,
+     "pos": "D",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/506309.png"
+    },
+    {
+     "id": "p650646",
+     "name": "Sony",
+     "age": 22,
+     "pos": "D",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/650646.png"
+    },
+    {
+     "id": "p368239",
+     "name": "Tony Lucas",
+     "age": 21,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/368239.png"
+    },
+    {
+     "id": "p314068",
+     "name": "Germano",
+     "age": 27,
+     "pos": "M",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/314068.png"
+    },
+    {
+     "id": "p660865",
+     "name": "Alan Goncalves de Freitas",
+     "age": 28,
+     "pos": "M",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/660865.png"
+    },
+    {
+     "id": "p608568",
+     "name": "Guilherme Garre",
+     "age": 32,
+     "pos": "M",
+     "number": 93,
+     "photo": "https://media.api-sports.io/football/players/608568.png"
+    },
+    {
+     "id": "p633319",
+     "name": "Simas Julio",
+     "age": 24,
+     "pos": "M",
+     "number": 18,
+     "photo": "https://media.api-sports.io/football/players/633319.png"
+    },
+    {
+     "id": "p299146",
+     "name": "Masson",
+     "age": 23,
+     "pos": "M",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/299146.png"
+    },
+    {
+     "id": "p63436",
+     "name": "Silas",
+     "age": 29,
+     "pos": "M",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/63436.png"
+    },
+    {
+     "id": "p589438",
+     "name": "Venicio",
+     "age": 24,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/589438.png"
+    },
+    {
+     "id": "p660864",
+     "name": "Andrey",
+     "age": 26,
+     "pos": "A",
+     "number": 11,
+     "photo": "https://media.api-sports.io/football/players/660864.png"
+    },
+    {
+     "id": "p91838",
+     "name": "Gabriel Argolo Morbeck",
+     "age": 28,
+     "pos": "A",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/91838.png"
+    },
+    {
+     "id": "p567096",
+     "name": "G. Givigi",
+     "age": 23,
+     "pos": "A",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/567096.png"
+    }
+   ]
+  },
+  {
+   "id": "c7832",
+   "name": "Maranhão",
+   "short": "MAH",
+   "color": "#c8102e",
+   "logo": "https://media.api-sports.io/football/teams/7832.png",
+   "strength": 55,
+   "division": "D",
+   "players": [
+    {
+     "id": "p647069",
+     "name": "Caue",
+     "age": 22,
+     "pos": "G",
+     "number": 23,
+     "photo": "https://media.api-sports.io/football/players/647069.png"
+    },
+    {
+     "id": "p54662",
+     "name": "Jean",
+     "age": 33,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/54662.png"
+    },
+    {
+     "id": "p663048",
+     "name": "Almeida",
+     "age": 19,
+     "pos": "D",
+     "number": 13,
+     "photo": "https://media.api-sports.io/football/players/663048.png"
+    },
+    {
+     "id": "p647067",
+     "name": "Andre Radija",
+     "age": 31,
+     "pos": "D",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/647067.png"
+    },
+    {
+     "id": "p588522",
+     "name": "Bal",
+     "age": 27,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/588522.png"
+    },
+    {
+     "id": "p647061",
+     "name": "Edson",
+     "age": 25,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/647061.png"
+    },
+    {
+     "id": "p237639",
+     "name": "Iran Sidny",
+     "age": 30,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/237639.png"
+    },
+    {
+     "id": "p647063",
+     "name": "Lucao",
+     "age": 25,
+     "pos": "D",
+     "number": 13,
+     "photo": "https://media.api-sports.io/football/players/647063.png"
+    },
+    {
+     "id": "p647064",
+     "name": "Lucas Santos",
+     "age": 28,
+     "pos": "D",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/647064.png"
+    },
+    {
+     "id": "p653298",
+     "name": "Caio Victor",
+     "age": 21,
+     "pos": "M",
+     "number": 13,
+     "photo": "https://media.api-sports.io/football/players/653298.png"
+    },
+    {
+     "id": "p646687",
+     "name": "Jorge Rocha",
+     "age": 28,
+     "pos": "M",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/646687.png"
+    },
+    {
+     "id": "p651682",
+     "name": "M. Maranhao",
+     "age": 27,
+     "pos": "M",
+     "number": 25,
+     "photo": "https://media.api-sports.io/football/players/651682.png"
+    },
+    {
+     "id": "p658685",
+     "name": "Pedro Lucas",
+     "age": 18,
+     "pos": "M",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/658685.png"
+    },
+    {
+     "id": "p647462",
+     "name": "C. Peu",
+     "age": 22,
+     "pos": "M",
+     "number": 27,
+     "photo": "https://media.api-sports.io/football/players/647462.png"
+    },
+    {
+     "id": "p647065",
+     "name": "Railson",
+     "age": 26,
+     "pos": "M",
+     "number": 5,
+     "photo": "https://media.api-sports.io/football/players/647065.png"
+    },
+    {
+     "id": "p54243",
+     "name": "Rodrigo Vasconcelos",
+     "age": 31,
+     "pos": "M",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/54243.png"
+    },
+    {
+     "id": "p633983",
+     "name": "Vagalume",
+     "age": 26,
+     "pos": "M",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/633983.png"
+    },
+    {
+     "id": "p655198",
+     "name": "Vitao",
+     "age": 25,
+     "pos": "M",
+     "number": 12,
+     "photo": "https://media.api-sports.io/football/players/655198.png"
+    },
+    {
+     "id": "p631084",
+     "name": "Erverson",
+     "age": 27,
+     "pos": "A",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/631084.png"
+    },
+    {
+     "id": "p647068",
+     "name": "Kessinho",
+     "age": 23,
+     "pos": "A",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/647068.png"
+    },
+    {
+     "id": "p647070",
+     "name": "Luis Gustavo",
+     "age": 25,
+     "pos": "A",
+     "number": 26,
+     "photo": "https://media.api-sports.io/football/players/647070.png"
+    },
+    {
+     "id": "p54028",
+     "name": "Pimentinha",
+     "age": 38,
+     "pos": "A",
+     "number": 11,
+     "photo": "https://media.api-sports.io/football/players/54028.png"
+    },
+    {
+     "id": "p647060",
+     "name": "Rafael Teixeira",
+     "age": 24,
+     "pos": "A",
+     "number": 19,
+     "photo": "https://media.api-sports.io/football/players/647060.png"
+    },
+    {
+     "id": "p402946",
+     "name": "Richarles",
+     "age": 21,
+     "pos": "A",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/402946.png"
+    },
+    {
+     "id": "p667906",
+     "name": "Makalysten Ronald",
+     "age": 25,
+     "pos": "A",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/667906.png"
+    }
+   ]
+  },
+  {
+   "id": "c2233",
+   "name": "América-RN",
+   "short": "ARN",
+   "color": "#c8102e",
+   "logo": "https://media.api-sports.io/football/teams/2233.png",
+   "strength": 54,
+   "division": "D",
+   "players": [
+    {
+     "id": "p588534",
+     "name": "Lucao",
+     "age": 23,
+     "pos": "G",
+     "number": 45,
+     "photo": "https://media.api-sports.io/football/players/588534.png"
+    },
+    {
+     "id": "p80678",
+     "name": "Charles",
+     "age": 31,
+     "pos": "D",
+     "number": 26,
+     "photo": "https://media.api-sports.io/football/players/80678.png"
+    },
+    {
+     "id": "p54083",
+     "name": "Evandro",
+     "age": 28,
+     "pos": "D",
+     "number": 40,
+     "photo": "https://media.api-sports.io/football/players/54083.png"
+    },
+    {
+     "id": "p588536",
+     "name": "Paraiba Guilherme",
+     "age": 31,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/588536.png"
+    },
+    {
+     "id": "p363710",
+     "name": "Pedro",
+     "age": 23,
+     "pos": "D",
+     "number": 23,
+     "photo": "https://media.api-sports.io/football/players/363710.png"
+    },
+    {
+     "id": "p588538",
+     "name": "Luz Ricardo",
+     "age": 30,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/588538.png"
+    },
+    {
+     "id": "p10365",
+     "name": "Alisson Taddei",
+     "age": 28,
+     "pos": "M",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/10365.png"
+    },
+    {
+     "id": "p651673",
+     "name": "Allan",
+     "age": 21,
+     "pos": "M",
+     "number": 14,
+     "photo": "https://media.api-sports.io/football/players/651673.png"
+    },
+    {
+     "id": "p455762",
+     "name": "Antônio",
+     "age": 22,
+     "pos": "M",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/455762.png"
+    },
+    {
+     "id": "p588540",
+     "name": "Arua",
+     "age": 29,
+     "pos": "M",
+     "number": 15,
+     "photo": "https://media.api-sports.io/football/players/588540.png"
+    },
+    {
+     "id": "p119744",
+     "name": "Galván",
+     "age": 26,
+     "pos": "M",
+     "number": 18,
+     "photo": "https://media.api-sports.io/football/players/119744.png"
+    },
+    {
+     "id": "p77758",
+     "name": "Carlinhos Coppetti",
+     "age": 31,
+     "pos": "M",
+     "number": 30,
+     "photo": "https://media.api-sports.io/football/players/77758.png"
+    },
+    {
+     "id": "p651663",
+     "name": "Jadson",
+     "age": 19,
+     "pos": "M",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/651663.png"
+    },
+    {
+     "id": "p199377",
+     "name": "Wagner Balotelli",
+     "age": 33,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/199377.png"
+    },
+    {
+     "id": "p651674",
+     "name": "Elias",
+     "age": 20,
+     "pos": "A",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/651674.png"
+    },
+    {
+     "id": "p633761",
+     "name": "Joaozinho",
+     "age": 22,
+     "pos": "A",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/633761.png"
+    },
+    {
+     "id": "p362714",
+     "name": "Nikão",
+     "age": 22,
+     "pos": "A",
+     "number": 7,
+     "photo": "https://media.api-sports.io/football/players/362714.png"
+    },
+    {
+     "id": "p33252",
+     "name": "Wellington Tanque",
+     "age": 37,
+     "pos": "A",
+     "number": 77,
+     "photo": "https://media.api-sports.io/football/players/33252.png"
+    }
+   ]
+  },
+  {
+   "id": "c7862",
+   "name": "Princesa Solimões",
+   "short": "PRS",
+   "color": "#0a3a8c",
+   "logo": "https://media.api-sports.io/football/teams/7862.png",
+   "strength": 54,
+   "division": "D",
+   "players": [
+    {
+     "id": "p145515",
+     "name": "Jonathan Braz",
+     "age": 26,
+     "pos": "G",
+     "number": 1,
+     "photo": "https://media.api-sports.io/football/players/145515.png"
+    },
+    {
+     "id": "p410005",
+     "name": "Walter",
+     "age": 21,
+     "pos": "G",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/410005.png"
+    },
+    {
+     "id": "p276681",
+     "name": "Ivanzinho",
+     "age": 30,
+     "pos": "D",
+     "number": 13,
+     "photo": "https://media.api-sports.io/football/players/276681.png"
+    },
+    {
+     "id": "p55264",
+     "name": "Eric",
+     "age": 35,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/55264.png"
+    },
+    {
+     "id": "p280116",
+     "name": "Lucas Lima",
+     "age": 25,
+     "pos": "D",
+     "number": 25,
+     "photo": "https://media.api-sports.io/football/players/280116.png"
+    },
+    {
+     "id": "p77912",
+     "name": "Donato",
+     "age": 31,
+     "pos": "D",
+     "number": 3,
+     "photo": "https://media.api-sports.io/football/players/77912.png"
+    },
+    {
+     "id": "p210120",
+     "name": "P. Koffi",
+     "age": 33,
+     "pos": "M",
+     "number": null,
+     "photo": "https://media.api-sports.io/football/players/210120.png"
+    },
+    {
+     "id": "p55198",
+     "name": "Daniel Costa",
+     "age": 35,
+     "pos": "M",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/55198.png"
+    },
+    {
+     "id": "p160207",
+     "name": "Cris",
+     "age": 27,
+     "pos": "A",
+     "number": 16,
+     "photo": "https://media.api-sports.io/football/players/160207.png"
+    }
+   ]
+  },
+  {
+   "id": "c18831",
+   "name": "Itabuna",
+   "short": "ITB",
+   "color": "#0057a8",
+   "logo": "https://media.api-sports.io/football/teams/18831.png",
+   "strength": 54,
+   "division": "D",
+   "players": [
+    {
+     "id": "p235546",
+     "name": "Danilo Cirqueira",
+     "age": 33,
+     "pos": "D",
+     "number": 22,
+     "photo": "https://media.api-sports.io/football/players/235546.png"
+    },
+    {
+     "id": "p504248",
+     "name": "Vicente Ferreira",
+     "age": 26,
+     "pos": "D",
+     "number": 2,
+     "photo": "https://media.api-sports.io/football/players/504248.png"
+    },
+    {
+     "id": "p351515",
+     "name": "Lucas Reis",
+     "age": 28,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/351515.png"
+    },
+    {
+     "id": "p454221",
+     "name": "Italo",
+     "age": 20,
+     "pos": "D",
+     "number": 4,
+     "photo": "https://media.api-sports.io/football/players/454221.png"
+    },
+    {
+     "id": "p10137",
+     "name": "Guilherme Rend",
+     "age": 27,
+     "pos": "M",
+     "number": 6,
+     "photo": "https://media.api-sports.io/football/players/10137.png"
+    },
+    {
+     "id": "p403617",
+     "name": "Guilherme Ivo",
+     "age": 24,
+     "pos": "M",
+     "number": 8,
+     "photo": "https://media.api-sports.io/football/players/403617.png"
+    },
+    {
+     "id": "p454879",
+     "name": "Douglas",
+     "age": 26,
+     "pos": "M",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/454879.png"
+    },
+    {
+     "id": "p266489",
+     "name": "Jeferson Douglas",
+     "age": 24,
+     "pos": "M",
+     "number": 20,
+     "photo": "https://media.api-sports.io/football/players/266489.png"
+    },
+    {
+     "id": "p403618",
+     "name": "Manoel",
+     "age": 20,
+     "pos": "M",
+     "number": 21,
+     "photo": "https://media.api-sports.io/football/players/403618.png"
+    },
+    {
+     "id": "p106502",
+     "name": "Jussimar",
+     "age": 37,
+     "pos": "A",
+     "number": 10,
+     "photo": "https://media.api-sports.io/football/players/106502.png"
+    },
+    {
+     "id": "p10026",
+     "name": "Caique",
+     "age": 25,
+     "pos": "A",
+     "number": 9,
+     "photo": "https://media.api-sports.io/football/players/10026.png"
+    }
+   ]
+  }
+ ]
+}

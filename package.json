@@ -9,6 +9,7 @@
     "dados": "node --env-file=.env scripts/baixar-brasileirao.mjs",
     "dados:b": "node --env-file=.env scripts/baixar-brasileirao.mjs --serie=b --temporada=2024",
     "dados:padrao": "node scripts/gerar-dados-padrao.mjs",
-    "dados:c": "node --env-file=.env scripts/baixar-brasileirao.mjs --serie=c --temporada=2024"
+    "dados:c": "node --env-file=.env scripts/baixar-brasileirao.mjs --serie=c --temporada=2024",
+    "dados:d": "node --env-file=.env scripts/baixar-brasileirao.mjs --serie=d --temporada=2024"
   }
 }

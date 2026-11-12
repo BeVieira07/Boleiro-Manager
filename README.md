@@ -17,7 +17,7 @@ Abrir o `index.html` direto (duplo clique) também funciona, mas com Live Server
 
 ## Dados do Brasileirão (API-Football)
 
-O jogo já vem com as **Séries A, B e C de 2024** (60 clubes, 2017 jogadores reais), salvas em `data/brasileirao-2024.json`, `data/brasileirao-serie-b-2024.json` e `data/brasileirao-serie-c-2024.json`. Elas ficam embutidas em `js/dados-padrao.js` para funcionar até abrindo o HTML direto. Se mudar os JSONs, rode `npm run dados:padrao` para gerar o `dados-padrao.js` de novo. Para usar outros dados, baixe com os passos abaixo e carregue em **Dados → Carregar JSON**.
+O jogo já vem com as **Séries A, B, C e D de 2024** (80 clubes, 2435 jogadores reais), salvas em `data/brasileirao-2024.json` e `data/brasileirao-serie-<b|c|d>-2024.json`. Elas ficam embutidas em `js/dados-padrao.js` para funcionar até abrindo o HTML direto. Se mudar os JSONs, rode `npm run dados:padrao` para gerar o `dados-padrao.js` de novo. Para usar outros dados, baixe com os passos abaixo e carregue em **Dados → Carregar JSON**.
 
 1. Copie `.env.example` para `.env` e coloque sua chave.
 2. Rode:
@@ -30,14 +30,16 @@ O jogo já vem com as **Séries A, B e C de 2024** (60 clubes, 2017 jogadores re
 
 No plano gratuito a temporada 2026 é bloqueada; o script monta os 20 clubes de 2026 com os **elencos atuais** (`/players/squads`, que não depende de temporada). Também é possível importar pelo próprio jogo, na tela **Dados**.
 
-### Séries B e C
+### Séries B, C e D
 
-O jogo suporta até três divisões. Cada série tem sua tabela, e no fim da temporada sobem 4 e caem 4 entre séries vizinhas (A↔B, B↔C). As Séries B e C têm cota de TV, premiação e caixa inicial menores. Na Série C, o jogo usa pontos corridos com ida e volta, sem a fase de grupos real.
+O jogo suporta até quatro divisões. Cada série tem sua tabela, e no fim da temporada sobem 4 e caem 4 entre séries vizinhas (A↔B, B↔C, C↔D). Quanto mais baixa a série, menores a cota de TV, a premiação e o caixa inicial. Todas as séries usam pontos corridos com ida e volta, sem as fases de grupos e mata-mata reais.
 
-- **Pelo terminal:** `npm run dados:b` ou `npm run dados:c` gera `data/brasileirao-serie-<b|c>-2024.json`. Depois rode `npm run dados:padrao` para embutir no jogo, ou use **Dados → Carregar JSON** e confirme para juntar com o que já está carregado.
+A Série D real tem 64 clubes. O jogo usa só 20: os que foram mais longe em 2024 (quem avança joga mais partidas). Alguns clubes pequenos vêm com poucos jogadores na API, e o jogo completa o elenco com jogadores gerados.
+
+- **Pelo terminal:** `npm run dados:b`, `dados:c` ou `dados:d` gera `data/brasileirao-serie-<b|c|d>-2024.json`. Depois rode `npm run dados:padrao` para embutir no jogo, ou use **Dados → Carregar JSON** e confirme para juntar com o que já está carregado.
 - **Pelo jogo:** na tela **Dados**, escolha a série no importador. A série importada substitui só ela mesma.
 
-As Séries B e C precisam de uma temporada liberada pelo plano da API (no plano gratuito, de 2022 a 2024). Jogadores que aparecem em dois elencos (empréstimos) devem ficar só em um clube, porque o `dados:padrao` recusa ids repetidos.
+As Séries B, C e D precisam de uma temporada liberada pelo plano da API (no plano gratuito, de 2022 a 2024). Jogadores que aparecem em dois elencos (empréstimos) devem ficar só em um clube, porque o `dados:padrao` recusa ids repetidos.
 
 > O `.env` está no `.gitignore` — nunca suba sua chave para o GitHub.
 
@@ -48,7 +50,7 @@ index.html            página principal
 css/style.css         visual
 js/utils.js           utilidades (aleatório, formatação, localStorage)
 js/dados.js           clubes base, geração de jogadores, força e valor
-js/dados-padrao.js    dados padrão (Séries A, B e C 2024), gerado por scripts/gerar-dados-padrao.mjs
+js/dados-padrao.js    dados padrão (Séries A, B, C e D 2024), gerado por scripts/gerar-dados-padrao.mjs
 js/estado.js          estado do jogo, novo jogo, calendário e tabela
 js/motor.js           escalação, força dos times, simulação e rodada
 js/partida.js         jogo ao vivo e fim de temporada

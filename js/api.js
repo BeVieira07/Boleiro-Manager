@@ -12,7 +12,7 @@ async function apiGet(path,key){
 async function importFromApi(){
   const key=document.getElementById('apikey').value.replace(/[^A-Za-z0-9]/g,'');
   const season=parseInt(document.getElementById('season').value,10);
-  const LEAGUES={A:71,B:72,C:75},serie=LEAGUES[document.getElementById('serie').value]?document.getElementById('serie').value:'A',league=LEAGUES[serie];
+  const LEAGUES={A:71,B:72,C:75,D:76},serie=LEAGUES[document.getElementById('serie').value]?document.getElementById('serie').value:'A',league=LEAGUES[serie];
   const delay=parseInt(document.getElementById('delay').value,10)*1000;
   const log=document.getElementById('implog'),bar=document.getElementById('impbar');
   const out=t=>{log.insertAdjacentHTML('beforeend',`<div>${esc(t)}</div>`);log.scrollTop=1e9};
@@ -26,10 +26,22 @@ async function importFromApi(){
     catch(e){out(`Temporada ${season}: ${e.message}`)}
     if(list){
       out(`${list.length} times encontrados (temporada ${season}).`);
-      try{await sleep(delay);const st=await apiGet(`/standings?league=${league}&season=${season}`,key);
+      let st=null;
+      try{await sleep(delay);st=await apiGet(`/standings?league=${league}&season=${season}`,key);
         const rows=st.response?.[0]?.league?.standings?.[0]||[];rows.forEach(r=>rank[r.team.id]=r.rank);
         out(rows.length?'Classificação obtida — força dos times ajustada pela tabela.':'Sem classificação disponível.');}
       catch(e){out('Classificação indisponível: '+e.message)}
+      if(serie==='D'){ // 64 clubes em grupos: fica com os 20 que foram mais longe (quem avança joga mais; desempate pelos pontos na 1ª fase)
+        const pts={},ko={};
+        for(const g of st?.response?.[0]?.league?.standings||[])for(const r of g)pts[r.team.id]=r.points;
+        try{await sleep(delay);out('Buscando os jogos para achar os 20 clubes que foram mais longe…');const fx=await apiGet(`/fixtures?league=${league}&season=${season}`,key);
+          for(const f of fx.response||[])for(const id of [f.teams.home.id,f.teams.away.id])ko[id]=(ko[id]||0)+1}
+        catch(e){out('Jogos indisponíveis: '+e.message)}
+        const score=id=>(ko[id]||0)*1000+(pts[id]||0);
+        list=list.sort((a,b)=>score(b.t.id)-score(a.t.id)).slice(0,20);
+        for(const k in rank)delete rank[k];list.forEach((x,i)=>rank[x.t.id]=i+1);
+        out(`Série D: ficaram os 20 clubes que foram mais longe (${list.map(x=>x.t.name).join(', ')}).`);
+      }
     }else if(serie!=='A'){
       throw new Error(`Seu plano não libera a ${DIVS[serie]} ${season}. Tente uma temporada liberada (no plano gratuito, de 2022 a 2024).`);
     }else{
@@ -58,8 +70,8 @@ async function importFromApi(){
     const clubs=[];
     for(let i=0;i<list.length;i++){
       const {t,b}=list[i];
-      // força base por série: B = 64 (ou a da Série A menos 4 para clubes conhecidos), C = 59 (ou menos 9)
-      const DROP={A:0,B:4,C:9},BASE={A:68,B:64,C:59},TOP={A:80,B:70,C:64},STEP={A:0.8,B:0.5,C:0.4};
+      // força base por série: B = 64 (ou a da Série A menos 4 para clubes conhecidos), C = 59 (ou menos 9), D = 55 (ou menos 13)
+      const DROP={A:0,B:4,C:9,D:13},BASE={A:68,B:64,C:59,D:55},TOP={A:80,B:70,C:64,D:59},STEP={A:0.8,B:0.5,C:0.4,D:0.3};
       let strength=b?b[2]-DROP[serie]:BASE[serie];
       if(t&&rank[t.id]&&Object.values(rank).length>=10){const fromRank=TOP[serie]-(rank[t.id]-1)*STEP[serie];strength=Math.round((strength+fromRank)/2)}
       const club={id:'c'+(t?t.id:b[1]),name:b?b[0]:t.name,short:((t&&t.code)||(b&&b[1])||t.name.slice(0,3)).toUpperCase(),color:b?b[3]:'#335',logo:t?t.logo:null,strength,division:serie,players:[]};

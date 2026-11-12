@@ -1,13 +1,13 @@
 // Gera js/dados-padrao.js (dados embutidos no jogo) a partir dos JSONs em data/.
 // Uso: npm run dados:padrao
-// Junta a Série A (data/brasileirao-<ano>.json) com as Séries B e C (data/brasileirao-serie-<b|c>-<ano>.json), se existirem.
+// Junta a Série A (data/brasileirao-<ano>.json) com as Séries B, C e D (data/brasileirao-serie-<b|c|d>-<ano>.json), se existirem.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 
 const ANO = process.argv[2] || '2024';
 const ler = f => JSON.parse(readFileSync(f, 'utf8'));
 const a = ler(`data/brasileirao-${ANO}.json`);
 const series = { A: a };
-for (const x of ['b', 'c']) { const f = `data/brasileirao-serie-${x}-${ANO}.json`; if (existsSync(f)) series[x.toUpperCase()] = ler(f); }
+for (const x of ['b', 'c', 'd']) { const f = `data/brasileirao-serie-${x}-${ANO}.json`; if (existsSync(f)) series[x.toUpperCase()] = ler(f); }
 const clubs = [];
 for (const [div, d] of Object.entries(series)) { d.clubs.forEach(c => c.division = div); clubs.push(...d.clubs); }
 
