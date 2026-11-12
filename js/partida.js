@@ -70,6 +70,7 @@ function newSeason(){
   for(const c of S.clubs){
     const keep=[];
     for(const p of c.players){
+      p.o0=p.ovr;p.forma=0;
       p.age++;
       const d=p.age<=21?ri(1,4):p.age<=24?ri(0,3):p.age<=29?ri(-1,1):p.age<=32?ri(-2,0):ri(-4,-1);
       p.ovr=clamp(p.ovr+d,40,95);p.goals=0;
