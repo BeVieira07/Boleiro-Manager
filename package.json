@@ -1,0 +1,11 @@
+{
+  "name": "brasfoot-web",
+  "version": "0.1.0",
+  "description": "Jogo de gerenciamento de futebol estilo Brasfoot com dados do Brasileirão",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "npx --yes serve .",
+    "dados": "node --env-file=.env scripts/baixar-brasileirao.mjs"
+  }
+}

@@ -1,0 +1,59 @@
+/* ================= dados base (Série A 2026) ================= */
+// [nome, sigla, força base, cor, chaves de busca p/ casar com a API]
+const BASE_CLUBS=[
+ ['Flamengo','FLA',80,'#c4122e',['flamengo']],
+ ['Palmeiras','PAL',79,'#006437',['palmeiras']],
+ ['Botafogo','BOT',75,'#222',['botafogo']],
+ ['Cruzeiro','CRU',75,'#1d3fa0',['cruzeiro']],
+ ['Atlético-MG','CAM',74,'#333',['atletico-mg','atletico mineiro','atletico mg']],
+ ['Fluminense','FLU',74,'#7a1430',['fluminense']],
+ ['Internacional','INT',73,'#d6001c',['internacional']],
+ ['São Paulo','SAO',73,'#c8102e',['sao paulo']],
+ ['Corinthians','COR',73,'#444',['corinthians']],
+ ['Bahia','BAH',72,'#0057a8',['bahia']],
+ ['Grêmio','GRE',72,'#0d80bf',['gremio']],
+ ['Vasco da Gama','VAS',71,'#111',['vasco']],
+ ['RB Bragantino','RBB',71,'#c8102e',['bragantino']],
+ ['Santos','SAN',71,'#555',['santos']],
+ ['Athletico-PR','CAP',69,'#c8102e',['paranaense','athletico']],
+ ['Mirassol','MIR',69,'#d4a017',['mirassol']],
+ ['Vitória','VIT',68,'#c8102e',['vitoria']],
+ ['Coritiba','CFC',67,'#00843d',['coritiba']],
+ ['Chapecoense','CHA',65,'#008f39',['chapecoense']],
+ ['Remo','REM',65,'#1b2a6b',['remo']]
+];
+const FN=['Lucas','Gabriel','Matheus','Pedro','João','Rafael','Bruno','Thiago','Vitor','Caio','Diego','Felipe','Gustavo','Igor','Leandro','Marcelo','Nicolas','Otávio','Renan','Samuel','Wesley','Yuri','André','Davi','Enzo','Fábio','Hugo','Kauã','Luan','Murilo','Ruan','Erick','Alan','Kaio','Jefferson'];
+const LN=['Silva','Santos','Oliveira','Souza','Lima','Pereira','Costa','Rodrigues','Almeida','Nascimento','Carvalho','Araújo','Ribeiro','Gomes','Martins','Rocha','Barbosa','Cardoso','Teixeira','Moreira','Batista','Freitas','Mendes','Pinto','Ramos','Vieira','Monteiro','Farias'];
+const SQUAD_SHAPE={G:3,D:8,M:9,A:6};
+
+function baseInfo(apiName){
+  const n=norm(apiName);
+  for(const b of BASE_CLUBS){ if(b[4].some(k=>n.includes(k))) return b; }
+  return null;
+}
+function fakePlayer(clubId,i,strength,pos,r,ageRange){
+  return {id:'s'+clubId+'_'+i+'_'+Math.floor(r()*1e6),name:pick(FN,r)+' '+pick(LN,r),age:ageRange?ri(ageRange[0],ageRange[1],r):ri(18,34,r),pos,number:i+1,photo:null};
+}
+function sampleData(){
+  const r=mulberry32(2026);
+  const clubs=BASE_CLUBS.map((b,ci)=>{
+    const id='c'+ci; const players=[]; let i=0;
+    for(const [pos,n] of Object.entries(SQUAD_SHAPE)) for(let k=0;k<n;k++) players.push(fakePlayer(id,i++,b[2],pos,r));
+    return {id,name:b[0],short:b[1],color:b[3],logo:null,strength:b[2],players};
+  });
+  return {source:'sample',season:2026,createdAt:new Date().toISOString(),clubs};
+}
+
+/* ================= atributos e valores ================= */
+function rate(p,strength){
+  const r=mulberry32(hashStr(p.id+'|'+p.name));
+  const a=p.age||25;
+  const ageAdj=a<=19?-6:a<=21?-3:a<=23?-1:a<=30?1:a<=32?0:a<=34?-2:-4;
+  return clamp(Math.round(strength-2+(r()+r()+r()-1.5)*10+ageAdj),40,93);
+}
+function valueOf(p){
+  const af=p.age<=21?1.4:p.age<=24?1.2:p.age<=28?1:p.age<=31?0.7:0.4;
+  return Math.round(0.3*Math.pow(1.13,p.ovr-50)*af*10)/10 || 0.1;
+}
+function refreshEconomics(p){p.value=Math.max(0.1,valueOf(p));p.wage=Math.round(p.value*0.01*1000)/1000}
+
