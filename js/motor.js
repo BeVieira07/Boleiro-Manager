@@ -48,6 +48,7 @@ function validateLineup(){
   return null;
 }
 function playRound(){
+  if(S.demitido){demissao();return}
   if(S.round>=S.fixtures.length)return;
   const err=validateLineup();if(err){alert(err);view='escalacao';render();return}
   const games=S.fixtures[S.round].map(simulate);
@@ -74,19 +75,19 @@ function playRound(){
         addNews(`💼 ${b.name} ofereceu ${money(amt)} por ${p.name}.`);}
     }
   }
-  S.round++;processLoans();
+  S.round++;processLoans();atualizarConfianca(mine);
   if(S.balance<0)addNews('⚠️ Caixa negativo! Venda jogadores para equilibrar as contas.');
   lastRound={round:S.round,games};
   save();
-  if(mine)showLive(mine,()=>{view='rodada';render();if(S.round>=S.fixtures.length)seasonEnd()});
-  else{view='rodada';render();}
+  if(mine)showLive(mine,()=>{view='rodada';render();if(S.round>=S.fixtures.length)seasonEnd();if(S.demitido)demissao()});
+  else{view='rodada';render();if(S.demitido)demissao()}
 }
 function simToEnd(){
   if(!confirm('Simular todas as rodadas restantes sem assistir aos jogos?'))return;
-  while(S.round<S.fixtures.length){
+  while(S.round<S.fixtures.length&&!S.demitido){
     const err=validateLineup();if(err){userClub().lineup=autoXI(userClub())}
     const saveLive=showLive;showLive=(g,cb)=>{};playRound();showLive=saveLive;
   }
-  view='tabela';render();seasonEnd();
+  view='tabela';render();seasonEnd();if(S.demitido)demissao();
 }
 

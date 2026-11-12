@@ -36,7 +36,7 @@ function newGame(clubId){
   reindex();
   const uc=userClub();
   S.balance=startBalance(divOf(uc),uc.strength);
-  uc.lineup=autoXI(uc);
+  uc.lineup=autoXI(uc);migrarDiretoria(S);
   addNews(`Você assumiu o comando do ${uc.name}! Caixa inicial: ${money(S.balance)}.`);
   save(); view='clube'; render();
 }
