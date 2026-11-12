@@ -67,7 +67,7 @@ function toggleStarter(pid){
 }
 function toggleListed(pid){P[pid].listed=!P[pid].listed;save();render()}
 function vElenco(){
-  const uc=userClub(),xi=getXI(uc),ps=[...uc.players].sort((a,b)=>PORD[a.pos]-PORD[b.pos]||b.ovr-a.ovr);
+  const uc=userClub(),xi=getXI(uc),ps=[...uc.players].sort((a,b)=>POSD_ORDEM.indexOf(posDSigla(a))-POSD_ORDEM.indexOf(posDSigla(b))||b.ovr-a.ovr);
   const cnt=pos=>xi.filter(id=>P[id].pos===pos).length;const pw=power(uc);
   return `<h2>Elenco — ${esc(uc.name)}</h2>
   <div class="card row">
@@ -80,7 +80,7 @@ function vElenco(){
   <p class="muted">"Escalar melhores" usa a formação escolhida. Marque ou desmarque os titulares manualmente na primeira coluna.</p>
   <div class="card tw"><table><tr><th>Tit.</th><th>Pos</th><th>#</th><th>Nome</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Gols</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th>Mercado</th></tr>
   ${ps.map(p=>`<tr${xi.includes(p.id)?' class="me"':''}><td><input type="checkbox" ${xi.includes(p.id)?'checked':''} onchange="toggleStarter('${p.id}')"></td>
-   <td><span class="pos ${p.pos}">${POSL[p.pos]}</span></td><td class="muted">${p.number??''}</td><td>${esc(p.name)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${p.goals||0}</td>
+   <td>${posTag(p)}</td><td class="muted">${p.number??''}</td><td>${esc(p.name)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${p.goals||0}</td>
    <td class="n">${money(p.value)}</td><td class="n">${money(p.wage)}</td>
    <td><button class="btn sm ${p.listed?'red':'sec'}" onclick="toggleListed('${p.id}')">${p.listed?'À venda ✓':'Pôr à venda'}</button> <button class="btn sec sm" onclick="quickSell('${p.id}')">Vender já</button></td></tr>`).join('')}
   </table></div>`;
@@ -114,21 +114,21 @@ function topScorers(n=20,div){return Object.values(P).filter(p=>p.goals>0&&(!div
 function vArt(){
   const d=curDiv(),L=topScorers(25,d);
   return `<h2>Artilharia${hasTwoDivs()?' — '+DIVS[d]:''}</h2>${divTabs()}<div class="card tw"><table><tr><th>#</th><th>Jogador</th><th>Clube</th><th class="n">Gols</th></tr>
-  ${L.map((p,i)=>`<tr class="${p.clubId===S.userClubId?'me':''}"><td>${i+1}</td><td><span class="pos ${p.pos}">${POSL[p.pos]}</span> ${esc(p.name)}</td><td>${esc(clubById(p.clubId).name)}</td><td class="n"><b>${p.goals}</b></td></tr>`).join('')||'<tr><td class="muted">Nenhum gol ainda.</td></tr>'}</table></div>`;
+  ${L.map((p,i)=>`<tr class="${p.clubId===S.userClubId?'me':''}"><td>${i+1}</td><td>${posTag(p)} ${esc(p.name)}</td><td>${esc(clubById(p.clubId).name)}</td><td class="n"><b>${p.goals}</b></td></tr>`).join('')||'<tr><td class="muted">Nenhum gol ainda.</td></tr>'}</table></div>`;
 }
 let mf={pos:'',q:'',max:'',club:''};
 function setMF(k,v){mf[k]=v;render()}
 function vMercado(){
   const uc=userClub();
   let L=Object.values(P).filter(p=>p.clubId!==uc.id);
-  if(mf.pos)L=L.filter(p=>p.pos===mf.pos);
+  if(mf.pos)L=L.filter(p=>posDSigla(p)===mf.pos);
   if(mf.club)L=L.filter(p=>p.clubId===mf.club);
   if(mf.q)L=L.filter(p=>norm(p.name).includes(norm(mf.q)));
   if(mf.max)L=L.filter(p=>p.value<=parseFloat(mf.max));
   L.sort((a,b)=>b.ovr-a.ovr);const total=L.length;L=L.slice(0,120);
   return `<h2>Mercado de transferências</h2>
   <div class="card row">
-   <select onchange="setMF('pos',this.value)"><option value="">Todas as posições</option>${Object.entries(POSL).map(([k,l])=>`<option value="${k}" ${mf.pos===k?'selected':''}>${l}</option>`).join('')}</select>
+   <select onchange="setMF('pos',this.value)"><option value="">Todas as posições</option>${Object.entries(POSD).map(([k,d])=>`<option value="${k}" ${mf.pos===k?'selected':''}>${d.nome}</option>`).join('')}</select>
    <select onchange="setMF('club',this.value)"><option value="">Todos os clubes</option>${S.clubs.filter(c=>c.id!==uc.id).sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}" ${mf.club===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
    <input placeholder="Buscar nome" value="${esc(mf.q)}" onchange="setMF('q',this.value)">
    <input placeholder="Valor máx. (mi)" style="width:130px" value="${esc(mf.max)}" onchange="setMF('max',this.value)">
@@ -136,7 +136,7 @@ function vMercado(){
   </div>
   <p class="muted">${total} jogadores${total>120?' (mostrando os 120 melhores)':''}. Craques do time vendedor custam mais caro. Uma proposta por jogador a cada rodada.</p>
   <div class="card tw"><table><tr><th>Pos</th><th>Nome</th><th>Clube</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th></th></tr>
-  ${L.map(p=>`<tr><td><span class="pos ${p.pos}">${POSL[p.pos]}</span></td><td>${esc(p.name)}</td><td>${esc(clubById(p.clubId).name)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${money(p.value)}</td><td class="n">${money(p.wage)}</td><td><button class="btn sm" onclick="makeBid('${p.id}')">Proposta</button></td></tr>`).join('')}
+  ${L.map(p=>`<tr><td>${posTag(p)}</td><td>${esc(p.name)}</td><td>${esc(clubById(p.clubId).name)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${money(p.value)}</td><td class="n">${money(p.wage)}</td><td><button class="btn sm" onclick="makeBid('${p.id}')">Proposta</button></td></tr>`).join('')}
   </table></div>`;
 }
 function vFin(){

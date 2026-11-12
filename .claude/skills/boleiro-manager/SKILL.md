@@ -57,3 +57,8 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 
 ## Mapa do código (`js/`)
 `utils.js` (store, `esc`) · `estado.js` (estado `S`, divisões, `newGame`) · `dados.js` (`rate`, dados de reserva) · `dados-padrao.js` (gerado) · `motor.js` (simulação) · `partida.js` (jogo ao vivo, `crest`) · `mercado.js` · `telas.js` (telas e abas) · `api.js` (importar/exportar) · `main.js`.
+
+## Posições detalhadas (#4)
+- `p.pos` continua sendo o grupo (G/D/M/A); `p.pd` é a posição detalhada (GOL, ZAG, LD, LE, VOL, MEI, MAT, PON, CEN) e `p.ps` as secundárias. Tudo em `js/posicoes.js`.
+- A API só traz o grupo; `npm run dados:padrao` atribui `pd`/`ps` pela camisa e pelo equilíbrio do elenco. Saves e dados antigos são migrados no carregamento (`migrarPosicoes`).
+- Para escalar: `penalidadePosicao(p, slot)` devolve `{pen, tipo, aviso}` e `ovrNaPosicao(p, slot)` o overall já penalizado.
