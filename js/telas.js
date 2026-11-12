@@ -1,5 +1,5 @@
 /* ================= telas ================= */
-const NAV=[['clube','Clube'],['elenco','Elenco'],['tabela','Tabela'],['jogos','Jogos'],['artilharia','Artilharia'],['mercado','Mercado'],['financas','Finanças'],['dados','Dados']];
+const NAV=[['clube','Clube'],['elenco','Elenco'],['escalacao','Escalação'],['tabela','Tabela'],['jogos','Jogos'],['artilharia','Artilharia'],['mercado','Mercado'],['financas','Finanças'],['dados','Dados']];
 function go(v){view=v;render();window.scrollTo(0,0)}
 // divisão exibida nas telas de tabela/jogos/artilharia (null = a do seu clube)
 let vDiv=null;
@@ -18,7 +18,7 @@ function render(){
     nav.innerHTML=NAV.map(([k,l])=>`<button class="${view===k?'on':''}" onclick="go('${k}')">${l}</button>`).join('')+
       (S.round<S.fixtures.length?`<button class="on" style="margin-left:auto" onclick="playRound()">▶ Jogar rodada ${S.round+1}</button>`:'');
   }
-  const V={inicio:vInicio,clube:vClube,elenco:vElenco,tabela:vTabela,jogos:vJogos,artilharia:vArt,mercado:vMercado,financas:vFin,dados:vDados,rodada:vRodada};
+  const V={inicio:vInicio,clube:vClube,elenco:vElenco,escalacao:vEscalacao,tabela:vTabela,jogos:vJogos,artilharia:vArt,mercado:vMercado,financas:vFin,dados:vDados,rodada:vRodada};
   document.getElementById('app').innerHTML=(V[view]||vClube)();
 }
 function stars(s){const n=clamp(Math.round((s-62)/4),1,5);return '★'.repeat(n)+'☆'.repeat(5-n)}
@@ -57,7 +57,6 @@ function vClube(){
   ${S.history.length?(()=>{const ch=h=>h.champs||{A:h.champ,...(h.champB?{B:h.champB}:{})};const hd=[...new Set(S.history.flatMap(h=>Object.keys(ch(h))))].sort(),many=hd.length>1;
    return `<div class="card"><h3>Histórico</h3><table><tr><th>Temporada</th>${hd.map(x=>`<th>Campeão${many?' '+DIVS[x]:''}</th>`).join('')}<th>Sua posição</th><th>Artilheiro</th></tr>${S.history.map(h=>`<tr><td>${h.season}</td>${hd.map(x=>`<td>${esc(ch(h)[x]||'-')}</td>`).join('')}<td>${h.me}º${many&&h.div?' ('+DIVS[h.div]+')':''}</td><td>${esc(h.scorer)}</td></tr>`).join('')}</table></div>`})():''}`;
 }
-function setFormation(f){const uc=userClub();uc.formation=f;save();render()}
 function autoLineup(){const uc=userClub();uc.lineup=autoXI(uc);save();render()}
 function toggleStarter(pid){
   const uc=userClub();uc.lineup=uc.lineup||[];
