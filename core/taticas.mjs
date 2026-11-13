@@ -1,4 +1,4 @@
-import { P, S, addFin, clubById, userClub } from './estado.mjs';
+import { P, S, addFin, clubById, ehHumano, tec, userClub } from './estado.mjs';
 import { pickScorer, power } from './motor.mjs';
 import { clamp, hashStr, poisson, ri } from './utils.mjs';
 
@@ -29,7 +29,7 @@ export function autoTatica(club,opp){
   const estilo=modo==='defensivo'?'contra':modo==='ofensivo'?'toque':['toque','direto','laterais','equilibrado'][hashStr(club.id)%4];
   return {estilo,modo};
 }
-export function taticaDe(club,opp){return club.id===S.userClubId?taticaUser(club):autoTatica(club,opp)}
+export function taticaDe(club,opp){return ehHumano(club)?taticaUser(club):autoTatica(club,opp)}
 // multiplicadores de um time contra um adversário no minuto médio `mid`
 export function efeitoTatica(t,tOpp,mid){
   const e=ESTILOS[t.estilo],m=MODOS[t.modo],f=(e.fad+m.fad)*mid/93;
@@ -52,7 +52,7 @@ export function mudarTatica(campo,valor){
 }
 // jogo ao vivo: refaz os gols dos minutos seguintes com a tática nova
 export function ressimularDepois(g,min){
-  const H=clubById(g.h),A=clubById(g.a),uid=S.userClubId,ph=power(H),pa=power(A);
+  const H=clubById(g.h),A=clubById(g.a),uid=tec().clubId,ph=power(H),pa=power(A);
   const saldo=()=>g.h===uid?g.hg-g.ag:g.ag-g.hg,antes=saldo();
   g.ev=g.ev.filter(e=>{
     if(e.t!=='gol'||e.m<=min)return true;

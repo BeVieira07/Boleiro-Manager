@@ -1,7 +1,7 @@
 import { atualizarConfianca } from './diretoria.mjs';
 import { processLoans, wageBill } from './emprestimos.mjs';
 import { aplicarDisponibilidade, autoSlotXI, slotsDe, unavailable } from './escalacao.mjs';
-import { P, S, addFin, addNews, clubById, divOf, table, tvQuota, userClub } from './estado.mjs';
+import { P, S, addFin, addNews, clubById, clubDo, divOf, ehHumano, table, tec, tecnicos, tvQuota, userClub } from './estado.mjs';
 import { atualizarForma } from './forma.mjs';
 import { ovrNaPosicao } from './posicoes.mjs';
 import { golsSegmento, novosGols, taticaDe } from './taticas.mjs';
@@ -10,7 +10,7 @@ import { clamp, money, pick, poisson, ri, rnd, semente } from './utils.mjs';
 /* ================= escalação e força ================= */
 export function autoXI(club,formation){return autoSlotXI(club,formation)} // em escalacao.js: já na ordem das vagas
 export function getXI(club){
-  if(club.id===S.userClubId){club.lineup=(club.lineup||[]).filter(id=>P[id]&&P[id].clubId===club.id);return club.lineup}
+  if(ehHumano(club)){club.lineup=(club.lineup||[]).filter(id=>P[id]&&P[id].clubId===club.id);return club.lineup}
   return autoXI(club);
 }
 export function power(club){
@@ -48,46 +48,48 @@ export function simulate(g){
 }
 
 /* ================= rodada ================= */
-export function validateLineup(){
-  const uc=userClub(),xi=getXI(uc);
+export function validateLineup(uc=userClub()){
+  const xi=getXI(uc);
   if(xi.length!==11)return `Sua escalação tem ${xi.length} jogadores. Escolha exatamente 11 titulares.`;
   if(xi.filter(id=>P[id].pos==='G').length!==1)return 'Escale exatamente 1 goleiro.';
   const ind=xi.map(id=>P[id]).filter(unavailable);
   if(ind.length)return `Jogador(es) indisponível(is) na escalação: ${ind.map(p=>p.name+' ('+unavailable(p)+')').join(', ')}.`;
   return null;
 }
-// regra: joga a rodada atual. Devolve {erro}, {demitido}, {fim} ou {jogos, meu}.
+// regra: joga a rodada atual. Devolve {erro, tecnico}, {demitido}, {fim} ou {jogos, meu} (meu = jogo do técnico da vez).
 export function jogarRodada(){
-  if(S.demitido)return {demitido:true};
+  if(tec().demitido)return {demitido:true};
   if(S.round>=S.fixtures.length)return {fim:true};
-  const erro=validateLineup();if(erro)return {erro};
+  for(const t of tecnicos()){const e=validateLineup(clubDo(t));if(e)return {erro:(tecnicos().length>1?t.nome+': ':'')+e,tecnico:t.id}}
   S.rng=semente(S.seed,S.season,S.round); // a rodada depende só do estado e das escolhas, não do que foi sorteado antes
   const games=S.fixtures[S.round].map(simulate);
   aplicarDisponibilidade(games);
   atualizarForma(games);
-  const uc=userClub();
-  // finanças do usuário
-  addFin(`Cota de TV — rodada ${S.round+1}`,tvQuota(divOf(uc)));
-  const mine=games.find(g=>g.h===uc.id||g.a===uc.id);
-  if(mine&&mine.h===uc.id){
-    const pos=table().findIndex(t=>t.id===uc.id);
-    const bonus=pos<4?1.3:pos<10?1.1:1;
-    addFin(`Bilheteria vs ${clubById(mine.a).name}`,Math.round((0.5+(uc.strength-60)*0.06)*bonus*100)/100);
-  }
-  const wages=wageBill(uc);
-  addFin('Salários do elenco',-Math.round(wages*1000)/1000);
-  if(mine){const gf=mine.h===uc.id?mine.hg:mine.ag,ga=mine.h===uc.id?mine.ag:mine.hg;if(gf>ga)addFin('Bicho por vitória',-Math.round(wages*0.15*1000)/1000)}
-  // ofertas por jogadores à venda
-  S.offers=S.offers.filter(o=>o.until>S.round);
-  for(const p of uc.players.filter(p=>p.listed)){
-    if(rnd()<0.35){
-      const buyers=S.clubs.filter(c=>c.id!==uc.id&&c.players.length<32);
-      if(buyers.length){const b=pick(buyers);const amt=Math.round(p.value*(0.75+rnd()*0.5)*10)/10;
-        S.offers.push({id:'o'+S.season+'_'+S.round+'_'+p.id,pid:p.id,from:b.id,amount:amt,until:S.round+3});
-        addNews(`💼 ${b.name} ofereceu ${money(amt)} por ${p.name}.`);}
+  const jogoDe=c=>games.find(g=>g.h===c.id||g.a===c.id);
+  for(const t of tecnicos()){
+    const uc=clubDo(t),mine=jogoDe(uc);
+    // finanças de cada clube com técnico
+    addFin(`Cota de TV — rodada ${S.round+1}`,tvQuota(divOf(uc)),uc);
+    if(mine&&mine.h===uc.id){
+      const pos=table(divOf(uc)).findIndex(x=>x.id===uc.id);
+      const bonus=pos<4?1.3:pos<10?1.1:1;
+      addFin(`Bilheteria vs ${clubById(mine.a).name}`,Math.round((0.5+(uc.strength-60)*0.06)*bonus*100)/100,uc);
+    }
+    const wages=wageBill(uc);
+    addFin('Salários do elenco',-Math.round(wages*1000)/1000,uc);
+    if(mine){const gf=mine.h===uc.id?mine.hg:mine.ag,ga=mine.h===uc.id?mine.ag:mine.hg;if(gf>ga)addFin('Bicho por vitória',-Math.round(wages*0.15*1000)/1000,uc)}
+    // ofertas por jogadores à venda
+    t.offers=t.offers.filter(o=>o.until>S.round);
+    for(const p of uc.players.filter(p=>p.listed)){
+      if(rnd()<0.35){
+        const buyers=S.clubs.filter(c=>!ehHumano(c)&&c.players.length<32);
+        if(buyers.length){const b=pick(buyers);const amt=Math.round(p.value*(0.75+rnd()*0.5)*10)/10;
+          t.offers.push({id:'o'+S.season+'_'+S.round+'_'+p.id,pid:p.id,from:b.id,amount:amt,until:S.round+3});
+          addNews(`💼 ${b.name} ofereceu ${money(amt)} por ${p.name}.`,uc.id);}
+      }
     }
   }
-  S.round++;processLoans();atualizarConfianca(mine);
-  if(S.balance<0)addNews('⚠️ Caixa negativo! Venda jogadores para equilibrar as contas.');
-  return {jogos:games,meu:mine};
+  S.round++;processLoans();
+  for(const t of tecnicos()){const uc=clubDo(t);atualizarConfianca(t,jogoDe(uc));if(uc.balance<0)addNews('⚠️ Caixa negativo! Venda jogadores para equilibrar as contas.',uc.id)}
+  return {jogos:games,meu:jogoDe(userClub())};
 }

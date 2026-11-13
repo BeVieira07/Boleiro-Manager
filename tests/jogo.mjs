@@ -56,7 +56,7 @@ export const clubeDaSerie = (j, div = 'A', i = 10) =>
 /** Joga até o fim da temporada, corrigindo a escalação quando há indisponíveis.
  *  Por padrão a diretoria não demite; use {demissao:true} para permitir. */
 export function jogarTemporada(j, { demissao = false } = {}) {
-  j.run(`(()=>{let n=0;while(S.round<S.fixtures.length&&!S.demitido&&n<80){${demissao ? '' : 'S.confBaixa=0;'}if(validateLineup())userClub().lineup=autoXI(userClub());playRound();n++}})()`);
+  j.run(`(()=>{let n=0;while(S.round<S.fixtures.length&&!tec().demitido&&n<80){${demissao ? '' : 'tec().confBaixa=0;'}if(validateLineup())userClub().lineup=autoXI(userClub());playRound();n++}})()`);
 }
 
 /** Fecha a temporada e começa a próxima. */

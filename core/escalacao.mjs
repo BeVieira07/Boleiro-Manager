@@ -20,7 +20,7 @@ export function aplicarDisponibilidade(games){
       let msg=null;
       if(rnd()<0.012){p.inj=ri(1,5);msg=`🩹 ${p.name} se lesionou e desfalca o time por ${p.inj} rodada(s).`}
       else if(rnd()<0.015){p.susp=1;msg=`🟥 ${p.name} foi expulso e cumpre 1 jogo de suspensão.`}
-      if(msg&&c.id===S.userClubId)addNews(msg);
+      if(msg)addNews(msg,c.id);
     }
   }
 }

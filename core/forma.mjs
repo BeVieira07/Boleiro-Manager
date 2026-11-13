@@ -19,8 +19,8 @@ export function atualizarForma(games){
       if(xi.includes(p.id))f+=0.04+0.3*res+0.5*(gols[p.id]||0);
       else if(!unavailable(p))f-=0.13;
       const d=p.ovr-p.o0;
-      if(f>=FORMA_LIM&&p.ovr<95){if(d<FORMA_MAX_TEMP){p.ovr++;refreshEconomics(p);if(c.id===S.userClubId)addNews(`📈 ${p.name} está em grande fase e subiu para ${p.ovr}.`)}f=FORMA_LIM-0.1}
-      else if(f<=-FORMA_LIM&&p.ovr>40){if(d>-FORMA_MAX_TEMP){p.ovr--;refreshEconomics(p);if(c.id===S.userClubId)addNews(`📉 ${p.name} está em má fase e caiu para ${p.ovr}.`)}f=-FORMA_LIM+0.1}
+      if(f>=FORMA_LIM&&p.ovr<95){if(d<FORMA_MAX_TEMP){p.ovr++;refreshEconomics(p);addNews(`📈 ${p.name} está em grande fase e subiu para ${p.ovr}.`,c.id)}f=FORMA_LIM-0.1}
+      else if(f<=-FORMA_LIM&&p.ovr>40){if(d>-FORMA_MAX_TEMP){p.ovr--;refreshEconomics(p);addNews(`📉 ${p.name} está em má fase e caiu para ${p.ovr}.`,c.id)}f=-FORMA_LIM+0.1}
       p.forma=Math.round(f*100)/100;
     }
   }

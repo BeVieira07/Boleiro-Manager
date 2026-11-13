@@ -66,6 +66,7 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 - `core/`: regras puras (sem DOM, `alert`, `render` nem `localStorage`), testado em `tests/modulos.test.mjs`. O estado atual é `S` em `core/estado.mjs`; de fora, troque com `usarEstado(s)`. As regras devolvem `{erro}` / `{ok, msg}`.
 - `ui/`: telas. Estado só da tela em `ui.view`, `ui.vDiv` etc. (`ui/estado.mjs`). Botões: `data-acao="função|arg"` e `data-mudar="função|arg"` (recebe valor e evento), ligados em `ui/main.mjs`; a função precisa ser exportada por um módulo de `ui/`.
 - Imports são explícitos: ao usar uma função de outro módulo, importe-a.
+- Técnicos (#28): `S.managers[id]` = {nome, clubId, conf, meta, confBaixa, confFat, demitido, news, offers}; `S.atual` é o técnico da vez (solo: `local`). `tec()`, `tecnicos()`, `userClub()` (clube do técnico da vez), `clubDo(t)`, `ehHumano(c)`, `usarTecnico(id)`. Caixa e finanças são do clube (`c.balance`, `c.fin`). `addNews(texto, clubeId?)` vai para o técnico daquele clube; `addNewsTodos` para todos. Saves antigos são migrados em `reindex()`.
 
 ## Posições detalhadas (#4)
 - `p.pos` continua sendo o grupo (G/D/M/A); `p.pd` é a posição detalhada (GOL, ZAG, LD, LE, VOL, MC meia central, MEI meia-atacante, PE e PD pontas, ATA centroavante; antes da #23 eram MEI, MAT, PON, CEN. Saves e dados antigos são convertidos por `converterPosicoesAntigas`, marcados com `posv:2`) e `p.ps` as secundárias. Tudo em `core/posicoes.mjs`.
