@@ -15,11 +15,11 @@ import { render } from './telas.mjs';
 // [tela, rótulo, ícone]; os 4 primeiros ficam visíveis na barra do celular
 export const NAV = [
   ['clube', 'Clube', 'clube'], ['elenco', 'Elenco', 'elenco'], ['escalacao', 'Escalação', 'escalacao'], ['jogos', 'Jogos', 'jogos'],
-  ['tabela', 'Classificação', 'tabela'], ['artilharia', 'Artilharia', 'artilharia'], ['mercado', 'Mercado', 'mercado'],
+  ['tabela', 'Classificação', 'tabela'], ['copa', 'Copa do Brasil', 'trofeu'], ['artilharia', 'Artilharia', 'artilharia'], ['mercado', 'Mercado', 'mercado'],
   ['financas', 'Finanças', 'financas'], ['dados', 'Dados', 'dados']
 ];
 const PRINCIPAIS = 4;
-export const TITULOS = { liga: 'Liga', clube: 'Painel do clube', elenco: 'Elenco', escalacao: 'Escalação', jogos: 'Jogos', tabela: 'Classificação', artilharia: 'Artilharia', mercado: 'Mercado', financas: 'Finanças', dados: 'Dados do jogo', rodada: 'Resultados da rodada' };
+export const TITULOS = { liga: 'Liga', clube: 'Painel do clube', elenco: 'Elenco', escalacao: 'Escalação', jogos: 'Jogos', tabela: 'Classificação', copa: 'Copa do Brasil', artilharia: 'Artilharia', mercado: 'Mercado', financas: 'Finanças', dados: 'Dados do jogo', rodada: 'Resultados da rodada' };
 
 const item = ([k, l, ic]) => `<button type="button" class="nav-item" data-acao="go|${k}"${ui.view === k ? ' aria-current="page"' : ''}>${icone(ic)}<span>${l}</span></button>`;
 

@@ -1,5 +1,6 @@
 import { potInicial, tetoOvr, virarBase } from './base.mjs';
 import { CONTRATO_NOVO, vencerContratos } from './contratos.mjs';
+import { criarCopa } from './copa.mjs';
 import { fakePlayer, refreshEconomics } from './dados.mjs';
 import { confiancaFimTemporada, confiancaNovaTemporada } from './diretoria.mjs';
 import { DIVS, MOVE_N, P, S, addFin, addNews, addNewsTodos, clubById, clubDo, divOf, divisions, hasTwoDivs, makeAllFixtures, reindex, seasonPrize, table, tecnicos, topScorers, userClub } from './estado.mjs';
@@ -21,7 +22,7 @@ export function fecharTemporada(){
   const {div,T,pos,prize}=res[S.atual],di=ds.indexOf(div);
   const champs=divisions().map(d=>({d,c:clubById(table(d)[0].id)}));
   const top=topScorers(1,divisions()[0])[0];
-  S.history.unshift({season:S.season,champ:champs[0].c.name,champs:Object.fromEntries(champs.map(x=>[x.d,x.c.name])),me:pos,div,tecnicos:Object.fromEntries(Object.entries(res).map(([k,v])=>[k,{pos:v.pos,div:v.div}])),scorer:top?`${top.name} (${top.goals})`:'-'});
+  S.history.unshift({season:S.season,champ:champs[0].c.name,champs:Object.fromEntries(champs.map(x=>[x.d,x.c.name])),me:pos,div,tecnicos:Object.fromEntries(Object.entries(res).map(([k,v])=>[k,{pos:v.pos,div:v.div}])),scorer:top?`${top.name} (${top.goals})`:'-',...(S.copa&&S.copa.campeao?{copa:clubById(S.copa.campeao).name}:{})});
   for(const t of tecnicos())confiancaFimTemporada(t,res[t.id].pos);S.seasonClosed=S.season;
   return {div,T,pos,two,mv,prize,ds,di,champs,top};
 }
@@ -51,7 +52,7 @@ export function iniciarTemporada(){
   }
   virarBase(); // #50: a base dos clubes com técnico
   S.season++;S.round=0;S.fixtures=makeAllFixtures(S.clubs);
-  reindex();
+  reindex();criarCopa();
   for(const t of tecnicos()){t.offers=[];confiancaNovaTemporada(t);const uc=clubDo(t);uc.lineup=getXI(uc);if(uc.lineup.length<11)uc.lineup=autoXI(uc)}
   addNewsTodos(`📅 Começa a temporada ${S.season}!`);
 }

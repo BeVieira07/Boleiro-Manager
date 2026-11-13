@@ -206,3 +206,17 @@ test('empréstimo entre técnicos volta ao fim do prazo, e a opção de compra p
   for (let i = 0; i < 2; i++) { jogarRodadaLiga(s, {}); s = JSON.parse(JSON.stringify(est.S)) }
   assert.equal(onde(s), clube(s, 'u-bia').id);
 });
+
+test('liga criada antes de uma mudança no save é atualizada pelo servidor (contrato, potencial, base)', () => {
+  const s = comVaga(JSON.parse(novaLiga(['A'])));
+  s.versao = 4; delete s.copa; // como uma liga criada antes das #49 a #51
+  for (const c of s.clubs) { delete c.base; for (const p of c.players) { delete p.contrato; delete p.pot } }
+  const ana = s.clubs.find(c => c.id === s.managers['u-ana'].clubId), p = ana.players.find(x => !ana.lineup.includes(x.id));
+  const r = acaoMercadoLiga(s, 'u-ana', { tipo: 'renovar', pid: p.id });
+  assert.doesNotMatch(r.erro || '', /sem contrato/);
+  assert.ok(est.S.versao > 4, 'migrou até a versão atual');
+  assert.ok(est.S.clubs.every(c => c.players.every(x => Number.isInteger(x.contrato) && x.pot != null)));
+  assert.ok(Array.isArray(est.S.clubs.find(c => c.id === ana.id).base), 'o clube com técnico ganhou a base');
+  const futuro = { ...JSON.parse(novaLiga(['A'])), versao: 999 };
+  assert.match(acaoMercadoLiga(futuro, 'u-ana', { tipo: 'alternarVenda', pid: p.id }).erro, /versão mais nova/);
+});

@@ -7,7 +7,8 @@ import { promoverDaBase, venderDaBase } from './base.mjs';
 import { renovarContrato } from './contratos.mjs';
 import { exercerOpcaoCompra, proporEmprestimo } from './emprestimos.mjs';
 import { unavailable } from './escalacao.mjs';
-import { P, S, clubById, clubDo, criarJogo, ehHumano, reindex, tec, tecnicos, usarEstado, usarTecnico, userClub } from './estado.mjs';
+import { P, S, clubById, clubDo, criarJogo, ehHumano, tec, tecnicos, usarTecnico, userClub } from './estado.mjs';
+import { migrarSave } from './versao.mjs';
 import { aceitarOferta, alternarVenda, proporCompra, recusarOferta, venderJa } from './mercado.mjs';
 import { autoXI, jogarRodada, validateLineup } from './motor.mjs';
 import { fecharTemporada, iniciarTemporada } from './partida.mjs';
@@ -51,7 +52,7 @@ export function aplicarEntrada(uc, e) {
 /** Joga a rodada atual da liga. entradas: {user_id: linha de liga_entradas}. Quem não confirmou joga com a escalação automática.
  *  Depois da última rodada, fecha a temporada e começa a próxima na mesma chamada. */
 export function jogarRodadaLiga(estado, entradas) {
-  usarEstado(estado); reindex();
+  const m = migrarSave(estado); if (m.erro) throw new Error(m.erro); // liga criada antes de uma mudança no save ganha os campos novos
   for (const t of tecnicos()) {
     const uc = clubDo(t), e = entradas[t.id];
     if (e && e.pronto) aplicarEntrada(uc, e);
@@ -109,7 +110,8 @@ const MERCADO = {
 /** Ação de mercado de um técnico (a: {tipo, ...}, vinda do navegador: tudo é conferido). Devolve {erro} (nada muda) ou {ok, msg}
  *  (o estado em S mudou e deve ser gravado; ok=false é proposta recusada). Negócio fechado vira notícia para todos da liga. */
 export function acaoMercadoLiga(estado, eu, a) {
-  usarEstado(estado); reindex(); usarTecnico(eu);
+  const m = migrarSave(estado); if (m.erro) return m;
+  usarTecnico(eu);
   if (!a || !Object.hasOwn(MERCADO, a.tipo)) return { erro: 'Ação de mercado desconhecida.' }; // hasOwn: "constructor" não vale
   const f = MERCADO[a.tipo];
   const t = tec(), uc = userClub(), antes = t.news[0];
