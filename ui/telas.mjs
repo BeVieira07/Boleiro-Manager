@@ -10,6 +10,7 @@ import { loanBtn, loanTag, vLoans } from './emprestimos.mjs';
 import { vEscalacao } from './escalacao.mjs';
 import { MAX_TECNICOS, getData, newGame, save, ui } from './estado.mjs';
 import { tendenciaTag } from './forma.mjs';
+import { ovrChip, stat } from './componentes.mjs';
 import { acceptOffer, makeBid, quickSell, rejectOffer, toggleListed } from './mercado.mjs';
 import { botaoRodada, playRound, simToEnd } from './motor.mjs';
 import { crest, newSeason, seasonEnd } from './partida.mjs';
@@ -86,7 +87,7 @@ export function vElenco(){
   return `<h2>Elenco — ${esc(uc.name)}</h2>
   <p class="muted">Titulares (linha destacada), reservas e formação são definidos na tela de Escalação.</p>
   <div class="card tw"><table><tr><th>Pos</th><th>#</th><th>Nome</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Tend.</th><th class="n">Gols</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th>Mercado</th></tr>
-  ${ps.map(p=>`<tr${xi.includes(p.id)?' class="me"':''}><td>${posTag(p)}</td><td class="muted">${p.number??''}</td><td>${esc(p.name)}${loanTag(p)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${tendenciaTag(p)}</td><td class="n">${p.goals||0}</td>
+  ${ps.map(p=>`<tr${xi.includes(p.id)?' class="me"':''}><td>${posTag(p)}</td><td class="muted">${p.number??''}</td><td>${esc(p.name)}${loanTag(p)}</td><td class="n">${p.age}</td><td class="c">${ovrChip(p.ovr)}</td><td class="n">${tendenciaTag(p)}</td><td class="n">${p.goals||0}</td>
    <td class="n">${money(p.value)}</td><td class="n">${money(p.wage)}</td>
    <td>${loanOf(p.id)?'':`<button class="btn sm ${p.listed?'red':'sec'}" data-acao="toggleListed|${p.id}">${p.listed?'À venda ✓':'Pôr à venda'}</button> <button class="btn sec sm" data-acao="quickSell|${p.id}">Vender já</button> `}${loanBtn(p,'out')}</td></tr>`).join('')}
   </table></div>${vLoans()}`;
@@ -139,18 +140,18 @@ export function vMercado(){
   </div>
   <p class="muted">${total} jogadores${total>120?' (mostrando os 120 melhores)':''}. Craques do time vendedor custam mais caro. Uma proposta por jogador a cada rodada.</p>
   <div class="card tw"><table><tr><th>Pos</th><th>Nome</th><th>Clube</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th></th></tr>
-  ${L.map(p=>`<tr><td>${posTag(p)}</td><td>${esc(p.name)}${loanTag(p)}</td><td>${esc(clubById(p.clubId).name)}</td><td class="n">${p.age}</td><td class="n ovr">${p.ovr}</td><td class="n">${money(p.value)}</td><td class="n">${money(p.wage)}</td><td>${loanOf(p.id)?'':`<button class="btn sm" data-acao="makeBid|${p.id}">Proposta</button> ${loanBtn(p,'in')}`}</td></tr>`).join('')}
+  ${L.map(p=>`<tr><td>${posTag(p)}</td><td>${esc(p.name)}${loanTag(p)}</td><td>${esc(clubById(p.clubId).name)}</td><td class="n">${p.age}</td><td class="c">${ovrChip(p.ovr)}</td><td class="n">${money(p.value)}</td><td class="n">${money(p.wage)}</td><td>${loanOf(p.id)?'':`<button class="btn sm" data-acao="makeBid|${p.id}">Proposta</button> ${loanBtn(p,'in')}`}</td></tr>`).join('')}
   </table></div>`;
 }
 export function vFin(){
   const uc=userClub(),w=wageBill(uc);
   const val=uc.players.reduce((s,p)=>s+p.value,0);
   return `<h2>Finanças</h2>
-  <div class="grid">
-   <div class="card"><div class="muted">Caixa</div><div style="font-size:22px;font-weight:800" class="${userClub().balance<0?'bad':'ok'}">${money(userClub().balance)}</div></div>
-   <div class="card"><div class="muted">Folha salarial por rodada</div><div style="font-size:22px;font-weight:800">${money(w)}</div></div>
-   <div class="card"><div class="muted">Valor do elenco</div><div style="font-size:22px;font-weight:800">${money(val)}</div></div>
-   <div class="card"><div class="muted">Receitas</div><div>TV ${money(tvQuota(divOf(uc)))} por rodada + bilheteria em casa + premiação no fim</div></div>
+  <div class="stats">
+   ${stat({rotulo:'Caixa',valor:money(uc.balance),cor:uc.balance<0?'var(--perigo)':'var(--verde)'})}
+   ${stat({rotulo:'Folha salarial',valor:money(w),unid:'por rodada'})}
+   ${stat({rotulo:'Valor do elenco',valor:money(val),unid:`${uc.players.length} jogadores`})}
+   ${stat({rotulo:'Receitas',valor:money(tvQuota(divOf(uc))),unid:'de TV por rodada',sub:'Mais bilheteria em casa e premiação no fim da temporada'})}
   </div>
   <div class="card tw"><h3>Movimentações</h3><table><tr><th>Temp.</th><th>Rod.</th><th>Descrição</th><th class="n">Valor</th></tr>
   ${userClub().fin.map(f=>`<tr><td>${f.s}</td><td>${f.r+1}</td><td>${esc(f.desc)}</td><td class="n ${f.amount<0?'bad':'ok'}">${money(f.amount)}</td></tr>`).join('')||'<tr><td class="muted">Sem movimentações.</td></tr>'}</table></div>`;
