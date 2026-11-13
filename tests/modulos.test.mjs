@@ -47,8 +47,8 @@ test('os botões funcionam pela delegação de eventos', () => {
   j.acao('playRound');
   assert.equal(j.run('S.round'), 1);
   j.acao('go|escalacao');
-  assert.match(j.html(), /data-mudar="setFormation"/);
-  j.acao('setFormation', '4-3-3');
+  assert.match(j.html(), /data-acao="setFormation\|4-3-3"/);
+  j.acao('setFormation|4-3-3');
   assert.equal(j.run('userClub().formation'), '4-3-3');
   j.acao('verDivisao|B');
   j.acao('go|tabela');
