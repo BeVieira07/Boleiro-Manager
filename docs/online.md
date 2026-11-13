@@ -104,6 +104,8 @@ liga_noticias   (liga_id, user_id null, rodada, texto)                          
    - Grava o novo estado (`versao + 1`), os jogos da rodada em `liga_resultados` e limpa os `pronto`.
 4. O Realtime avisa os navegadores. Cada um baixa o resultado e mostra o "jogo ao vivo" como **replay** dos eventos que o servidor gerou.
 
+**Como ficou (#34):** regras em `core/liga.mjs`; função `supabase/functions/jogar-rodada` (veja o README dela: o `core/` é importado fixado num commit e precisa ser publicado de novo quando mudar); o estado só é gravado pelas funções do banco `liga_iniciar` e `liga_gravar_rodada` (migração `..._liga_rodada.sql`), que só a chave de serviço chama. `ligas.rodada` conta as rodadas jogadas desde o começo da liga (não volta a 0 na virada) e é a rodada das `liga_entradas`. No navegador, `ui/ligajogo.mjs` abre o estado da liga nas telas do jogo (`ui.liga`), sem gravar save local nem na nuvem; mercado, empréstimos e temporada ficam bloqueados até a #35. Na liga ninguém é demitido por enquanto (#37).
+
 **O que muda em relação ao solo:**
 - **Mudar tática durante o jogo (#3)** não existe na liga, porque o jogo já foi simulado. Na liga, a tática vale para a rodada inteira. Uma evolução possível são instruções condicionais definidas antes ("se estiver perdendo após os 60', ofensivo").
 - **Demissão:** na liga, o técnico demitido perde o clube (que volta para a IA) e escolhe outro clube livre.

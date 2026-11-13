@@ -10,6 +10,7 @@ import { campoBusca, chipsGrupo, filtrar, mudarFiltro, th } from './jogadores.mj
 import { crest } from './partida.mjs';
 import { posTag } from './posicoes.mjs';
 import { render } from './telas.mjs';
+import { bloqueadoNaLiga } from './ligajogo.mjs';
 import { avisar, confirmar, pedirValor } from './avisos.mjs';
 
 /* ================= Mercado (#63): mesma tabela do Elenco ================= */
@@ -50,7 +51,7 @@ export function vMercado() {
     <tbody id="corpoMercado">${r.linhas}</tbody></table></div></section>`;
 }
 
-export function makeBid(pid){
+export function makeBid(pid){if(bloqueadoNaLiga())return;
   const p=P[pid],seller=clubById(p.clubId);
   const e=podeProporCompra(pid);if(e){avisar(e,'erro');return}
   const caixa=userClub().balance;
@@ -60,13 +61,13 @@ export function makeBid(pid){
 }
 // tela
 export const feito=(r,msg,tipo='ok')=>{if(r.erro){avisar(r.erro,'erro');return}save();render();if(msg)avisar(msg,tipo)};
-export function acceptOffer(oid){
+export function acceptOffer(oid){if(bloqueadoNaLiga())return;
   const o=tec().offers.find(x=>x.id===oid),txt=o&&P[o.pid]?`Negócio fechado: ${P[o.pid].name} vendido ao ${clubById(o.from).name} por ${money(o.amount)}.`:'';
   feito(aceitarOferta(oid),txt);
 }
-export function rejectOffer(oid){feito(recusarOferta(oid),'Proposta recusada.','info')}
-export function quickSell(pid){
+export function rejectOffer(oid){if(bloqueadoNaLiga())return;feito(recusarOferta(oid),'Proposta recusada.','info')}
+export function quickSell(pid){if(bloqueadoNaLiga())return;
   if(userClub().players.length<=16){avisar('Seu elenco ficaria pequeno demais (mínimo 16).','aviso');return}
   confirmar({titulo:`Vender ${P[pid].name} agora?`,texto:`Ele sai do elenco por ${money(valorVendaRapida(pid))}, 70% do valor de mercado (${money(P[pid].value)}). A venda não pode ser desfeita.`,ok:'Vender agora',perigo:true},()=>{const txt=`${P[pid].name} vendido por ${money(valorVendaRapida(pid))}.`;feito(venderJa(pid),txt)});
 }
-export function toggleListed(pid){feito(alternarVenda(pid))}
+export function toggleListed(pid){if(bloqueadoNaLiga())return;feito(alternarVenda(pid))}

@@ -10,6 +10,7 @@ import { MAX_TECNICOS, getData, save, ui } from './estado.mjs';
 import { icone } from './icones.mjs';
 import { TITULOS, barraAcoes, lateral } from './layout.mjs';
 import { vLigas, vLobby } from './liga.mjs';
+import { bloqueadoNaLiga } from './ligajogo.mjs';
 import { vMercado } from './mercado.mjs';
 import { botaoRodada } from './motor.mjs';
 import { crest, newSeason, seasonEnd } from './partida.mjs';
@@ -159,4 +160,4 @@ export function vDados(){
 
 export function verRodadaJogos(n){ui.jogosRound=+n;render()}
 export function verDivisao(d){ui.vDiv=d;render()}
-export function proximaTemporada(){S.seasonClosed===S.season?newSeason():seasonEnd()}
+export function proximaTemporada(){if(bloqueadoNaLiga())return;S.seasonClosed===S.season?newSeason():seasonEnd()}

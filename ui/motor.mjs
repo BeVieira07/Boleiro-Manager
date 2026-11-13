@@ -7,8 +7,10 @@ import { seasonEnd, showLive } from './partida.mjs';
 import { icone } from './icones.mjs';
 import { render } from './telas.mjs';
 import { avisar, confirmar } from './avisos.mjs';
+import { bloqueadoNaLiga, botaoLiga } from './ligajogo.mjs';
 
 export function playRound(aoVivo=true){
+  if(bloqueadoNaLiga())return; // na liga, quem joga a rodada é o servidor (#34)
   const r=jogarRodada();
   if(r.demitido){demissao();return}
   if(r.fim)return;
@@ -20,6 +22,7 @@ export function playRound(aoVivo=true){
   else if(aoVivo){ui.view='rodada';render();if(tec().demitido)demissao()}
 }
 export function simToEnd(){
+  if(bloqueadoNaLiga())return;
   confirmar({titulo:'Simular até o fim?',texto:`As ${S.fixtures.length-S.round} rodadas restantes serão jogadas sem você assistir. Lesionados e suspensos são trocados pela escalação automática.`,ok:'Simular'},()=>{
     while(S.round<S.fixtures.length&&!tec().demitido){
       const err=validateLineup();if(err){userClub().lineup=autoXI(userClub())}
@@ -31,6 +34,7 @@ export function simToEnd(){
 
 // revezamento: confirma a vez do técnico atual; quando todos confirmaram, joga a rodada
 export function confirmarVez(){
+  if(bloqueadoNaLiga())return;
   const r=confirmarRodada();
   if(r.erro){avisar(r.erro,'erro');ui.view='escalacao';render();return}
   if(r.todos){playRound();return}
@@ -38,6 +42,7 @@ export function confirmarVez(){
 }
 // botão da rodada: no solo joga direto; com vários técnicos, cada um confirma a sua vez
 export function botaoRodada(cls,txt){
+  if(ui.liga)return botaoLiga(cls); // #34: confirmar a rodada da liga (e forçar, para o dono)
   if(tecnicos().length>1)return `<button class="${cls}" data-acao="confirmarVez">${icone('ok',{tam:16})}Confirmar rodada ${S.round+1} — ${esc(tec().nome)}</button>`;
   return `<button class="${cls}" data-acao="playRound">${txt}</button>`;
 }
