@@ -14,6 +14,7 @@ import { acceptOffer, makeBid, quickSell, rejectOffer, toggleListed } from './me
 import { botaoRodada, playRound, simToEnd } from './motor.mjs';
 import { crest, newSeason, seasonEnd } from './partida.mjs';
 import { posTag } from './posicoes.mjs';
+import { vLigas, vLobby } from './liga.mjs';
 import { vMenu, voltarMenu } from './saves.mjs';
 import { painelTatica } from './taticas.mjs';
 import { APIKEY_KEY, DATA_KEY, store } from './utils.mjs';
@@ -29,7 +30,7 @@ export function divTabs(){
 }
 export function render(){
   const nav=document.getElementById('nav'),hi=document.getElementById('hinfo');
-  if(!S){nav.innerHTML=ui.view==='menu'?'':`<button data-acao="go|menu">☰ Menu</button>`;hi.innerHTML='';if(ui.view!=='dados'&&ui.view!=='inicio')ui.view='menu';}
+  if(!S){nav.innerHTML=ui.view==='menu'?'':`<button data-acao="go|menu">☰ Menu</button>`;hi.innerHTML='';if(!['dados','inicio','ligas','lobby'].includes(ui.view))ui.view='menu';}
   else{
     const uc=userClub(),pos=table().findIndex(t=>t.id===uc.id)+1;
     hi.innerHTML=(tecnicos().length>1?`<span>Vez de <b>${esc(tec().nome)}</b> ${tecnicos().map(t=>`<span class="pill" title="${t.pronto?'confirmou':'falta confirmar'}">${t.pronto?'✔':'…'} ${esc(t.nome)}</span>`).join(' ')}</span>`:'')+`<span>${crest(uc)} <b>${esc(uc.name)}</b></span>${hasTwoDivs()?`<span><b>${DIVS[divOf(uc)]}</b></span>`:''}<span>Temporada <b>${S.season}</b></span><span>Rodada <b>${Math.min(S.round+1,S.fixtures.length)}/${S.fixtures.length}</b></span><span>Posição <b>${S.round?pos+'º':'-'}</b></span><span>Caixa <b class="${userClub().balance<0?'bad':'ok'}">${money(userClub().balance)}</b></span>`;
@@ -37,7 +38,7 @@ export function render(){
       (S.round<S.fixtures.length?botaoRodada('on" style="margin-left:auto',`▶ Jogar rodada ${S.round+1}`):'')+
       `<button data-acao="voltarMenu" title="Salvar e voltar à tela inicial"${S.round<S.fixtures.length?'':' style="margin-left:auto"'}>☰ Menu</button>`;
   }
-  const V={menu:vMenu,inicio:vInicio,clube:vClube,elenco:vElenco,escalacao:vEscalacao,tabela:vTabela,jogos:vJogos,artilharia:vArt,mercado:vMercado,financas:vFin,dados:vDados,rodada:vRodada};
+  const V={menu:vMenu,inicio:vInicio,clube:vClube,elenco:vElenco,escalacao:vEscalacao,tabela:vTabela,jogos:vJogos,artilharia:vArt,mercado:vMercado,financas:vFin,dados:vDados,rodada:vRodada,ligas:vLigas,lobby:vLobby};
   document.getElementById('app').innerHTML=(V[ui.view]||vClube)();
 }
 export function stars(s){const n=clamp(Math.round((s-62)/4),1,5);return '★'.repeat(n)+'☆'.repeat(5-n)}

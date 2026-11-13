@@ -85,6 +85,7 @@ liga_noticias   (liga_id, user_id null, rodada, texto)                          
 
 - O estado da liga fica num **JSONB único** (`liga_estado.estado`, ~600 KB). É simples e aproveita o motor como está. Para grupos de amigos é suficiente. Tabelas normalizadas de jogadores só se um dia houver ligas grandes.
 - Tamanho: uma liga ≈ 0,6 MB de estado + resultados. O plano gratuito tem 500 MB de banco, então cabem centenas de ligas.
+- **Ações que não precisam do motor** (criar liga, entrar por código, escolher clube; #32) são **funções do banco** (`security definer`, chamadas por `rpc`), não Edge Functions: são atômicas, só para quem está logado, e conferem tudo no próprio banco. `ligas.series` guarda as séries escolhidas pelo dono. As Edge Functions ficam para o que roda o motor (`jogar-rodada`, mercado).
 
 **Regras de acesso (RLS):**
 - `saves`: cada usuário lê e grava só as suas linhas.

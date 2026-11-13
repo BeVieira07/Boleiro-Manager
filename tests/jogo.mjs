@@ -28,7 +28,8 @@ globalThis.confirm = m => { amb.alertas.push(String(m)); return true };
 globalThis.prompt = () => null;
 
 const RAIZ = new URL('..', import.meta.url);
-const carregar = async dir => Promise.all(readdirSync(new URL(dir, RAIZ)).filter(f => f.endsWith('.mjs')).map(f => import(new URL(`${dir}/${f}`, RAIZ))));
+// um de cada vez: imports em paralelo de módulos com ciclo (ui/telas <-> ui/saves, ui/liga) quebram no Node 22 (ERR_VM_MODULE_LINK_FAILURE)
+const carregar = async dir => { const ms = []; for (const f of readdirSync(new URL(dir, RAIZ)).filter(f => f.endsWith('.mjs'))) ms.push(await import(new URL(`${dir}/${f}`, RAIZ))); return ms };
 const modulos = [...await carregar('core'), ...await carregar('ui')];
 const main = await import(new URL('ui/main.mjs', RAIZ));
 const { usarEstado } = await import(new URL('core/estado.mjs', RAIZ));
