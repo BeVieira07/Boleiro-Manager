@@ -1,7 +1,7 @@
 /* ================= tela do Clube como painel (#59) =================
    Responde "como estamos e o que preciso fazer agora": indicadores, próximo jogo, forma recente,
    o que pede atenção, mini classificação e notícias. */
-import { faixaConf } from '../core/diretoria.mjs';
+import { faixaConf, receitaEsperada } from '../core/diretoria.mjs';
 import { loanLeft, loansIn, wageBill } from '../core/emprestimos.mjs';
 import { slotLayout, unavailable } from '../core/escalacao.mjs';
 import { DIVS, P, S, clubById, divOf, table, tec, userClub } from '../core/estado.mjs';
@@ -101,9 +101,9 @@ export function vClube() {
   const fat = t.confFat && t.confFat.length ? 'Última rodada: ' + t.confFat.map(f => `${esc(f.t)} <b class="${f.v > 0 ? 'ok' : 'bad'}">${f.v > 0 ? '+' : ''}${f.v}</b>`).join(' · ') : 'Muda a cada rodada com resultados e posição.';
   const indicadores = `<section class="stats" aria-label="Indicadores">
     ${stat({ rotulo: 'Posição', valor: S.round ? ord(pos) : '—', unid: S.round ? `${row.Pts} pontos` : '', sub: S.round ? `${row.V}V ${row.E}E ${row.D}D · saldo ${row.GP - row.GC > 0 ? '+' : ''}${row.GP - row.GC}` : 'A temporada ainda não começou.' })}
-    ${stat({ rotulo: 'Caixa', valor: money(uc.balance), cor: uc.balance < 0 ? 'var(--perigo)' : '', sub: `Folha: ${money(wageBill(uc))} por rodada` })}
+    ${stat({ rotulo: 'Caixa', valor: money(uc.balance), cor: uc.balance < 0 ? 'var(--perigo)' : '', sub: `Folha: ${money(wageBill(uc))} por rodada · receita esperada: ${money(receitaEsperada(uc))}` })}
     ${stat({ rotulo: 'Diretoria', valor: Math.round(c), unid: `/ 100 · ${faixaConf(c)}`, cor: corConf, pct: c, corBarra: corConf, sub: fat })}
-    ${stat({ rotulo: 'Meta da temporada', valor: ord(t.meta.alvo), unid: 'ou melhor', cor: 'var(--ouro)', sub: esc(t.meta.texto) })}
+    ${stat({ rotulo: 'Meta da temporada', valor: ord(t.meta.alvo), unid: 'ou melhor', cor: 'var(--ouro)', sub: `${esc(t.meta.texto)} · fechar com caixa positivo` })}
   </section>`;
   const ch = h => h.champs || { A: h.champ, ...(h.champB ? { B: h.champB } : {}) };
   const hd = [...new Set(S.history.flatMap(h => Object.keys(ch(h))))].sort(), many = hd.length > 1;

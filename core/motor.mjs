@@ -1,7 +1,7 @@
 import { atualizarConfianca } from './diretoria.mjs';
 import { processLoans, wageBill } from './emprestimos.mjs';
 import { aplicarDisponibilidade, autoSlotXI, slotsDe, unavailable } from './escalacao.mjs';
-import { P, S, addFin, addNews, clubById, clubDo, divOf, ehHumano, table, tec, tecnicos, tvQuota, userClub } from './estado.mjs';
+import { P, S, addFin, addNews, bilheteriaBase, clubById, clubDo, divOf, ehHumano, table, tec, tecnicos, tvQuota, userClub } from './estado.mjs';
 import { adiarForma, aplicarFormaPendente } from './forma.mjs';
 import { ovrNaPosicao } from './posicoes.mjs';
 import { golsSegmento, novosGols, taticaDe } from './taticas.mjs';
@@ -76,7 +76,7 @@ export function jogarRodada(){
     if(mine&&mine.h===uc.id){
       const pos=table(divOf(uc)).findIndex(x=>x.id===uc.id);
       const bonus=pos<4?1.3:pos<10?1.1:1;
-      addFin(`Bilheteria vs ${clubById(mine.a).name}`,Math.round((0.5+(uc.strength-60)*0.06)*bonus*100)/100,uc);
+      addFin(`Bilheteria vs ${clubById(mine.a).name}`,Math.round(bilheteriaBase(uc)*bonus*100)/100,uc);
     }
     const wages=wageBill(uc);
     addFin('Salários do elenco',-Math.round(wages*1000)/1000,uc);
