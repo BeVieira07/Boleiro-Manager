@@ -23,7 +23,7 @@ let canal = null;
 
 /** Chama a função do servidor; erros viram aviso. */
 async function chamarFuncao(corpo) {
-  const c = clienteLogado(); if (!c) return null;
+  const c = clienteLogado(); if (!c) { avisar('Você não está mais conectado. Entre na sua conta de novo.', 'erro'); return null }
   const { data, error } = await c.functions.invoke(FUNCAO, { body: corpo });
   if (error) {
     let msg = error.message;

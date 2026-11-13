@@ -45,8 +45,11 @@ export async function iniciarConta(aoMudar) {
     const { data } = await c.auth.getSession();
     conta.usuario = data.session?.user ?? null;
     await carregarPerfil();
-    c.auth.onAuthStateChange(async (_evento, sessao) => {
-      conta.usuario = sessao?.user ?? null; await carregarPerfil(); conta.aoMudar && conta.aoMudar();
+    // O supabase-js segura uma trava enquanto roda este aviso; chamar o Supabase aqui dentro (carregarPerfil) trava a página
+    // inteira: todo pedido seguinte fica esperando para sempre. Por isso o resto roda depois, fora do aviso.
+    c.auth.onAuthStateChange((_evento, sessao) => {
+      conta.usuario = sessao?.user ?? null;
+      setTimeout(async () => { await carregarPerfil(); conta.aoMudar && conta.aoMudar() }, 0);
     });
   } catch (e) { conta.erro = 'Não foi possível conectar ao servidor. O jogo continua offline.'; console.error(e) }
   conta.aoMudar && conta.aoMudar();
