@@ -48,6 +48,7 @@ export function atualizarConfianca(t,jogo){
   const pos=table(divOf(uc)).findIndex(x=>x.id===me)+1;
   add(`Posição (${pos}º) contra a meta (${t.meta.alvo}º)`,clamp((t.meta.alvo-pos)*0.3,-2,2)*Math.min(1,S.round/8)); // pesa pouco nas primeiras rodadas
   for(const f of fatoresFinanceiros(uc,t.meta))add(f.t,f.v);
+  if(t.copaFat){add(t.copaFat.t,t.copaFat.v);delete t.copaFat} // Copa do Brasil (#51): classificação, eliminação ou título nesta rodada
   aplicarConfianca(t,fat,6);
 }
 export function aplicarConfianca(t,fat,lim){

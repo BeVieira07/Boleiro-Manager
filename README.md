@@ -125,5 +125,5 @@ O progresso fica no `localStorage` do navegador. Use **Dados → Exportar save**
 ## Ideias para próximas versões
 - Lesões, suspensões e cartões acumulados
 - Campo visual para escalação
-- Copa do Brasil / Libertadores
+- Libertadores e campeonatos estaduais
 - Contratos e renovação

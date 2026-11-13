@@ -1,3 +1,4 @@
+import { jogarCopa } from './copa.mjs';
 import { atualizarConfianca } from './diretoria.mjs';
 import { processLoans, wageBill } from './emprestimos.mjs';
 import { aplicarDisponibilidade, autoSlotXI, slotsDe, unavailable } from './escalacao.mjs';
@@ -56,7 +57,8 @@ export function validateLineup(uc=userClub()){
   if(ind.length)return `Jogador(es) indisponível(is) na escalação: ${ind.map(p=>p.name+' ('+unavailable(p)+')').join(', ')}.`;
   return null;
 }
-// regra: joga a rodada atual. Devolve {erro, tecnico}, {demitido}, {fim} ou {jogos, meu} (meu = jogo do técnico da vez).
+// regra: joga a rodada atual. Devolve {erro, tecnico}, {demitido}, {fim} ou {jogos, meu, copa} (meu = jogo do técnico da vez;
+// copa = confrontos da Copa do Brasil jogados nesta rodada, #51).
 export function jogarRodada(){
   if(tec().demitido)return {demitido:true};
   if(S.round>=S.fixtures.length)return {fim:true};
@@ -94,11 +96,12 @@ export function jogarRodada(){
       }
     }
   }
+  const copa=jogarCopa(S.round); // #51: a Copa do Brasil, quando esta rodada tem jogo dela
   for(const t of tecnicos())t.pronto=false;
   S.atual=tecnicos()[0].id; // depois da rodada, a vez volta ao primeiro técnico
   S.round++;processLoans();
   for(const t of tecnicos()){const uc=clubDo(t);atualizarConfianca(t,jogoDe(uc));if(uc.balance<0)addNews('⚠️ Caixa negativo! Venda jogadores para equilibrar as contas.',uc.id)}
-  return {jogos:games,meu:jogoDe(userClub())};
+  return {jogos:games,meu:jogoDe(userClub()),copa};
 }
 
 // revezamento (#29): o técnico da vez confirma a escalação; a vez passa ao próximo que falta.

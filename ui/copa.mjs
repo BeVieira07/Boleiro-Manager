@@ -1,0 +1,36 @@
+/* ================= Copa do Brasil na tela (#51): chaveamento por fase ================= */
+import { COPA, PREMIO_COPA, agregado, confrontoDe, copaNaRodada, nomeFase } from '../core/copa.mjs';
+import { S, clubById, tec } from '../core/estado.mjs';
+import { esc, money } from '../core/utils.mjs';
+import { tag } from './componentes.mjs';
+import { crest } from './partida.mjs';
+
+const perna = (j, k, H, A) => j[k] ? `${k === 'ida' ? 'Ida' : 'Volta'}: ${k === 'ida' ? `${esc(H.short || H.name)} ${j.ida.h} x ${j.ida.a} ${esc(A.short || A.name)}` : `${esc(A.short || A.name)} ${j.volta.a} x ${j.volta.h} ${esc(H.short || H.name)}`}` : '';
+function confronto(j, me) {
+  const H = clubById(j.h), A = clubById(j.a), t = agregado(j), jogou = !!j.ida, meu = j.h === me || j.a === me;
+  const cls = id => (j.v ? (j.v === id ? 'venceu' : 'perdeu') : '');
+  const detalhe = [perna(j, 'ida', H, A), perna(j, 'volta', H, A), j.pen ? `${esc(clubById(j.pen).name)} venceu nos pênaltis` : ''].filter(Boolean).join(' · ');
+  return `<li class="jogo${meu ? ' meu' : ''}"><span class="jogo-time casa ${cls(j.h)}">${esc(H.name)} ${crest(H)}</span>
+    <span class="jogo-placar">${jogou ? `${t.h}<span aria-hidden="true"> x </span><span class="sr"> a </span>${t.a}` : '<span class="muted">x</span>'}</span>
+    <span class="jogo-time fora ${cls(j.a)}">${crest(A)} ${esc(A.name)}</span>
+    <span class="jogo-detalhe">${detalhe || 'A jogar'}</span></li>`;
+}
+
+/** Aviso para a tela de Jogos: o que a copa tem nesta rodada. */
+export function avisoCopa(r) {
+  const q = copaNaRodada(r); if (!q || S.copa.fases.length <= q.fase) return '';
+  return `<p class="aviso-copa">${tag(COPA, 'info')} Nesta rodada também tem ${q.nome.toLowerCase()} (${q.volta ? 'volta' : 'ida'}). <button class="btn fantasma sm" data-acao="go|copa">Ver a copa</button></p>`;
+}
+
+export function vCopa() {
+  const copa = S.copa, me = tec().clubId;
+  if (!copa) return `<section class="card"><h3>${COPA}</h3><p class="muted">Não há copa nesta temporada. Ela começa na próxima.</p></section>`;
+  const meu = confrontoDe(me), vivo = meu && (!meu.v || meu.v === me);
+  const situacao = copa.campeao ? `Campeão: <b>${esc(clubById(copa.campeao).name)}</b>.` : vivo ? `Seu clube está na ${nomeFase(copa.fases[copa.fases.length - 1]).toLowerCase()}.` : 'Seu clube não está mais na copa.';
+  const fases = copa.fases.map((f, i) => {
+    const ida = copa.datas[2 * i] + 1, volta = copa.datas[2 * i + 1] + 1, n = f.jogos.length;
+    return `<section class="fase-copa"><div class="card-topo"><h3>${nomeFase(f)}</h3><span class="muted">Ida na rodada ${ida}, volta na rodada ${volta} · ${n === 1 ? 'título' : 'quem passa'}: ${money(PREMIO_COPA[n] ?? 0.3)}</span></div>
+      <ul class="jogos">${[...f.jogos].sort((a, b) => (b.h === me || b.a === me) - (a.h === me || a.a === me)).map(j => confronto(j, me)).join('')}</ul></section>`;
+  }).reverse().join('');
+  return `<p class="muted resumo">Mata-mata em ida e volta, jogado junto com rodadas da liga, com a escalação e a tática da rodada. Empate na soma dos dois jogos vai para os pênaltis. ${situacao}</p>${fases}`;
+}
