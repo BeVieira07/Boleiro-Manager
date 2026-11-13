@@ -134,7 +134,7 @@ export function exportSave(){
 export function loadSaveFile(_valor,ev){
   const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
   rd.onload=()=>{try{const j=JSON.parse(rd.result);const sv=j.type==='brasfoot-save'?j.save:j;
-    if(!sv||!Array.isArray(sv.clubs)||!Array.isArray(sv.fixtures)||!sv.userClubId)throw 0;
+    if(!sv||!Array.isArray(sv.clubs)||!Array.isArray(sv.fixtures)||!(sv.userClubId||sv.managers))throw 0;
     if(!podeCriarSave())return; // importar cria um save novo na lista, sem substituir os outros
     delete sv.saveId;usarEstado(sv);migrarPosicoes(S);reindex();migrarDiretoria(S);save();ui.view='clube';render();alert(`Save carregado: ${userClub().name}, temporada ${S.season}, rodada ${S.round+1}.`)}
   catch(e){alert('Arquivo de save inválido.')}};

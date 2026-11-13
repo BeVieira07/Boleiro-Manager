@@ -11,10 +11,12 @@ const falso = () => new Proxy(function () {}, {
   get: (t, k) => k === 'value' ? '5' : k === 'checked' ? false : k === Symbol.toPrimitive ? () => '' : falso(),
   set: () => true, apply: () => falso()
 });
-const amb = { app: '', alertas: [], ls: {}, limite: Infinity };
+const amb = { app: '', alertas: [], ls: {}, limite: Infinity, campos: {} };
+// campo de formulário com valor definido pelo teste (j.campo(id, valor))
+const campo = id => new Proxy(falso(), { get: (t, k) => k === 'value' ? amb.campos[id] : k === 'checked' ? !!amb.campos[id] : falso() });
 const appEl = new Proxy({}, { set: (t, k, v) => { if (k === 'innerHTML') amb.app = v; return true }, get: () => falso() });
 globalThis.__TESTE__ = true;
-globalThis.document = { getElementById: id => id === 'app' ? appEl : falso(), querySelector: () => falso(), querySelectorAll: () => [], createElement: () => falso(), body: falso(), addEventListener() {} };
+globalThis.document = { getElementById: id => id === 'app' ? appEl : id in amb.campos ? campo(id) : falso(), querySelector: () => falso(), querySelectorAll: () => [], createElement: () => falso(), body: falso(), addEventListener() {} };
 globalThis.window = { scrollTo() {}, addEventListener() {} };
 globalThis.localStorage = {
   getItem: k => amb.ls[k] ?? null,
@@ -43,10 +45,10 @@ const avaliar = new Function('escopo', 'codigo', 'with (escopo) { return eval(co
 
 /** Começa do zero: sem jogo, armazenamento vazio (ou o `ls` dado). `boot: true` abre o jogo como no navegador. */
 export function carregarJogo({ boot = false, ls = {}, limiteLs = Infinity } = {}) {
-  amb.app = ''; amb.alertas = []; amb.ls = ls; amb.limite = limiteLs;
+  amb.app = ''; amb.alertas = []; amb.ls = ls; amb.limite = limiteLs; amb.campos = {};
   usarEstado(null); Object.assign(ui, JSON.parse(UI_INICIAL)); salvarJogo.avisou = false;
   if (boot) main.iniciar();
-  return { run: c => avaliar(escopo, c), ls: amb.ls, alertas: amb.alertas, html: () => amb.app, acao: (spec, ...extra) => main.executar(spec, extra), main };
+  return { run: c => avaliar(escopo, c), ls: amb.ls, alertas: amb.alertas, html: () => amb.app, acao: (spec, ...extra) => main.executar(spec, extra), campo: (id, v) => { amb.campos[id] = v }, main };
 }
 
 /** Clube da série `div` na posição `i` por força (0 = mais forte). */

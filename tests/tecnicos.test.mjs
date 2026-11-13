@@ -10,7 +10,7 @@ function doisTecnicos() {
   j.run(`criarJogo([{id:'ana',nome:'Ana',clubId:'${a}'},{id:'bia',nome:'Bia',clubId:'${b}'}],getData())`);
   return { j, a, b };
 }
-const rodada = j => j.run(`(()=>{for(const t of tecnicos()){const c=clubDo(t);if(validateLineup(c))c.lineup=autoXI(c)}return jogarRodada()})()`);
+const rodada = j => j.run(`(()=>{for(const t of tecnicos()){t.pronto=true;const c=clubDo(t);if(validateLineup(c))c.lineup=autoXI(c)}return jogarRodada()})()`);
 
 test('cada técnico tem seu clube, confiança, meta, notícias e propostas', () => {
   const { j, a, b } = doisTecnicos();
@@ -55,7 +55,7 @@ test('a rodada atualiza a diretoria dos dois e respeita as duas escalações', (
 test('escalação inválida de qualquer técnico impede a rodada e diz de quem é', () => {
   const { j, b } = doisTecnicos();
   j.run(`clubById('${b}').lineup=clubById('${b}').lineup.slice(0,9)`);
-  const r = JSON.parse(j.run('JSON.stringify(jogarRodada())'));
+  const r = JSON.parse(j.run('for(const t of tecnicos())t.pronto=true;JSON.stringify(jogarRodada())'));
   assert.equal(r.tecnico, 'bia');
   assert.match(r.erro, /^Bia: /);
   assert.equal(j.run('S.round'), 0);
