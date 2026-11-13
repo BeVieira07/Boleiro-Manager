@@ -1,6 +1,5 @@
-import { migrarDiretoria } from '../core/diretoria.mjs';
-import { DIVS, S, reindex, table, usarEstado } from '../core/estado.mjs';
-import { migrarPosicoes } from '../core/posicoes.mjs';
+import { migrarSave } from '../core/versao.mjs';
+import { DIVS, S, table, usarEstado } from '../core/estado.mjs';
 import { esc } from '../core/utils.mjs';
 import { loadSaveFile } from './api.mjs';
 import { getData, save, ui } from './estado.mjs';
@@ -43,13 +42,14 @@ export function podeCriarSave(){
 }
 export function migrarSaveAntigo(){
   const old=store.get(SAVE_KEY);if(!old||!Array.isArray(old.clubs))return;
-  usarEstado(old);const ok=salvarJogo();usarEstado(null);
+  if(migrarSave(old).erro)return;const ok=salvarJogo();usarEstado(null);
   if(ok)store.del(SAVE_KEY);
 }
 export function abrirSave(id){
   const s=store.get(SAVE_PREFIX+id);
   if(!s||!Array.isArray(s.clubs)){avisar('Este save não pôde ser lido.','erro');return}
-  usarEstado(s);S.saveId=id;migrarPosicoes(S);reindex();migrarDiretoria(S);
+  const m=migrarSave(s);if(m.erro){avisar(m.erro,'erro');return}
+  S.saveId=id;
   const idx=indiceSaves();idx.cur=id;store.set(SAVES_KEY,idx);
   ui.selEsc=null;ui.vDiv=null;go('clube');
 }

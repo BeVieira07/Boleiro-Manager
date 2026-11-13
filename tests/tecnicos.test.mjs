@@ -105,9 +105,9 @@ test('save de antes da #28 vira o técnico "local", com o caixa no clube', () =>
   const s = JSON.parse(j.run('JSON.stringify(S)'));
   const t = s.managers.local, clube = s.clubs.find(x => x.id === c), caixa = clube.balance;
   const antigo = { ...s, userClubId: c, balance: clube.balance, fin: clube.fin, conf: 42, confBaixa: 1, confFat: [], meta: t.meta, demitido: false, news: t.news, offers: [] };
-  delete antigo.managers; delete antigo.atual;
+  delete antigo.managers; delete antigo.atual; delete antigo.versao;
   for (const x of antigo.clubs) { delete x.balance; delete x.fin }
-  j.run(`usarEstado(${JSON.stringify(antigo)});reindex()`);
+  j.run(`migrarSave(${JSON.stringify(antigo)})`);
   assert.equal(j.run('S.atual'), 'local');
   assert.equal(j.run('tec().clubId'), c);
   assert.equal(j.run('tec().conf'), 42);

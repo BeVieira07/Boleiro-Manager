@@ -1,8 +1,7 @@
 import { erroIds } from '../core/dados.mjs';
-import { migrarDiretoria } from '../core/diretoria.mjs';
-import { DIVS, S, divOf, divsOf, reindex, usarEstado, userClub } from '../core/estado.mjs';
-import { migrarPosicoes } from '../core/posicoes.mjs';
+import { DIVS, S, divOf, divsOf, userClub } from '../core/estado.mjs';
 import { norm } from '../core/utils.mjs';
+import { migrarSave } from '../core/versao.mjs';
 import { getData, save, ui } from './estado.mjs';
 import { excluirSave, podeCriarSave } from './saves.mjs';
 import { render } from './telas.mjs';
@@ -46,7 +45,7 @@ export function loadSaveFile(_valor,ev){
     if(!sv||!Array.isArray(sv.clubs)||!Array.isArray(sv.fixtures)||!(sv.userClubId||sv.managers))throw 0;
     const erro=erroIds(sv.clubs);if(erro){avisar(erro,'erro');return}
     if(!podeCriarSave())return; // importar cria um save novo na lista, sem substituir os outros
-    delete sv.saveId;usarEstado(sv);migrarPosicoes(S);reindex();migrarDiretoria(S);save();ui.view='clube';render();avisar(`Save carregado: ${userClub().name}, temporada ${S.season}, rodada ${S.round+1}.`)}
+    delete sv.saveId;const m=migrarSave(sv);if(m.erro){avisar(m.erro,'erro');return}save();ui.view='clube';render();avisar(`Save carregado: ${userClub().name}, temporada ${S.season}, rodada ${S.round+1}.`)}
   catch(e){avisar('Arquivo de save inválido.','erro')}};
   rd.readAsText(f);
 }

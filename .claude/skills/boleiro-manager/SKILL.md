@@ -77,6 +77,7 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 
 ## Persistência no navegador
 - As campanhas ficam em `localStorage`, uma por save (até 5): `brasfoot_save_v2_<id>` mais o índice `brasfoot_saves_v2`. Tudo em `ui/saves.mjs` (`save()` de `core/estado.mjs` chama `salvarJogo()`). O jogo abre na tela inicial (Continuar, Novo jogo, lista de saves); o save antigo de slot único (`brasfoot_save_v1`) é migrado na primeira abertura. Backup: **Exportar save (JSON)**; importar cria um save novo.
+- **Versão do save (#46):** `S.versao` e `migrarSave(s)` em `core/versao.mjs`. Todo save que vem de fora (local, nuvem, arquivo importado, slot antigo) passa por `migrarSave`, que recusa versão mais nova que o jogo. Campo novo no save = migração nova no **fim** de `MIGRACOES` (conferindo se o campo já existe); `reindex()` só monta o índice `P`. Nos testes, para simular um save antigo, apague também `versao`.
 - Dados importados pela aba Dados (`DATA_KEY`) ficam só no navegador e **têm prioridade** sobre `dados-padrao.js`. Se o jogo mostrar menos jogadores ou escudos antigos: aba **Dados**, **Voltar aos dados padrão**, `Ctrl+F5` e começar campanha nova (dados novos só valem a partir de um jogo novo).
 - Para guardar algo importado pela aba Dados: **Exportar dados**, salvar em `data/` e rodar `npm run dados:padrao`.
 - O overall é recalculado a cada campanha nova (`rate()` em `core/dados.mjs`), exceto os `ovrM`.

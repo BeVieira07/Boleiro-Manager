@@ -77,7 +77,7 @@ test('save de versões antigas, sem os campos novos, carrega e joga', () => {
   const a = carregarJogo();
   a.run(`newGame('${clubeDaSerie(a)}');playRound()`);
   const s = JSON.parse(a.run('JSON.stringify(S)'));
-  for (const k of ['saveId', 'loans', 'conf', 'confBaixa', 'confFat', 'meta', 'demitido']) delete s[k];
+  for (const k of ['saveId', 'versao', 'loans', 'conf', 'confBaixa', 'confFat', 'meta', 'demitido']) delete s[k];
   for (const c of s.clubs) { delete c.tatica; for (const p of c.players) for (const k of ['pd', 'ps', 'inj', 'susp', 'forma', 'o0']) delete p[k] }
   const j = carregarJogo({ boot: true, ls: { brasfoot_save_v1: JSON.stringify(s) } });
   j.run('abrirSave(indiceSaves().cur)');
@@ -96,4 +96,26 @@ test('aba Dados sem importação pela API; a chave antiga é apagada e carregar/
   assert.match(j.html(), /data-mudar="loadDataFile"/);
   assert.match(j.html(), /data-acao="exportData"/);
   assert.equal(j.run('typeof importFromApi'), 'undefined');
+});
+
+test('versão do save: jogo novo nasce na versão atual; save de versão mais nova não abre (#46)', () => {
+  const a = carregarJogo();
+  a.run(`newGame('${clubeDaSerie(a)}')`);
+  assert.equal(a.run('S.versao'), a.run('VERSAO_SAVE'));
+  const s = JSON.parse(a.run('JSON.stringify(S)'));
+  const versaoAtual = s.versao;
+  // save local de versão futura
+  s.versao = versaoAtual + 1; s.saveId = 'futuro';
+  const j = carregarJogo({ boot: true, ls: { brasfoot_save_v2_futuro: JSON.stringify(s), brasfoot_saves_v2: JSON.stringify({ cur: 'futuro', list: [{ id: 'futuro', clube: 'X', season: 2026, data: '' }] }) } });
+  j.run("abrirSave('futuro')");
+  assert.ok(j.alertas.some(a => a.includes('versão mais nova')));
+  assert.equal(j.run('S'), null, 'o jogo não abriu');
+  // o mesmo save importado por arquivo também é recusado
+  globalThis.FileReader = class { readAsText() { this.result = JSON.stringify({ type: 'brasfoot-save', save: s }); this.onload() } };
+  j.acao('loadSaveFile', '', { target: { files: [{}] } });
+  assert.equal(j.alertas.filter(a => a.includes('versão mais nova')).length, 2);
+  // e um save sem versão (antigo) chega à versão atual
+  delete s.versao;
+  j.run(`migrarSave(${JSON.stringify(s)})`);
+  assert.equal(j.run('S.versao'), versaoAtual);
 });

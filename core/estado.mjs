@@ -3,6 +3,7 @@ import { migrarDiretoria } from './diretoria.mjs';
 import { autoXI } from './motor.mjs';
 import { atribuirPosicoes, converterPosicoesAntigas } from './posicoes.mjs';
 import { hashStr, money, mulberry32, novaSemente, shuffle } from './utils.mjs';
+import { VERSAO_SAVE } from './versao.mjs';
 
 /* ================= estado ================= */
 export let S=null;        // jogo salvo
@@ -28,7 +29,8 @@ export function migrarTecnicos(s){
 }
 export const clubById=id=>S.clubs.find(c=>c.id===id);
 export function usarEstado(s){S=s} // único jeito de trocar o jogo atual de fora deste módulo
-export function reindex(){if(S)migrarTecnicos(S);if(S&&S.seed==null){S.seed=novaSemente();S.rng=S.seed} // saves antigos ganham semente
+// índice de jogadores; as migrações de saves antigos ficam em core/versao.mjs (#46)
+export function reindex(){
   P={};for(const c of S.clubs)for(const p of c.players){p.clubId=c.id;P[p.id]=p}}
 /* ================= divisões ================= */
 export const DIVS={A:'Série A',B:'Série B',C:'Série C',D:'Série D'};
@@ -57,7 +59,7 @@ export function criarJogo(quem,data){
     c.formation='4-4-2';c.fin=[];
   }
   const seed=novaSemente();
-  S={seed,rng:seed,posv:2,season:data.season||2026,dataSource:data.source,round:0,clubs,
+  S={versao:VERSAO_SAVE,seed,rng:seed,posv:2,season:data.season||2026,dataSource:data.source,round:0,clubs,
      fixtures:makeAllFixtures(clubs),history:[],
      managers:Object.fromEntries(lista.map(t=>[t.id,novoTecnico(t.id,t.nome,t.clubId)])),atual:lista[0].id};
   for(const c of S.clubs)c.balance=startBalance(divOf(c),c.strength); // clubes da IA também têm caixa
