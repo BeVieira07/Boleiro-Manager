@@ -18,17 +18,18 @@ export const NAV = [
   ['financas', 'Finanças', 'financas'], ['dados', 'Dados', 'dados']
 ];
 const PRINCIPAIS = 4;
-export const TITULOS = { clube: 'Painel do clube', elenco: 'Elenco', escalacao: 'Escalação', jogos: 'Jogos', tabela: 'Classificação', artilharia: 'Artilharia', mercado: 'Mercado', financas: 'Finanças', dados: 'Dados do jogo', rodada: 'Resultados da rodada' };
+export const TITULOS = { liga: 'Liga', clube: 'Painel do clube', elenco: 'Elenco', escalacao: 'Escalação', jogos: 'Jogos', tabela: 'Classificação', artilharia: 'Artilharia', mercado: 'Mercado', financas: 'Finanças', dados: 'Dados do jogo', rodada: 'Resultados da rodada' };
 
 const item = ([k, l, ic]) => `<button type="button" class="nav-item" data-acao="go|${k}"${ui.view === k ? ' aria-current="page"' : ''}>${icone(ic)}<span>${l}</span></button>`;
 
 /** Menu lateral (no celular, vira a barra inferior). Vazio fora de um jogo. */
 export function lateral() {
   if (!S) return '';
-  const uc = userClub(), mais = NAV.slice(PRINCIPAIS), maisAtivo = mais.some(([k]) => k === ui.view);
+  const nav = ui.liga ? [['liga', 'Liga', 'liga'], ...NAV] : NAV; // #35: tela da liga só para quem está jogando uma
+  const uc = userClub(), mais = nav.slice(PRINCIPAIS), maisAtivo = mais.some(([k]) => k === ui.view);
   return `<div class="marca">${icone('logo', { tam: 30 })}<div><span class="marca-nome">BOLEIRO</span><span class="marca-sub">MANAGER</span></div></div>
   <nav class="nav" aria-label="Principal">
-    ${NAV.slice(0, PRINCIPAIS).map(item).join('')}
+    ${nav.slice(0, PRINCIPAIS).map(item).join('')}
     <div class="nav-resto${ui.maisAberto ? ' aberto' : ''}" id="navResto">${mais.map(item).join('')}
       <button type="button" class="nav-item" data-acao="voltarMenu">${icone('sair')}<span>${ui.liga ? 'Sair da liga' : 'Salvar e sair'}</span></button></div>
     <button type="button" class="nav-item nav-mais" data-acao="alternarMais" aria-expanded="${!!ui.maisAberto}" aria-controls="navResto"${maisAtivo ? ' aria-current="page"' : ''}>${icone('mais')}<span>Mais</span></button>

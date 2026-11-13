@@ -1,5 +1,5 @@
 import { loanOf } from '../core/emprestimos.mjs';
-import { P, S, clubById, tec, userClub } from '../core/estado.mjs';
+import { P, S, clubById, ehHumano, tec, userClub } from '../core/estado.mjs';
 import { aceitarOferta, alternarVenda, podeProporCompra, proporCompra, recusarOferta, valorVendaRapida, venderJa } from '../core/mercado.mjs';
 import { posDNome } from '../core/posicoes.mjs';
 import { esc, money } from '../core/utils.mjs';
@@ -10,7 +10,7 @@ import { campoBusca, chipsGrupo, filtrar, mudarFiltro, th } from './jogadores.mj
 import { crest } from './partida.mjs';
 import { posTag } from './posicoes.mjs';
 import { render } from './telas.mjs';
-import { bloqueadoNaLiga } from './ligajogo.mjs';
+import { mercadoLiga } from './ligajogo.mjs';
 import { avisar, confirmar, pedirValor } from './avisos.mjs';
 
 /* ================= Mercado (#63): mesma tabela do Elenco ================= */
@@ -28,7 +28,7 @@ export function corpoMercado() {
   const linhas = L.slice(0, LIMITE).map(p => { const c = clubById(p.clubId);
     return `<tr><td class="c-pos">${posTag(p)}</td><th scope="row" class="c-nome"><div class="jogador">${crest(c)}<div><b>${esc(p.name)}</b>${loanTag(p)}<span class="st">${esc(c.name)}</span></div></div></th>
     <td class="n c-idade"><span class="rot">Idade </span>${p.age}</td><td class="c c-ovr">${ovrChip(p.ovr)}</td><td class="n c-valor">${money(p.value)}</td><td class="n c-sal">${money(p.wage)}</td>
-    <td class="c-acoes"><div class="acoes">${loanOf(p.id) ? '' : `<button class="btn sm" data-acao="makeBid|${p.id}">Proposta</button>${loanBtn(p, 'in')}`}</div></td></tr>` }).join('');
+    <td class="c-acoes"><div class="acoes">${loanOf(p.id) || ehHumano(c) ? '' : `<button class="btn sm" data-acao="makeBid|${p.id}">Proposta</button>${loanBtn(p, 'in')}`}</div></td></tr>` }).join('');
   return { linhas: linhas || '<tr><td colspan="7" class="muted">Nenhum jogador com esse filtro.</td></tr>', total: L.length };
 }
 const contagem = t => `${t} jogadores${t > LIMITE ? ` (mostrando os ${LIMITE} primeiros)` : ''}.`;
@@ -51,23 +51,25 @@ export function vMercado() {
     <tbody id="corpoMercado">${r.linhas}</tbody></table></div></section>`;
 }
 
-export function makeBid(pid){if(bloqueadoNaLiga())return;
+export function makeBid(pid){
   const p=P[pid],seller=clubById(p.clubId);
   const e=podeProporCompra(pid);if(e){avisar(e,'erro');return}
   const caixa=userClub().balance;
   pedirValor({titulo:`Proposta por ${p.name}`,texto:`${posDNome(p)}, força ${p.ovr}, do ${seller.name}.\nValor de mercado: ${money(p.value)}. Seu caixa: ${money(caixa)}.`,rotulo:'Quanto oferecer',sufixo:'milhões',valor:p.value.toFixed(1).replace('.',','),ok:'Enviar proposta',
     validar:v=>isNaN(v)||v<=0?'Digite um valor maior que zero, em milhões (ex.: 4,5).':v>caixa?`O caixa só tem ${money(caixa)}.`:''},
-    v=>{const r=proporCompra(pid,v);avisar(r.erro||r.msg,r.erro?'erro':'ok');save();render()});
+    v=>{if(ui.liga)return mercadoLiga({tipo:'compra',pid,valor:v}); // #35: na liga, a IA responde no servidor
+      const r=proporCompra(pid,v);avisar(r.erro||r.msg,r.erro?'erro':'ok');save();render()});
 }
 // tela
 export const feito=(r,msg,tipo='ok')=>{if(r.erro){avisar(r.erro,'erro');return}save();render();if(msg)avisar(msg,tipo)};
-export function acceptOffer(oid){if(bloqueadoNaLiga())return;
+export function acceptOffer(oid){
   const o=tec().offers.find(x=>x.id===oid),txt=o&&P[o.pid]?`Negócio fechado: ${P[o.pid].name} vendido ao ${clubById(o.from).name} por ${money(o.amount)}.`:'';
+  if(ui.liga)return mercadoLiga({tipo:'aceitar',oid},txt);
   feito(aceitarOferta(oid),txt);
 }
-export function rejectOffer(oid){if(bloqueadoNaLiga())return;feito(recusarOferta(oid),'Proposta recusada.','info')}
-export function quickSell(pid){if(bloqueadoNaLiga())return;
+export function rejectOffer(oid){if(ui.liga)return mercadoLiga({tipo:'recusar',oid},'Proposta recusada.');feito(recusarOferta(oid),'Proposta recusada.','info')}
+export function quickSell(pid){
   if(userClub().players.length<=16){avisar('Seu elenco ficaria pequeno demais (mínimo 16).','aviso');return}
-  confirmar({titulo:`Vender ${P[pid].name} agora?`,texto:`Ele sai do elenco por ${money(valorVendaRapida(pid))}, 70% do valor de mercado (${money(P[pid].value)}). A venda não pode ser desfeita.`,ok:'Vender agora',perigo:true},()=>{const txt=`${P[pid].name} vendido por ${money(valorVendaRapida(pid))}.`;feito(venderJa(pid),txt)});
+  confirmar({titulo:`Vender ${P[pid].name} agora?`,texto:`Ele sai do elenco por ${money(valorVendaRapida(pid))}, 70% do valor de mercado (${money(P[pid].value)}). A venda não pode ser desfeita.`,ok:'Vender agora',perigo:true},()=>{const txt=`${P[pid].name} vendido por ${money(valorVendaRapida(pid))}.`;if(ui.liga)return mercadoLiga({tipo:'venderJa',pid},txt);feito(venderJa(pid),txt)});
 }
-export function toggleListed(pid){if(bloqueadoNaLiga())return;feito(alternarVenda(pid))}
+export function toggleListed(pid){if(ui.liga)return mercadoLiga({tipo:'alternarVenda',pid});feito(alternarVenda(pid))}

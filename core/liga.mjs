@@ -3,8 +3,10 @@
    com as escolhas de cada técnico. Puro (sem rede nem DOM), para ser testado no Node e rodar igual no Deno.
    Atenção: usa o estado global do core (S). Quem chama precisa fazer usarEstado -> regra -> JSON.stringify(S)
    num bloco síncrono, sem await no meio (várias requisições podem dividir o mesmo processo). */
+import { exercerOpcaoCompra, proporEmprestimo } from './emprestimos.mjs';
 import { unavailable } from './escalacao.mjs';
-import { S, clubDo, criarJogo, reindex, tecnicos, usarEstado } from './estado.mjs';
+import { P, S, clubById, clubDo, criarJogo, ehHumano, reindex, tec, tecnicos, usarEstado, usarTecnico, userClub } from './estado.mjs';
+import { aceitarOferta, alternarVenda, proporCompra, recusarOferta, venderJa } from './mercado.mjs';
 import { autoXI, jogarRodada, validateLineup } from './motor.mjs';
 import { fecharTemporada, iniciarTemporada } from './partida.mjs';
 import { ESTILOS, MODOS } from './taticas.mjs';
@@ -66,4 +68,42 @@ export function jogarRodadaLiga(estado, entradas) {
     iniciarTemporada();
   }
   return { jogos: r.jogos, temporada, rodada, semente, virada };
+}
+
+/* ---------- mercado da liga (#35): o servidor sorteia a resposta da IA, então recarregar a página não muda nada ---------- */
+const invalido = { erro: 'Jogador inválido para esta ação.' };
+const HUMANO = { erro: 'Negociar com outro técnico da liga ainda não é possível.' };
+// jogador de um clube da IA (comprar, pedir emprestado) / do meu clube (vender, emprestar)
+const daIA = (pid, uc) => !P[pid] || P[pid].clubId === uc.id ? invalido : ehHumano(P[pid].clubId) ? HUMANO : null;
+const meu = (pid, uc) => P[pid] && P[pid].clubId === uc.id ? null : invalido;
+function emprestimoLiga(a, uc) {
+  const dur = Number(a.dur), buy = a.buy == null ? null : Number(a.buy), resta = S.fixtures.length - S.round;
+  if (!['in', 'out'].includes(a.mode) || !['from', 'to'].includes(a.payer) || !Number.isInteger(dur) || dur < 1 || dur > resta)
+    return { erro: 'Proposta de empréstimo inválida.' };
+  if (a.mode === 'in') return daIA(a.pid, uc) || proporEmprestimo({ pid: a.pid, mode: 'in', dur, payer: a.payer, buy });
+  const c = clubById(a.clubeId);
+  return meu(a.pid, uc) || (!c || c.id === uc.id ? { erro: 'Clube inválido.' } : ehHumano(c) ? HUMANO : null)
+    || proporEmprestimo({ pid: a.pid, mode: 'out', clubeId: c.id, dur, payer: a.payer, buy });
+}
+const MERCADO = {
+  compra: (a, uc) => daIA(a.pid, uc) || proporCompra(a.pid, Number(a.valor)),
+  venderJa: (a, uc) => meu(a.pid, uc) || venderJa(a.pid),
+  alternarVenda: (a, uc) => meu(a.pid, uc) || alternarVenda(a.pid),
+  aceitar: a => aceitarOferta(a.oid),
+  recusar: a => recusarOferta(a.oid),
+  opcaoCompra: a => exercerOpcaoCompra(a.pid),
+  emprestimo: emprestimoLiga
+};
+/** Ação de mercado de um técnico (a: {tipo, ...}, vinda do navegador: tudo é conferido). Devolve {erro} (nada muda) ou {ok, msg}
+ *  (o estado em S mudou e deve ser gravado; ok=false é proposta recusada). Negócio fechado vira notícia para todos da liga. */
+export function acaoMercadoLiga(estado, eu, a) {
+  usarEstado(estado); reindex(); usarTecnico(eu);
+  const f = MERCADO[a && a.tipo]; if (!f) return { erro: 'Ação de mercado desconhecida.' };
+  const t = tec(), uc = userClub(), antes = t.news[0];
+  const r = f(a, uc);
+  if (r.ok) {
+    const novas = []; for (const n of t.news) { if (n === antes) break; novas.push(n) }
+    for (const n of novas.reverse()) for (const o of tecnicos()) if (o !== t) { o.news.unshift({ r: n.r, t: `${uc.name}: ${n.t}` }); o.news = o.news.slice(0, 40) }
+  }
+  return r;
 }

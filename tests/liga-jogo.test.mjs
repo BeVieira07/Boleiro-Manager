@@ -7,7 +7,7 @@ import { carregarJogo, clubeDaSerie } from './jogo.mjs';
 
 const raiz = new URL('../', import.meta.url);
 const conta = await import(new URL('ui/conta.mjs', raiz));
-const { iniciarLiga, jogarRodadaLiga } = await import(new URL('core/liga.mjs', raiz));
+const { acaoMercadoLiga, iniciarLiga, jogarRodadaLiga } = await import(new URL('core/liga.mjs', raiz));
 const est = await import(new URL('core/estado.mjs', raiz)); // est.S: o S muda a cada usarEstado
 const { DADOS_PADRAO } = await import(new URL('core/dados-padrao.mjs', raiz));
 
@@ -24,8 +24,15 @@ function servidorFalso(clubes) {
   // tempo real: avisa os canais assinados
   srv.emitir = (table, novo) => srv.ouvintes.filter(o => o.table === table).forEach(o => o.cb({ new: copia(novo) }));
   // a função jogar-rodada, como no servidor
-  const funcao = (uid, { acao, forcar }) => {
+  const funcao = (uid, { acao, forcar, mercado }) => {
     const L = srv.liga;
+    if (acao === 'mercado') { // #35
+      const r = acaoMercadoLiga(copia(srv.estado), uid, mercado || {});
+      if (r.erro) return r;
+      srv.estado = copia(est.S); L.versao++;
+      srv.emitir('ligas', L);
+      return { ok: true, aceita: r.ok, msg: r.msg || null };
+    }
     if (acao === 'iniciar') {
       if (L.dono_id !== uid) return { erro: 'Só o dono começa a liga.' };
       assert.ok(iniciarLiga(srv.membros, L.series, DADOS_PADRAO).ok);
@@ -53,7 +60,9 @@ function servidorFalso(clubes) {
   srv.cliente = uid => ({
     auth: { getSession: async () => ({ data: { session: { user: { id: uid, email: uid + '@x.com' } } } }), onAuthStateChange: () => ({}) },
     functions: { invoke: async (_nome, { body }) => {
-      const r = funcao(uid, body);
+      // o servidor roda noutra máquina: aqui ele divide o S global com o navegador, então o S do navegador é devolvido depois
+      const s0 = est.S, r = funcao(uid, body);
+      est.usarEstado(s0); if (s0) est.reindex();
       return r.erro ? { data: null, error: { message: r.erro, context: { json: async () => r } } } : { data: r, error: null };
     } },
     from: tabela => ({
@@ -111,7 +120,7 @@ test('dono começa a liga, confirmações chegam em tempo real e a rodada é jog
   // fora da liga, nada roda no navegador
   await j.acao('playRound');
   assert.equal(j.run('S.round'), 0);
-  assert.ok(j.alertas.some(a => a.includes('resolvidos no servidor')));
+  assert.ok(j.alertas.some(a => a.includes('jogadas no servidor')));
 
   // a Bia confirma no computador dela: chega pelo tempo real
   srv.entradas.push({ liga_id: 'L1', user_id: 'b', rodada: 0, pronto: true });
@@ -155,4 +164,38 @@ test('quem não é dono não força a rodada e a confirmação sozinha não joga
   assert.ok(k.alertas.some(a => a.includes('Só o dono')));
   assert.equal(srv.resultados.length, 0);
   k.run('sairDaLiga()');
+});
+
+test('mercado da liga: a venda é feita no servidor, todos recebem o estado novo e a escalação não confirmada fica', async () => {
+  const j0 = carregarJogo();
+  const srv = servidorFalso([clubeDaSerie(j0, 'A', 0), clubeDaSerie(j0, 'A', 1)]);
+  await como(srv, 'a');
+  const j = carregarJogo({ boot: true });
+  await j.acao('comecarLiga|L1'); await esperar();
+  const [ana, bia] = srv.membros.map(m => m.club_id);
+  j.run("userClub().formation='3-5-2'"); // mudou a formação e ainda não confirmou
+  const reserva = j.run('userClub().players.find(p=>!userClub().lineup.includes(p.id)).id');
+
+  await j.acao(`quickSell|${reserva}`); await esperar();
+  const vendido = srv.estado.clubs.flatMap(c => c.players).find(p => p.id === reserva);
+  assert.notEqual(vendido.clubId, ana, 'vendido no servidor');
+  assert.notEqual(vendido.clubId, bia, 'nunca para o clube de outro técnico');
+  assert.equal(j.run(`P['${reserva}'].clubId`), vendido.clubId, 'o navegador baixou o estado novo');
+  assert.equal(j.run('userClub().formation'), '3-5-2', 'a formação não confirmada continua');
+  assert.ok(j.alertas.some(a => a.includes('vendido')));
+  assert.match(srv.estado.managers.b.news[0].t, /vendido/, 'a notícia chega para a Bia');
+
+  // a Bia põe um jogador à venda no computador dela: o tempo real avisa e o navegador da Ana recarrega
+  const daBia = srv.estado.clubs.find(c => c.id === bia).players[0].id;
+  await srv.cliente('b').functions.invoke('jogar-rodada', { body: { liga: 'L1', acao: 'mercado', mercado: { tipo: 'alternarVenda', pid: daBia } } });
+  await esperar();
+  assert.equal(j.run(`P['${daBia}'].listed`), true);
+
+  // com clube de outro técnico não há proposta nem empréstimo
+  j.run(`ui.mf.club='${bia}'`); await j.acao('go|mercado');
+  assert.doesNotMatch(j.html(), /makeBid|loanForm/);
+  await j.acao('go|liga');
+  assert.match(j.html(), /Ana/); assert.match(j.html(), /Bia/);
+  assert.match(j.html(), /data-acao="go|liga"/, 'item Liga no menu');
+  j.run('sairDaLiga()');
 });

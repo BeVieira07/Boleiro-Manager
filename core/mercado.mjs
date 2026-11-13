@@ -1,4 +1,4 @@
-import { P, S, addFin, addNews, clubById, tec, tecnicos, userClub } from './estado.mjs';
+import { P, S, addFin, addNews, clubById, ehHumano, tec, tecnicos, userClub } from './estado.mjs';
 import { ensureSquad } from './partida.mjs';
 import { money, pick, rnd } from './utils.mjs';
 
@@ -47,7 +47,7 @@ export const valorVendaRapida=pid=>Math.round(P[pid].value*0.7*10)/10;
 export function venderJa(pid){
   const p=P[pid],uc=userClub();
   if(uc.players.length<=16)return {erro:'Seu elenco ficaria pequeno demais (mínimo 16).'};
-  const amt=valorVendaRapida(pid),buyers=S.clubs.filter(c=>c.id!==uc.id&&c.players.length<32),b=pick(buyers);
+  const amt=valorVendaRapida(pid),buyers=S.clubs.filter(c=>!ehHumano(c)&&c.players.length<32),b=pick(buyers);
   addFin(`Venda de ${p.name} (${b.name})`,amt);movePlayer(p,b);addNews(`💰 ${p.name} vendido ao ${b.name} por ${money(amt)}.`);return {ok:true};
 }
 export function alternarVenda(pid){P[pid].listed=!P[pid].listed;return {ok:true}}

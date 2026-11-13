@@ -1,11 +1,11 @@
 import { exercerOpcaoCompra, loanLeft, loanOf, loansIn, loansOut, proporEmprestimo } from '../core/emprestimos.mjs';
-import { P, S, clubById, table, userClub } from '../core/estado.mjs';
+import { P, S, clubById, ehHumano, table, userClub } from '../core/estado.mjs';
 import { posDSigla } from '../core/posicoes.mjs';
 import { esc, money } from '../core/utils.mjs';
-import { save } from './estado.mjs';
+import { save, ui } from './estado.mjs';
 import { closeModal, openModal } from './partida.mjs';
 import { render } from './telas.mjs';
-import { bloqueadoNaLiga } from './ligajogo.mjs';
+import { mercadoLiga } from './ligajogo.mjs';
 import { avisar, confirmar } from './avisos.mjs';
 
 export function loanTag(p){
@@ -17,11 +17,11 @@ export function loanBtn(p,mode){
   if(loanOf(p.id))return '';
   return `<button class="btn sec sm" data-acao="loanForm|${p.id}|${mode}">Empréstimo</button>`;
 }
-export function loanForm(pid,mode){if(bloqueadoNaLiga())return;
+export function loanForm(pid,mode){
   const p=P[pid],uc=userClub(),left=S.fixtures.length-S.round;
   if(left<1){avisar('A temporada acabou.');return}
   const durs=[...new Set([5,10,19,left].filter(n=>n<=left))].sort((a,b)=>a-b);
-  const clubSel=mode==='out'?`<label>Emprestar para <select id="lnClub">${S.clubs.filter(c=>c.id!==uc.id).sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label>`
+  const clubSel=mode==='out'?`<label>Emprestar para <select id="lnClub">${S.clubs.filter(c=>!ehHumano(c)).sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label>`
     :`<p>Clube de origem: <b>${esc(clubById(p.clubId).name)}</b></p>`;
   openModal(`<h2>Empréstimo — ${esc(p.name)}</h2>
    <p class="muted">${posDSigla(p)} · força ${p.ovr} · valor ${money(p.value)} · salário ${money(p.wage)}/rod.</p>
@@ -34,13 +34,16 @@ export function loanForm(pid,mode){if(bloqueadoNaLiga())return;
 export function submitLoan(pid,mode){
   const v=id=>document.getElementById(id);
   const buy=v('lnBuy').checked?Math.round(parseFloat(v('lnBuyV').value)*10)/10:null;
-  const r=proporEmprestimo({pid,mode,clubeId:mode==='out'?v('lnClub').value:null,dur:parseInt(v('lnDur').value),payer:v('lnPay').value,buy});
+  const a={pid,mode,clubeId:mode==='out'?v('lnClub').value:null,dur:parseInt(v('lnDur').value),payer:v('lnPay').value,buy};
+  if(ui.liga){closeModal();return mercadoLiga({tipo:'emprestimo',...a})} // #35: na liga, a IA responde no servidor
+  const r=proporEmprestimo(a);
   if(r.erro){avisar(r.erro,'erro');return}
   closeModal();save();render();avisar(r.msg,'ok');
 }
-export function buyLoaned(pid){if(bloqueadoNaLiga())return;
+export function buyLoaned(pid){
   const l=loanOf(pid);if(!l||!l.buy)return;
   confirmar({titulo:'Exercer a opção de compra?',texto:`${P[pid].name} passa a ser do seu clube por ${money(l.buy)}, que saem do caixa (${money(userClub().balance)}).`,ok:`Comprar por ${money(l.buy)}`},()=>{
+    if(ui.liga)return mercadoLiga({tipo:'opcaoCompra',pid},`${P[pid].name} foi comprado.`);
     const r=exercerOpcaoCompra(pid);if(r.erro){avisar(r.erro,'erro');return}save();render();avisar(`${P[pid].name} foi comprado.`,'ok')});
 }
 export function vLoans(){
