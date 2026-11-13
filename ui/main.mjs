@@ -57,6 +57,7 @@ export function ligarEventos(doc = document) {
 
 export function iniciar() {
   saves.migrarSaveAntigo(); // save de slot único (versões antigas) vira o primeiro da lista
+  utils.store.del(utils.APIKEY_KEY); // a chave da API-Football não fica mais guardada no navegador (#52)
   usarEstado(null); estado.ui.view = 'menu'; // tela inicial: continuar, carregar ou começar um jogo
   telas.render();
 }

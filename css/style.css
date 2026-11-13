@@ -80,8 +80,8 @@ a{color:var(--verde)}
 .tend{font-size:12px;font-weight:600;min-width:34px;display:inline-block}
 
 /* ---------- barra de progresso ---------- */
-.barra,.bar{height:8px;background:var(--painel2);border-radius:6px;overflow:hidden}
-.barra>div,.bar>div{height:100%;background:var(--verde);border-radius:inherit}
+.barra{height:8px;background:var(--painel2);border-radius:6px;overflow:hidden}
+.barra>div{height:100%;background:var(--verde);border-radius:inherit}
 .barra.fina{height:6px}
 
 /* ---------- indicador (stat) ---------- */
@@ -303,7 +303,6 @@ th[aria-sort="ascending"],th[aria-sort="descending"]{color:var(--verde-claro)}
 .caixa-perigo{border-color:var(--perigo-borda);background:var(--perigo-esc)}
 .caixa-perigo h3{color:var(--perigo-claro)}
 .caixa-perigo .icone{color:var(--perigo-claro)}
-.implog{margin-top:10px;max-height:240px;overflow:auto;font-family:ui-monospace,Consolas,monospace;font-size:12px}
 .grade-clubes{display:grid;gap:var(--e3);grid-template-columns:repeat(auto-fill,minmax(160px,1fr));margin-bottom:var(--e5)}
 .clube-escolha{appearance:none;font:inherit;color:var(--texto);background:var(--painel);border:1px solid var(--linha);border-radius:var(--r-lg);padding:16px 10px;
   display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;text-align:center}

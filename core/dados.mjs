@@ -1,6 +1,6 @@
 import { S, divOf } from './estado.mjs';
 import { sorteiaPosD } from './posicoes.mjs';
-import { clamp, hashStr, mulberry32, norm, pick, ri } from './utils.mjs';
+import { clamp, hashStr, mulberry32, pick, ri } from './utils.mjs';
 
 /* ================= dados base (Série A 2026) ================= */
 // [nome, sigla, força base, cor, chaves de busca p/ casar com a API]
@@ -30,12 +30,6 @@ export const FN=['Lucas','Gabriel','Matheus','Pedro','João','Rafael','Bruno','T
 export const LN=['Silva','Santos','Oliveira','Souza','Lima','Pereira','Costa','Rodrigues','Almeida','Nascimento','Carvalho','Araújo','Ribeiro','Gomes','Martins','Rocha','Barbosa','Cardoso','Teixeira','Moreira','Batista','Freitas','Mendes','Pinto','Ramos','Vieira','Monteiro','Farias'];
 export const SQUAD_SHAPE={G:3,D:8,M:9,A:6};
 
-export function baseInfo(apiName){
-  const n=norm(apiName);
-  if(/botafogo.*(sp|pb)\b/.test(n))return null; // homônimos de outros estados não são o Botafogo da Série A
-  for(const b of BASE_CLUBS){ if(b[4].some(k=>n.includes(k))) return b; }
-  return null;
-}
 export function fakePlayer(clubId,i,strength,pos,r,ageRange){
   return {id:'s'+clubId+'_'+i+'_'+Math.floor(r()*1e6),name:pick(FN,r)+' '+pick(LN,r),age:ageRange?ri(ageRange[0],ageRange[1],r):ri(18,34,r),pos,pd:sorteiaPosD(pos,r),number:i+1,photo:null};
 }

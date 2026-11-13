@@ -16,7 +16,7 @@ import { botaoRodada } from './motor.mjs';
 import { crest, newSeason, seasonEnd } from './partida.mjs';
 import { posTag } from './posicoes.mjs';
 import { vMenu } from './saves.mjs';
-import { APIKEY_KEY, DATA_KEY, store } from './utils.mjs';
+import { DATA_KEY, store } from './utils.mjs';
 
 /* ================= telas ================= */
 // #65: ao trocar de tela, o foco vai para o conteúdo (teclado e leitor de tela começam pelo título)
@@ -131,7 +131,7 @@ export function vFin(){
 
 /* ---------- dados ---------- */
 export function vDados(){
-  const d=getData(),k=store.get(APIKEY_KEY)||'';
+  const d=getData();
   return `${S?'':'<h2>Dados do jogo</h2>'}
   <section class="card"><h3>Dados dos clubes</h3><p>Fonte atual: <b>${d.source==='api'?'API-Football':'Exemplo (fictício)'}</b> · temporada ${d.season} · ${divsOf(d.clubs).map(x=>`${DIVS[x]}: ${d.clubs.filter(c=>divOf(c)===x).length} clubes`).join(' · ')} · ${d.clubs.reduce((s,c)=>s+c.players.length,0)} jogadores</p>
   <div class="row"><button class="btn sec" data-acao="exportData">Exportar dados dos clubes (JSON)</button>
@@ -143,19 +143,7 @@ export function vDados(){
    <div class="row">${S?`<button class="btn" data-acao="exportSave">${icone('descer',{tam:16})}Exportar save (JSON)</button>`:''}
    <label class="btn sec">Importar save<input type="file" accept=".json" class="sr" data-mudar="loadSaveFile"></label></div></section>
   ${S?`<section class="card caixa-perigo"><h3>Zona de perigo</h3><p>${icone('alerta')} <b>Excluir este jogo salvo apaga a campanha inteira</b> (elenco, tabela, finanças e histórico). Isso não pode ser desfeito. Exporte o save antes se quiser guardar uma cópia.</p>
-   <button class="btn perigo" data-acao="resetGame">${icone('lixo',{tam:16})}Excluir este jogo salvo</button></section>`:''}
-  <section class="card"><h3>Importar da API-Football</h3>
-   <p class="muted">Busca os times da série escolhida (Série A = liga 71, Série B = liga 72, Série C = liga 75, Série D = liga 76; da D ficam só os 20 clubes que foram mais longe), a classificação (para calibrar a força) e o elenco de cada clube. A série importada substitui só ela mesma nos dados atuais, então dá para importar a Série A e depois a Série B. São cerca de 22 a 27 requisições. Se o seu plano não liberar a temporada, a Série A é montada com os 20 clubes de 2026 e os elencos atuais. As Séries B, C e D precisam de uma temporada liberada (no plano gratuito, de 2022 a 2024). No plano gratuito o limite é de 10 por minuto, por isso há uma pausa entre elas e a importação leva uns 3 a 4 minutos. As requisições saem do seu navegador direto para a API.</p>
-   <div class="row"><label class="sr" for="apikey">Chave da API-Football</label><input id="apikey" type="password" placeholder="Sua chave x-apisports-key" style="flex:1;min-width:220px" value="${esc(k)}">
-    <label>Série <select id="serie"><option value="A">Série A</option><option value="B">Série B</option><option value="C">Série C</option><option value="D">Série D</option></select></label>
-    <label>Temporada <input id="season" type="number" value="${d.season||2026}" style="width:90px"></label>
-    <label>Pausa (s) <input id="delay" type="number" value="7" style="width:70px"></label>
-    <label class="row"><input id="remember" type="checkbox" ${k?'checked':''}> lembrar chave</label>
-    <button class="btn" id="impbtn" data-acao="importFromApi">Importar</button></div>
-   <div class="barra" style="margin-top:10px"><div id="impbar" style="width:0"></div></div>
-   <div id="implog" class="implog" aria-live="polite"></div>
-   <p class="muted">A força (40–95) de cada jogador é estimada a partir da força do clube, da idade e de uma variação fixa por jogador, porque a API não fornece atributos de jogo.</p>
-  </section>`;
+   <button class="btn perigo" data-acao="resetGame">${icone('lixo',{tam:16})}Excluir este jogo salvo</button></section>`:''}`;
 }
 
 export function verRodadaJogos(n){ui.jogosRound=+n;render()}
