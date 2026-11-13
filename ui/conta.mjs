@@ -21,11 +21,21 @@ export function configurarConta({ url, chave, cliente } = {}) {
   conta.cliente = cliente ?? null; conta.usuario = null; conta.perfil = null; conta.erro = null;
 }
 
+/** Trava da sessão só desta aba. A padrão do supabase-js (navigator.locks) é dividida por todas as abas do mesmo endereço:
+ *  uma aba presa (ou com código antigo) segurava a trava e travava o login de todas as outras. Aqui as operações da sessão
+ *  só fazem fila dentro da própria aba; um erro não segura a fila. */
+let filaSessao = Promise.resolve();
+export function travaDaAba(_nome, _espera, fn) {
+  const r = filaSessao.then(() => fn());
+  filaSessao = r.catch(() => {});
+  return r;
+}
+
 async function cliente() {
   if (!onlineConfigurado()) return null;
   if (!conta.cliente) {
     const { createClient } = await import(SUPABASE_JS);
-    conta.cliente = createClient(conta.config.url, conta.config.chave);
+    conta.cliente = createClient(conta.config.url, conta.config.chave, { auth: { lock: travaDaAba } });
   }
   return conta.cliente;
 }
