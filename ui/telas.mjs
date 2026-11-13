@@ -10,7 +10,9 @@ import { loanBtn, loanTag, vLoans } from './emprestimos.mjs';
 import { vEscalacao } from './escalacao.mjs';
 import { MAX_TECNICOS, getData, newGame, save, ui } from './estado.mjs';
 import { tendenciaTag } from './forma.mjs';
-import { ovrChip, stat } from './componentes.mjs';
+import { chip, ovrChip, stat } from './componentes.mjs';
+import { icone } from './icones.mjs';
+import { TITULOS, barraAcoes, lateral } from './layout.mjs';
 import { acceptOffer, makeBid, quickSell, rejectOffer, toggleListed } from './mercado.mjs';
 import { botaoRodada, playRound, simToEnd } from './motor.mjs';
 import { crest, newSeason, seasonEnd } from './partida.mjs';
@@ -21,26 +23,22 @@ import { painelTatica } from './taticas.mjs';
 import { APIKEY_KEY, DATA_KEY, store } from './utils.mjs';
 
 /* ================= telas ================= */
-export const NAV=[['clube','Clube'],['elenco','Elenco'],['escalacao','Escalação'],['tabela','Tabela'],['jogos','Jogos'],['artilharia','Artilharia'],['mercado','Mercado'],['financas','Finanças'],['dados','Dados']];
-export function go(v){ui.view=v;render();window.scrollTo(0,0)}
+export function go(v){ui.view=v;ui.maisAberto=false;render();window.scrollTo(0,0)}
 export const curDiv=()=>ui.vDiv&&divisions().includes(ui.vDiv)?ui.vDiv:divOf(userClub());
 export const inDiv=(g,d)=>divOf(clubById(g.h))===d;
 export function divTabs(){
   if(!hasTwoDivs())return '';
-  return `<div class="row">${divisions().map(d=>`<button class="btn sm ${curDiv()===d?'':'sec'}" data-acao="verDivisao|${d}">${DIVS[d]}</button>`).join('')}</div>`;
+  return `<div class="chips" role="group" aria-label="Série" style="margin-bottom:var(--e4)">${divisions().map(d=>chip(DIVS[d],`verDivisao|${d}`,curDiv()===d)).join('')}</div>`;
 }
 export function render(){
-  const nav=document.getElementById('nav'),hi=document.getElementById('hinfo');
-  if(!S){nav.innerHTML=ui.view==='menu'?'':`<button data-acao="go|menu">☰ Menu</button>`;hi.innerHTML='';if(!['dados','inicio','ligas','lobby'].includes(ui.view))ui.view='menu';}
-  else{
-    const uc=userClub(),pos=table().findIndex(t=>t.id===uc.id)+1;
-    hi.innerHTML=(tecnicos().length>1?`<span>Vez de <b>${esc(tec().nome)}</b> ${tecnicos().map(t=>`<span class="pill" title="${t.pronto?'confirmou':'falta confirmar'}">${t.pronto?'✔':'…'} ${esc(t.nome)}</span>`).join(' ')}</span>`:'')+`<span>${crest(uc)} <b>${esc(uc.name)}</b></span>${hasTwoDivs()?`<span><b>${DIVS[divOf(uc)]}</b></span>`:''}<span>Temporada <b>${S.season}</b></span><span>Rodada <b>${Math.min(S.round+1,S.fixtures.length)}/${S.fixtures.length}</b></span><span>Posição <b>${S.round?pos+'º':'-'}</b></span><span>Caixa <b class="${userClub().balance<0?'bad':'ok'}">${money(userClub().balance)}</b></span>`;
-    nav.innerHTML=NAV.map(([k,l])=>`<button class="${ui.view===k?'on':''}" data-acao="go|${k}">${l}</button>`).join('')+
-      (S.round<S.fixtures.length?botaoRodada('on" style="margin-left:auto',`▶ Jogar rodada ${S.round+1}`):'')+
-      `<button data-acao="voltarMenu" title="Salvar e voltar à tela inicial"${S.round<S.fixtures.length?'':' style="margin-left:auto"'}>☰ Menu</button>`;
-  }
+  if(!S&&!['dados','inicio','ligas','lobby'].includes(ui.view))ui.view='menu';
+  if(S&&!TITULOS[ui.view])ui.view='clube';
+  // #58: menu lateral (computador) / barra inferior (celular) e barra de ações no topo de cada tela do jogo
+  document.body.classList.toggle('em-jogo',!!S);
+  document.getElementById('lateral').innerHTML=lateral();
   const V={menu:vMenu,inicio:vInicio,clube:vClube,elenco:vElenco,escalacao:vEscalacao,tabela:vTabela,jogos:vJogos,artilharia:vArt,mercado:vMercado,financas:vFin,dados:vDados,rodada:vRodada,ligas:vLigas,lobby:vLobby};
-  document.getElementById('app').innerHTML=(V[ui.view]||vClube)();
+  const topo=S?barraAcoes(TITULOS[ui.view]):ui.view==='menu'?'':`<div class="topo-simples"><button class="btn fantasma" data-acao="go|menu">${icone('voltar')}Tela inicial</button></div>`;
+  document.getElementById('app').innerHTML=topo+V[ui.view]();
 }
 export function stars(s){const n=clamp(Math.round((s-62)/4),1,5);return '★'.repeat(n)+'☆'.repeat(5-n)}
 export function vInicio(){
@@ -65,7 +63,7 @@ export function vClube(){
   const T=table(),pos=T.findIndex(t=>t.id===me)+1,row=T.find(t=>t.id===me);
   const offers=tec().offers.filter(o=>P[o.pid]&&P[o.pid].clubId===me);
   const last=[];for(let r=S.round-1;r>=0&&last.length<5;r--){const g=S.fixtures[r].find(g=>g.h===me||g.a===me);if(g)last.push(g)}
-  return `<h2>${crest(uc)} ${esc(uc.name)}</h2>
+  return `
   <div class="cols">
    <div class="card"><h3>Próximo jogo</h3>${next?`<div class="score" style="font-size:15px">${crest(clubById(next.h))} ${esc(clubById(next.h).name)} <span class="muted">x</span> ${esc(clubById(next.a).name)} ${crest(clubById(next.a))}</div>
      <p class="muted" style="text-align:center">${next.h===me?'Em casa':'Fora de casa'} · Rodada ${S.round+1}</p>
@@ -84,7 +82,7 @@ export function vClube(){
 export function autoLineup(){escalarMelhores();save();render()}
 export function vElenco(){
   const uc=userClub(),xi=getXI(uc),ps=[...uc.players].sort((a,b)=>POSD_ORDEM.indexOf(posDSigla(a))-POSD_ORDEM.indexOf(posDSigla(b))||b.ovr-a.ovr);
-  return `<h2>Elenco — ${esc(uc.name)}</h2>
+  return `
   <p class="muted">Titulares (linha destacada), reservas e formação são definidos na tela de Escalação.</p>
   <div class="card tw"><table><tr><th>Pos</th><th>#</th><th>Nome</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Tend.</th><th class="n">Gols</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th>Mercado</th></tr>
   ${ps.map(p=>`<tr${xi.includes(p.id)?' class="me"':''}><td>${posTag(p)}</td><td class="muted">${p.number??''}</td><td>${esc(p.name)}${loanTag(p)}</td><td class="n">${p.age}</td><td class="c">${ovrChip(p.ovr)}</td><td class="n">${tendenciaTag(p)}</td><td class="n">${p.goals||0}</td>
@@ -96,7 +94,7 @@ export function vTabela(){
   const d=curDiv(),T=table(d),me=tec().clubId,two=hasTwoDivs(),mv=two?MOVE_N():4;
   const ds=divisions(),di=ds.indexOf(d),last=di===ds.length-1;
   const top=di===0?6:mv,bottom=!two?4:last?0:mv;
-  return `<h2>Classificação — ${two?DIVS[d]+' ':'Brasileirão '}${S.season}</h2>${divTabs()}
+  return `${divTabs()}
   <p class="muted"><span style="color:var(--info)">▌</span> ${di===0?'Libertadores (G6)':`Acesso à ${DIVS[ds[di-1]]} (G${mv})`}${bottom?` &nbsp; <span style="color:var(--danger)">▌</span> Rebaixamento${two?' para a '+DIVS[ds[di+1]]:''} (Z${bottom})`:''}</p>
   <div class="card tw"><table><tr><th>#</th><th>Clube</th><th class="n">Pts</th><th class="n">J</th><th class="n">V</th><th class="n">E</th><th class="n">D</th><th class="n">GP</th><th class="n">GC</th><th class="n">SG</th></tr>
   ${T.map((t,i)=>{const c=clubById(t.id);return `<tr class="${t.id===me?'me':''}"><td class="${i<top?'zone-lib':bottom&&i>=T.length-bottom?'zone-z4':''}">${i+1}</td><td><span class="club">${crest(c)} ${esc(c.name)}</span></td><td class="n"><b>${t.Pts}</b></td><td class="n">${t.J}</td><td class="n">${t.V}</td><td class="n">${t.E}</td><td class="n">${t.D}</td><td class="n">${t.GP}</td><td class="n">${t.GC}</td><td class="n">${t.GP-t.GC}</td></tr>`}).join('')}
@@ -105,20 +103,20 @@ export function vTabela(){
 export function vJogos(){
   const r=ui.jogosRound??Math.min(S.round,S.fixtures.length-1);
   const d=curDiv();
-  return `<h2>Jogos${hasTwoDivs()?' — '+DIVS[d]:''}</h2>${divTabs()}<div class="card row"><button class="btn sec sm" data-acao="verRodadaJogos|${Math.max(0,r-1)}">◀</button>
+  return `${divTabs()}<div class="card row"><button class="btn sec sm" data-acao="verRodadaJogos|${Math.max(0,r-1)}">◀</button>
   <b>Rodada ${r+1}</b><button class="btn sec sm" data-acao="verRodadaJogos|${Math.min(S.fixtures.length-1,r+1)}">▶</button></div>
   <div class="card tw"><table>${S.fixtures[r].filter(g=>inDiv(g,d)).map(g=>resultLine(g,tec().clubId)).join('')}</table></div>`;
 }
 export function vRodada(){
   if(!ui.lastRound)return vClube();
   const me=tec().clubId,d=curDiv();
-  return `<h2>Resultados — rodada ${ui.lastRound.round}${hasTwoDivs()?' — '+DIVS[d]:''}</h2>${divTabs()}
+  return `<p class="muted">Rodada ${ui.lastRound.round}</p>${divTabs()}
   <div class="card tw"><table>${ui.lastRound.games.filter(g=>inDiv(g,d)).map(g=>resultLine(g,me)).join('')}</table></div>
   <div class="row">${S.round<S.fixtures.length?botaoRodada('btn big',`▶ Jogar rodada ${S.round+1}`):''}<button class="btn sec" data-acao="go|tabela">Ver tabela</button><button class="btn sec" data-acao="go|clube">Clube</button></div>`;
 }
 export function vArt(){
   const d=curDiv(),L=topScorers(25,d);
-  return `<h2>Artilharia${hasTwoDivs()?' — '+DIVS[d]:''}</h2>${divTabs()}<div class="card tw"><table><tr><th>#</th><th>Jogador</th><th>Clube</th><th class="n">Gols</th></tr>
+  return `${divTabs()}<div class="card tw"><table><tr><th>#</th><th>Jogador</th><th>Clube</th><th class="n">Gols</th></tr>
   ${L.map((p,i)=>`<tr class="${p.clubId===tec().clubId?'me':''}"><td>${i+1}</td><td>${posTag(p)} ${esc(p.name)}</td><td>${esc(clubById(p.clubId).name)}</td><td class="n"><b>${p.goals}</b></td></tr>`).join('')||'<tr><td class="muted">Nenhum gol ainda.</td></tr>'}</table></div>`;
 }
 export function setMF(k,v){ui.mf[k]=v;render()}
@@ -130,7 +128,7 @@ export function vMercado(){
   if(ui.mf.q)L=L.filter(p=>norm(p.name).includes(norm(ui.mf.q)));
   if(ui.mf.max)L=L.filter(p=>p.value<=parseFloat(ui.mf.max));
   L.sort((a,b)=>b.ovr-a.ovr);const total=L.length;L=L.slice(0,120);
-  return `<h2>Mercado de transferências</h2>
+  return `
   <div class="card row">
    <select data-mudar="setMF|pos"><option value="">Todas as posições</option>${Object.entries(POSD).map(([k,d])=>`<option value="${k}" ${ui.mf.pos===k?'selected':''}>${d.nome}</option>`).join('')}</select>
    <select data-mudar="setMF|club"><option value="">Todos os clubes</option>${S.clubs.filter(c=>c.id!==uc.id).sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}" ${ui.mf.club===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
@@ -146,7 +144,7 @@ export function vMercado(){
 export function vFin(){
   const uc=userClub(),w=wageBill(uc);
   const val=uc.players.reduce((s,p)=>s+p.value,0);
-  return `<h2>Finanças</h2>
+  return `
   <div class="stats">
    ${stat({rotulo:'Caixa',valor:money(uc.balance),cor:uc.balance<0?'var(--perigo)':'var(--verde)'})}
    ${stat({rotulo:'Folha salarial',valor:money(w),unid:'por rodada'})}
@@ -158,7 +156,7 @@ export function vFin(){
 }
 export function vDados(){
   const d=getData(),k=store.get(APIKEY_KEY)||'';
-  return `<h2>Dados do jogo</h2>
+  return `${S?'':'<h2>Dados do jogo</h2>'}
   <div class="card"><p>Fonte atual: <b>${d.source==='api'?'API-Football':'Exemplo (fictício)'}</b> · temporada ${d.season} · ${divsOf(d.clubs).map(x=>`${DIVS[x]}: ${d.clubs.filter(c=>divOf(c)===x).length} clubes`).join(' · ')} · ${d.clubs.reduce((s,c)=>s+c.players.length,0)} jogadores</p>
   <div class="row"><button class="btn sec" data-acao="exportData">Exportar dados dos clubes (JSON)</button>
   <label class="btn sec">Carregar JSON<input type="file" accept=".json" style="display:none" data-mudar="loadDataFile"></label>
