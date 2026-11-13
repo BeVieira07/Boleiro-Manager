@@ -13,6 +13,7 @@ import * as estado from './estado.mjs';
 import * as forma from './forma.mjs';
 import * as mercado from './mercado.mjs';
 import * as motor from './motor.mjs';
+import * as nuvem from './nuvem.mjs';
 import * as partida from './partida.mjs';
 import * as posicoes from './posicoes.mjs';
 import * as saves from './saves.mjs';
@@ -21,7 +22,7 @@ import * as telas from './telas.mjs';
 import * as utils from './utils.mjs';
 
 export const acoes = Object.fromEntries(
-  [api, conta, diretoria, emprestimos, escalacao, estado, forma, mercado, motor, partida, posicoes, saves, taticas, telas, utils]
+  [api, conta, diretoria, emprestimos, escalacao, estado, forma, mercado, motor, nuvem, partida, posicoes, saves, taticas, telas, utils]
     .flatMap(m => Object.entries(m)).filter(([, f]) => typeof f === 'function'));
 
 /** Executa a ação descrita em data-acao / data-mudar. */
@@ -51,5 +52,7 @@ export function iniciar() {
 
 if (!globalThis.__TESTE__) {
   ligarEventos(); iniciar();
-  conta.iniciarConta(() => { if (estado.ui.view === 'menu') telas.render() }); // login online (só se ui/config.mjs estiver preenchido)
+  // login online (só se ui/config.mjs estiver preenchido); ao entrar, envia os saves pendentes e lista os da nuvem (#31)
+  conta.iniciarConta(() => { if (estado.ui.view === 'menu') telas.render(); nuvem.sincronizar() });
+  window.addEventListener('online', () => nuvem.sincronizar()); // sem internet o save fica pendente; manda quando voltar
 }

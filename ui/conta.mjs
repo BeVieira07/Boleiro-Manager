@@ -11,6 +11,8 @@ const conta = { cliente: null, usuario: null, perfil: null, erro: null, config: 
 export const onlineConfigurado = () => !!(conta.config.url && conta.config.chave);
 export const usuarioAtual = () => conta.usuario;
 export const perfilAtual = () => conta.perfil;
+/** Cliente do Supabase só quando há alguém logado (para gravar dados da conta). */
+export const clienteLogado = () => (conta.usuario ? conta.cliente : null);
 
 /** Para testes: usa outra configuração e/ou um cliente falso no lugar do Supabase. */
 export function configurarConta({ url, chave, cliente } = {}) {
