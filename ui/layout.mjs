@@ -2,6 +2,7 @@
    Computador: menu lateral de 232 px com ícone e rótulo e o cartão do clube no rodapé.
    Celular (< 800 px): barra inferior com os itens principais e "Mais" para o resto.
    A barra de ações (título, rodada e botões da rodada) fica no topo de toda tela do jogo em andamento. */
+import { corOk } from '../core/dados.mjs';
 import { DIVS, S, divOf, hasTwoDivs, table, tec, tecnicos, userClub } from '../core/estado.mjs';
 import { esc, money } from '../core/utils.mjs';
 import { ui } from './estado.mjs';
@@ -34,7 +35,7 @@ export function lateral() {
       <button type="button" class="nav-item" data-acao="voltarMenu">${icone('sair')}<span>${ui.liga ? 'Sair da liga' : 'Salvar e sair'}</span></button></div>
     <button type="button" class="nav-item nav-mais" data-acao="alternarMais" aria-expanded="${!!ui.maisAberto}" aria-controls="navResto"${maisAtivo ? ' aria-current="page"' : ''}>${icone('mais')}<span>Mais</span></button>
   </nav>
-  <div class="clube-cartao" style="--cor-clube:${esc(uc.color || '#335')}">${crest(uc, 'm')}<div><b>${esc(uc.name)}</b><span class="muted">${DIVS[divOf(uc)] || ''} · ${S.season}</span></div></div>`;
+  <div class="clube-cartao" style="--cor-clube:${corOk(uc.color) ? uc.color : '#335'}">${crest(uc, 'm')}<div><b>${esc(uc.name)}</b><span class="muted">${DIVS[divOf(uc)] || ''} · ${S.season}</span></div></div>`;
 }
 export function alternarMais() { ui.maisAberto = !ui.maisAberto; render() }
 

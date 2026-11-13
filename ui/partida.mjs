@@ -1,3 +1,4 @@
+import { corOk } from '../core/dados.mjs';
 import { DIVS, S, clubById, divisions, userClub } from '../core/estado.mjs';
 import { fecharTemporada, iniciarTemporada } from '../core/partida.mjs';
 import { esc, money } from '../core/utils.mjs';
@@ -9,7 +10,7 @@ import { render } from './telas.mjs';
 
 /* ================= jogo ao vivo ================= */
 export function crest(c,cls=''){
-  const sigla=`<span class="crest ${cls}" style="background:${c.color||'#335'};color:#fff">${esc(c.short||c.name.slice(0,3))}</span>`;
+  const sigla=`<span class="crest ${cls}" style="background:${corOk(c.color)?c.color:'#335'};color:#fff">${esc(c.short||c.name.slice(0,3))}</span>`;
   // se a imagem não carregar, troca pela sigla colorida em vez de deixar o círculo vazio
   if(c.logo)return `<img class="crest ${cls}" src="${esc(c.logo)}" alt="" data-f="${esc(sigla)}" onerror="this.outerHTML=this.dataset.f">`;
   return sigla;

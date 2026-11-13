@@ -1,4 +1,4 @@
-import { BASE_CLUBS, SQUAD_SHAPE, baseInfo, fakePlayer } from '../core/dados.mjs';
+import { BASE_CLUBS, SQUAD_SHAPE, baseInfo, erroIds, fakePlayer } from '../core/dados.mjs';
 import { migrarDiretoria } from '../core/diretoria.mjs';
 import { DIVS, S, divOf, divsOf, reindex, usarEstado, userClub } from '../core/estado.mjs';
 import { migrarPosicoes } from '../core/posicoes.mjs';
@@ -122,6 +122,7 @@ export function mergeDivision(cur,inc,div){
 export function loadDataFile(_valor,ev){
   const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
   rd.onload=()=>{let d;try{d=JSON.parse(rd.result);if(!Array.isArray(d.clubs))throw 0}catch(e){avisar('Arquivo inválido.','erro');return}
+    const erro=erroIds(d.clubs);if(erro){avisar(erro,'erro');return}
     const fd=divsOf(d.clubs),cur=getData(),other=divsOf(cur.clubs).filter(x=>x!==fd[0]);
     const usar=x=>{store.set(DATA_KEY,x);avisar(`Dados carregados: ${x.clubs.length} clubes (${x.season}).`,'ok');render()};
     if(fd.length===1&&other.length)confirmar({titulo:'Juntar os dados?',texto:`Este arquivo só tem a ${DIVS[fd[0]]}. Juntar com o que já está carregado (${other.map(x=>DIVS[x]).join(', ')})? Se não, o jogo passa a usar só este arquivo.`,ok:'Juntar',cancelar:'Usar só este arquivo'},()=>usar(mergeDivision(cur,d,fd[0])),()=>usar(d));
@@ -138,6 +139,7 @@ export function loadSaveFile(_valor,ev){
   const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
   rd.onload=()=>{try{const j=JSON.parse(rd.result);const sv=j.type==='brasfoot-save'?j.save:j;
     if(!sv||!Array.isArray(sv.clubs)||!Array.isArray(sv.fixtures)||!(sv.userClubId||sv.managers))throw 0;
+    const erro=erroIds(sv.clubs);if(erro){avisar(erro,'erro');return}
     if(!podeCriarSave())return; // importar cria um save novo na lista, sem substituir os outros
     delete sv.saveId;usarEstado(sv);migrarPosicoes(S);reindex();migrarDiretoria(S);save();ui.view='clube';render();avisar(`Save carregado: ${userClub().name}, temporada ${S.season}, rodada ${S.round+1}.`)}
   catch(e){avisar('Arquivo de save inválido.','erro')}};
