@@ -77,5 +77,6 @@ export function exercerOpcaoCompra(pid){
   const l=loanOf(pid),p=P[pid];if(!l||!l.buy||l.to!==tec().clubId)return {erro:'Sem opção de compra.'};
   if(l.buy>userClub().balance)return {erro:'Caixa insuficiente.'};
   addFin(`Compra de ${p.name} (opção de compra, ${clubById(l.from).name})`,-l.buy);
+  if(ehHumano(l.from))addFin(`Venda de ${p.name} (opção de compra, ${userClub().name})`,l.buy,clubById(l.from)); // empréstimo entre técnicos (#36)
   S.loans=loans().filter(x=>x!==l);addNews(`✅ Opção de compra exercida: ${p.name} por ${money(l.buy)}.`);return {ok:true};
 }

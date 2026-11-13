@@ -15,6 +15,9 @@ Chamada pelo navegador com `{ liga, acao }`, sempre com o login (o `verify_jwt` 
   e sorteia a resposta da IA no servidor (recarregar a página não muda nada). Grava por `liga_gravar_acao` (só com a versão lida;
   senão refaz). Negócio fechado vira notícia para todos os técnicos. Fica na mesma função da rodada para ter um deploy só e um
   commit do `core/` só.
+- Entre técnicos (#36), pelo mesmo `acao: 'mercado'`: `proporTecnico`, `aceitarProposta`, `recusarProposta`, `cancelarProposta` e
+  `contraproposta` (`core/propostas.mjs`). As propostas ficam no estado da liga (`S.propostas`), não na tabela `liga_propostas`
+  (que segue sem uso); ao aceitar, tudo é conferido de novo.
 
 As funções do banco só podem ser chamadas com a chave de serviço, que a função recebe do Supabase
 (`SUPABASE_SERVICE_ROLE_KEY`); ela nunca entra no repositório.

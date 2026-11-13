@@ -136,3 +136,73 @@ test('mercado da liga: nada com clube de outro técnico, e o que vem do navegado
     assert.notEqual(est.P[meu.id].clubId, bia);
   }
 });
+
+// #36: propostas entre técnicos
+const passo = (s, quem, a) => { const r = acaoMercadoLiga(copia(s), quem, a); return { r, s: r.erro ? s : JSON.parse(JSON.stringify(est.S)) } };
+const clube = (s, u) => s.clubs.find(c => c.id === s.managers[u].clubId);
+const reservaDe = (s, u) => { const c = clube(s, u); return c.players.find(p => !c.lineup.includes(p.id) && p.pos === 'M') };
+
+test('propostas entre técnicos: comprar, recusar, contrapropor e aceitar movem jogador e dinheiro dos dois', () => {
+  let s = comVaga(JSON.parse(novaLiga(['A'])));
+  clube(s, 'u-ana').balance = 50; clube(s, 'u-bia').balance = 10;
+  const p = reservaDe(s, 'u-bia');
+  let x = passo(s, 'u-ana', { tipo: 'proporTecnico', negocio: 'transferencia', pid: p.id, valor: 5 }); assert.ok(x.r.ok, x.r.erro); s = x.s;
+  const pr = s.propostas[0];
+  assert.equal(pr.para, 'u-bia');
+  assert.match(s.managers['u-bia'].news[0].t, new RegExp(`propôs compra de ${p.name}`), 'a Bia é avisada');
+  assert.match(passo(s, 'u-ana', { tipo: 'proporTecnico', negocio: 'transferencia', pid: p.id, valor: 6 }).r.erro, /já tem uma proposta/);
+  assert.match(passo(s, 'u-ana', { tipo: 'aceitarProposta', id: pr.id }).r.erro, /não encontrada/, 'quem propôs não aceita a própria');
+
+  x = passo(s, 'u-bia', { tipo: 'contraproposta', id: pr.id, valor: 8 }); assert.ok(x.r.ok, x.r.erro); s = x.s;
+  assert.equal(s.propostas.length, 1);
+  const contra = s.propostas[0];
+  assert.deepEqual([contra.de, contra.para, contra.valor], ['u-bia', 'u-ana', 8]);
+  assert.match(s.managers['u-ana'].news[0].t, /contraproposta/);
+
+  x = passo(s, 'u-ana', { tipo: 'aceitarProposta', id: contra.id }); assert.ok(x.r.ok, x.r.erro); s = x.s;
+  assert.equal(s.clubs.flatMap(c => c.players).find(q => q.id === p.id).clubId, clube(s, 'u-ana').id);
+  assert.equal(clube(s, 'u-ana').balance, 42); assert.equal(clube(s, 'u-bia').balance, 18);
+  assert.equal(s.propostas.length, 0);
+  assert.match(s.managers['u-bia'].news[0].t, /Negócio fechado entre técnicos/, 'a Bia fica sabendo');
+
+  // vender: a Ana oferece um jogador dela à Bia, que recusa
+  const meu = reservaDe(s, 'u-ana');
+  x = passo(s, 'u-ana', { tipo: 'proporTecnico', negocio: 'transferencia', pid: meu.id, para: 'u-bia', valor: 2 }); assert.ok(x.r.ok, x.r.erro); s = x.s;
+  x = passo(s, 'u-bia', { tipo: 'recusarProposta', id: s.propostas[0].id }); assert.ok(x.r.ok); s = x.s;
+  assert.equal(s.propostas.length, 0);
+  assert.match(s.managers['u-ana'].news[0].t, /recusou/);
+});
+
+test('propostas entre técnicos: tudo é conferido de novo ao aceitar, e o que vem do navegador também', () => {
+  let s = comVaga(JSON.parse(novaLiga(['A'])));
+  clube(s, 'u-ana').balance = 5;
+  const p = reservaDe(s, 'u-bia'), ia = jogadorDaIA(s);
+  const erro = a => passo(s, 'u-ana', a).r.erro;
+  assert.match(erro({ tipo: 'proporTecnico', negocio: 'transferencia', pid: ia.id, valor: 1 }), /outro clube da liga/);
+  assert.match(erro({ tipo: 'proporTecnico', negocio: 'transferencia', pid: reservaDe(s, 'u-ana').id, para: 'u-ana', valor: 1 }), /outro clube da liga/);
+  assert.match(erro({ tipo: 'proporTecnico', negocio: 'roubo', pid: p.id, valor: 1 }), /inválida/);
+  assert.match(erro({ tipo: 'proporTecnico', negocio: 'transferencia', pid: p.id, valor: -1 }), /Valor inválido/);
+  assert.match(erro({ tipo: 'proporTecnico', negocio: 'transferencia', pid: p.id, valor: 6 }), /não tem caixa/);
+  assert.match(erro({ tipo: 'proporTecnico', negocio: 'emprestimo', pid: p.id, valor: 0, dur: 99, payer: 'to' }), /inválidas/);
+  let x = passo(s, 'u-ana', { tipo: 'proporTecnico', negocio: 'transferencia', pid: p.id, valor: 4 }); s = x.s;
+  clube(s, 'u-ana').balance = 1; // a Ana gastou o dinheiro antes da Bia responder
+  assert.match(passo(s, 'u-bia', { tipo: 'aceitarProposta', id: s.propostas[0].id }).r.erro, /não tem caixa/);
+});
+
+test('empréstimo entre técnicos volta ao fim do prazo, e a opção de compra paga ao outro técnico', () => {
+  let s = comVaga(JSON.parse(novaLiga(['A'])));
+  clube(s, 'u-ana').balance = 20; clube(s, 'u-bia').balance = 0;
+  const p = reservaDe(s, 'u-bia');
+  let x = passo(s, 'u-ana', { tipo: 'proporTecnico', negocio: 'emprestimo', pid: p.id, valor: 1, dur: 2, payer: 'to', buy: 10 }); assert.ok(x.r.ok, x.r.erro); s = x.s;
+  x = passo(s, 'u-bia', { tipo: 'aceitarProposta', id: s.propostas[0].id }); assert.ok(x.r.ok, x.r.erro); s = x.s;
+  const onde = s => s.clubs.flatMap(c => c.players).find(q => q.id === p.id).clubId;
+  assert.equal(onde(s), clube(s, 'u-ana').id);
+  assert.equal(clube(s, 'u-bia').balance, 1, 'a taxa foi para a Bia');
+  // opção de compra: o dinheiro sai da Ana e entra na Bia
+  const y = passo(s, 'u-ana', { tipo: 'opcaoCompra', pid: p.id }); assert.ok(y.r.ok, y.r.erro);
+  assert.equal(clube(y.s, 'u-bia').balance, 11);
+  assert.equal(clube(y.s, 'u-ana').balance, 9);
+  // sem a opção: depois de 2 rodadas, ele volta
+  for (let i = 0; i < 2; i++) { jogarRodadaLiga(s, {}); s = JSON.parse(JSON.stringify(est.S)) }
+  assert.equal(onde(s), clube(s, 'u-bia').id);
+});

@@ -5,15 +5,17 @@
    quem confirmou e quando a rodada foi jogada; aí o estado novo é baixado e o seu jogo aparece como replay.
    Nada da liga vai para os saves locais nem da nuvem. */
 import { unavailable } from '../core/escalacao.mjs';
-import { DIVS, S, clubDo, divOf, reindex, table, tecnicos, usarEstado, usarTecnico, userClub } from '../core/estado.mjs';
+import { DIVS, P, S, clubById, clubDo, divOf, reindex, table, tecnicos, usarEstado, usarTecnico, userClub } from '../core/estado.mjs';
 import { autoXI, validateLineup } from '../core/motor.mjs';
+import { posDSigla } from '../core/posicoes.mjs';
+import { descrever } from '../core/propostas.mjs';
 import { taticaUser } from '../core/taticas.mjs';
-import { esc } from '../core/utils.mjs';
-import { avisar, confirmar } from './avisos.mjs';
+import { esc, money } from '../core/utils.mjs';
+import { avisar, confirmar, pedirValor } from './avisos.mjs';
 import { clienteLogado, usuarioAtual } from './conta.mjs';
 import { ui } from './estado.mjs';
 import { icone } from './icones.mjs';
-import { crest, showLive } from './partida.mjs';
+import { closeModal, crest, openModal, showLive } from './partida.mjs';
 import { go, render } from './telas.mjs';
 
 export const FUNCAO = 'jogar-rodada';
@@ -57,6 +59,7 @@ async function carregar(id) {
   // a escalação e a tática ainda não confirmadas só existem aqui: o estado novo não pode apagá-las
   const uc0 = ui.liga && ui.liga.id === id && S && S.managers[eu] && clubDo(S.managers[eu]);
   const meu = uc0 && { lineup: uc0.lineup || [], formation: uc0.formation, tatica: uc0.tatica };
+  const paraMim = () => (S.propostas || []).filter(x => x.para === eu).length, antes = uc0 ? paraMim() : null;
   usarEstado(e.data.estado); reindex();
   if (S.managers[eu]) usarTecnico(eu);
   if (meu && S.managers[eu]) {
@@ -64,6 +67,7 @@ async function carregar(id) {
     uc.lineup = meu.lineup.filter(pid => uc.players.some(p => p.id === pid && !unavailable(p))); // quem saiu ou se machucou
     if (validateLineup(uc)) uc.lineup = autoXI(uc);
   }
+  if (antes != null && paraMim() > antes) avisar('Você recebeu uma proposta de outro técnico. Veja na tela Liga.', 'info'); // #36
   ui.liga = { ...(ui.liga && ui.liga.id === id ? ui.liga : {}), id, nome: l.data.nome, dono: l.data.dono_id === eu, rodada: l.data.rodada, versao: l.data.versao,
     prontos: (en.data || []).filter(x => x.pronto && x.rodada === l.data.rodada).map(x => x.user_id) };
   return true;
@@ -172,6 +176,49 @@ export function vLigaJogo() {
       <td class="n">${S.round ? pos + 'º' : '-'}</td><td>${ok ? icone('ok', { tam: 12 }) + ' confirmou' : 'falta confirmar'}</td></tr>` }).join('');
   return `<section class="card tw"><h3>${esc(L.nome)}</h3><table><caption class="sr">Técnicos da liga</caption>
     <thead><tr><th>Técnico</th><th>Clube</th><th>Série</th><th class="n">Posição</th><th>Rodada ${S.round + 1}</th></tr></thead><tbody>${linhas}</tbody></table></section>
+  ${vPropostas()}
   <p class="muted">Negócios com a IA aparecem nas notícias de todos. A rodada é jogada quando todos confirmam${L.dono ? ' ou quando você força' : ' ou quando o dono força'}.</p>
   <div class="row">${L.dono && L.prontos.length < n ? '<button class="btn sec" data-acao="forcarLiga">Forçar rodada</button>' : ''}<button class="btn sec" data-acao="go|tabela">Ver classificação</button></div>`;
+}
+
+/* ---------- propostas entre técnicos (#36): as regras estão em core/propostas.mjs e rodam no servidor ---------- */
+export const botaoProposta = p => ui.liga && tecnicos().length > 1
+  ? `<button class="btn sec sm" data-acao="propostaForm|${p.id}">${p.clubId === userClub().id ? 'Oferecer' : 'Proposta'}</button>` : '';
+export function propostaForm(pid) {
+  const p = P[pid], meu = p.clubId === userClub().id, resta = S.fixtures.length - S.round;
+  const alvo = meu ? `<label>Para <select id="ppPara">${tecnicos().filter(t => t.id !== S.atual).map(t => `<option value="${esc(t.id)}">${esc(t.nome)} (${esc(clubDo(t).name)})</option>`).join('')}</select></label>`
+    : `<p>Clube: <b>${esc(clubById(p.clubId).name)}</b> (${esc(tecnicos().find(t => t.clubId === p.clubId).nome)})</p>`;
+  const durs = [...new Set([5, 10, 19, resta].filter(n => n >= 1 && n <= resta))].sort((a, b) => a - b);
+  openModal(`<h2>${meu ? 'Oferecer' : 'Proposta por'} ${esc(p.name)}</h2>
+   <p class="muted">${posDSigla(p)} · força ${p.ovr} · valor ${money(p.value)} · salário ${money(p.wage)}/rod.</p>
+   <div class="row" style="flex-direction:column;align-items:flex-start;gap:10px">${alvo}
+   <label>Negócio <select id="ppNeg"><option value="transferencia">Transferência</option><option value="emprestimo">Empréstimo</option></select></label>
+   <label>Valor (no empréstimo, taxa; pode ser 0) <input id="ppValor" inputmode="decimal" style="width:90px" value="${p.value.toFixed(1).replace('.', ',')}"> mi</label>
+   <label>Duração do empréstimo <select id="ppDur">${durs.map(n => `<option value="${n}">${n} rodadas</option>`).join('')}</select></label>
+   <label>Salário no empréstimo <select id="ppPay"><option value="to">Pago por quem recebe</option><option value="from">Pago por quem cede</option></select></label>
+   <label><input id="ppBuy" type="checkbox"> Opção de compra por <input id="ppBuyV" inputmode="decimal" style="width:90px" value="${(p.value * 1.1).toFixed(1).replace('.', ',')}"> mi</label></div>
+   <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn sec" data-acao="closeModal">Cancelar</button><button class="btn" data-acao="enviarProposta|${pid}">Enviar proposta</button></div>`);
+}
+export function enviarProposta(pid) {
+  const v = id => document.getElementById(id), n = x => parseFloat(String(x).replace(',', '.'));
+  const a = { tipo: 'proporTecnico', pid, negocio: v('ppNeg').value, valor: n(v('ppValor').value), dur: parseInt(v('ppDur').value), payer: v('ppPay').value,
+    buy: v('ppBuy').checked ? n(v('ppBuyV').value) : null };
+  if (P[pid].clubId === userClub().id) a.para = v('ppPara').value;
+  closeModal(); return mercadoLiga(a);
+}
+export const responderProposta = (tipo, id) => mercadoLiga({ tipo, id }); // aceitarProposta, recusarProposta, cancelarProposta
+export function contrapropor(id) {
+  const pr = (S.propostas || []).find(x => x.id === id); if (!pr) return;
+  pedirValor({ titulo: 'Contraproposta', texto: descrever(pr), rotulo: pr.negocio === 'emprestimo' ? 'Nova taxa' : 'Novo valor', sufixo: 'milhões',
+    valor: String(pr.valor).replace('.', ','), ok: 'Enviar contraproposta', validar: v => isNaN(v) || v < 0 ? 'Digite um valor em milhões (ex.: 4,5).' : '' },
+    v => mercadoLiga({ tipo: 'contraproposta', id, valor: v }));
+}
+function vPropostas() {
+  const ps = S.propostas || [], rec = ps.filter(x => x.para === S.atual), env = ps.filter(x => x.de === S.atual);
+  if (!rec.length && !env.length) return '<p class="muted">Nenhuma proposta entre técnicos. Faça uma pelo Mercado (jogadores de outros técnicos) ou pelo Elenco (Oferecer).</p>';
+  const nome = id => esc(S.managers[id] ? S.managers[id].nome : '?');
+  return `<section class="card tw"><h3>Propostas entre técnicos</h3><table><caption class="sr">Propostas recebidas e enviadas</caption><tbody>
+   ${rec.map(x => `<tr><td>De ${nome(x.de)}: ${esc(descrever(x))}</td><td><div class="acoes"><button class="btn sm" data-acao="responderProposta|aceitarProposta|${x.id}">Aceitar</button><button class="btn sec sm" data-acao="contrapropor|${x.id}">Contraproposta</button><button class="btn sec sm" data-acao="responderProposta|recusarProposta|${x.id}">Recusar</button></div></td></tr>`).join('')}
+   ${env.map(x => `<tr><td>Para ${nome(x.para)}: ${esc(descrever(x))}</td><td><button class="btn sec sm" data-acao="responderProposta|cancelarProposta|${x.id}">Retirar</button></td></tr>`).join('')}
+  </tbody></table></section>`;
 }
