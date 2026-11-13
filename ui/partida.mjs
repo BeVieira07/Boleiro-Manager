@@ -2,6 +2,7 @@ import { DIVS, S, clubById, divisions, userClub } from '../core/estado.mjs';
 import { fecharTemporada, iniciarTemporada } from '../core/partida.mjs';
 import { esc, money } from '../core/utils.mjs';
 import { save, ui } from './estado.mjs';
+import { abrirCamada, fecharCamada } from './avisos.mjs';
 import { icone } from './icones.mjs';
 import { chipsTaticaAoVivo } from './taticas.mjs';
 import { render } from './telas.mjs';
@@ -34,7 +35,7 @@ export function showLive(g,done){
       <div class="tempo-escala"><span>0'</span><span>45'</span><span>90'</span></div></div>
     <ul class="eventos" id="lfeed" aria-label="Lances da partida"><li class="ev muted">Bola rolando!</li></ul>
     <div class="tatica-vivo" id="ltat">${chipsTaticaAoVivo()}</div>
-    <div class="row fim-acoes"><button class="btn sec" id="lskip">${icone('avancar',{tam:16})}Pular para o fim</button><button class="btn" id="ldone" style="display:none">Continuar</button></div></div>`);
+    <div class="row fim-acoes"><button class="btn sec" id="lskip">${icone('avancar',{tam:16})}Pular para o fim</button><button class="btn" id="ldone" style="display:none">Continuar</button></div></div>`,{fechavel:false});
   const feed=document.getElementById('lfeed'),marcas=document.getElementById('lmarcas'),placar=document.getElementById('lsc');
   const tick=()=>{
     min++;
@@ -55,8 +56,9 @@ export function showLive(g,done){
   document.getElementById('lskip').onclick=()=>{clearInterval(timer);if(min<DURACAO){while(min<DURACAO-1)tick();tick()}};
   document.getElementById('ldone').onclick=()=>{closeModal();done()};
 }
-export function openModal(html){document.getElementById('mbox').innerHTML=html;document.getElementById('modal').style.display='flex'}
-export function closeModal(){document.getElementById('modal').style.display='none'}
+// #64: o modal prende o foco; Esc fecha quando `fechavel` (o jogo ao vivo e a demissão não fecham)
+export function openModal(html,{fechavel=true}={}){const m=document.getElementById('modal');document.getElementById('mbox').innerHTML=html;m.style.display='flex';fecharCamada(m);abrirCamada(m,fechavel?closeModal:null)}
+export function closeModal(){const m=document.getElementById('modal');m.style.display='none';fecharCamada(m)}
 
 export function seasonEnd(){
   const r=fecharTemporada();if(!r)return;save();

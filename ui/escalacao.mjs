@@ -10,6 +10,7 @@ import { barra, chip, ovrChip } from './componentes.mjs';
 import { save, ui } from './estado.mjs';
 import { icone } from './icones.mjs';
 import { autoLineup, render } from './telas.mjs';
+import { avisar } from './avisos.mjs';
 
 export function setFormation(f) { definirFormacao(f); ui.selEsc = null; save(); render() }
 export function clickEsc(pid) {
@@ -18,11 +19,11 @@ export function clickEsc(pid) {
   const a = ui.selEsc, b = pid; ui.selEsc = null;
   const L = slotLayout(uc).map(s => s.id).filter(Boolean);
   if (!L.includes(a) && !L.includes(b)) { ui.selEsc = b; render(); return }
-  const r = trocarNaEscalacao(a, b); if (r.erro) { alert(r.erro); render(); return }
+  const r = trocarNaEscalacao(a, b); if (r.erro) { avisar(r.erro,'erro'); render(); return }
   save(); render();
 }
 /** Troca dois titulares de vaga (sugestão do aviso de posição). */
-export function trocarTitulares(a, b) { const r = trocarNaEscalacao(a, b); if (r.erro) { alert(r.erro); return } ui.selEsc = null; save(); render() }
+export function trocarTitulares(a, b) { const r = trocarNaEscalacao(a, b); if (r.erro) { avisar(r.erro,'erro'); return } ui.selEsc = null; save(); render() }
 export function escalarMelhoresTela() { ui.selEsc = null; autoLineup() }
 
 const sobrenome = n => { const p = n.split(' '); return p.length > 1 && p[p.length - 1].length > 2 ? p.slice(-1)[0] : n };

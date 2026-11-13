@@ -8,6 +8,7 @@ import { ui } from './estado.mjs';
 import { SAVES_KEY, SAVE_PREFIX, abrirSave, indiceSaves } from './saves.mjs';
 import { render } from './telas.mjs';
 import { store } from './utils.mjs';
+import { avisar } from './avisos.mjs';
 
 const nuvem = { lista: null, enviando: null, timer: null };
 /** Saves da conta na nuvem: [{id, resumo, atualizado_em}] (sem o estado), ou null se ainda não carregou / deslogado. */
@@ -99,12 +100,12 @@ export function liberarEspaco() {
 /** Baixa um save da nuvem para o navegador e abre. */
 export async function abrirDaNuvem(id) {
   const c = clienteLogado();
-  if (!c) { alert('Entre na sua conta para abrir saves da nuvem.'); return }
+  if (!c) { avisar('Entre na sua conta para abrir saves da nuvem.'); return }
   const { data, error } = await c.from('saves').select('resumo, estado, atualizado_em').eq('id', id).maybeSingle();
-  if (error || !data) { alert('Não foi possível baixar o save da nuvem' + (error ? ': ' + error.message : '.')); return }
+  if (error || !data) { avisar('Não foi possível baixar o save da nuvem' + (error ? ': ' + error.message : '.','erro','erro')); return }
   const data_ = data.resumo.data || data.atualizado_em;
   if (!store.set(SAVE_PREFIX + id, data.estado) && !(liberarEspaco() && store.set(SAVE_PREFIX + id, data.estado))) {
-    alert('Não há espaço no navegador para abrir este save. Exclua um jogo salvo e tente de novo.'); return;
+    avisar('Não há espaço no navegador para abrir este save. Exclua um jogo salvo e tente de novo.'); return;
   }
   const idx = indiceSaves();
   idx.list = [{ ...data.resumo, id, data: data_, nuvem: data_ }, ...idx.list.filter(x => x.id !== id)];
