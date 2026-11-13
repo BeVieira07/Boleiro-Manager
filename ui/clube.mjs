@@ -2,7 +2,7 @@
    Responde "como estamos e o que preciso fazer agora": indicadores, próximo jogo, forma recente,
    o que pede atenção, mini classificação e notícias. */
 import { faixaConf, receitaEsperada } from '../core/diretoria.mjs';
-import { loanLeft, loansIn, wageBill } from '../core/emprestimos.mjs';
+import { loanLeft, loanOf, loansIn, wageBill } from '../core/emprestimos.mjs';
 import { slotLayout, unavailable } from '../core/escalacao.mjs';
 import { DIVS, P, S, clubById, divOf, table, tec, userClub } from '../core/estado.mjs';
 import { penalidadePosicao } from '../core/posicoes.mjs';
@@ -41,6 +41,8 @@ export function alertas() {
     out.push({ tipo: 'aviso', titulo: `Proposta por ${p.name}`, texto: `${clubById(o.from).name} oferece ${money(o.amount)} (valor de mercado ${money(p.value)}). Vale até a rodada ${o.until + 1}.`,
       botoes: `<button class="btn sm" data-acao="acceptOffer|${o.id}">Aceitar</button><button class="btn sec sm" data-acao="rejectOffer|${o.id}">Recusar</button>` });
   }
+  const fim = uc.players.filter(p => p.contrato === 1 && !loanOf(p.id));
+  if (fim.length && S.fixtures.length - S.round <= 10) out.push({ tipo: 'info', titulo: `${fim.length} contrato${fim.length > 1 ? 's acabam' : ' acaba'} ao fim da temporada`, texto: `${fim.slice(0, 4).map(p => p.name).join(', ')}${fim.length > 4 ? ' e outros' : ''}. Sem renovar, saem de graça.`, acao: 'go|elenco', rotulo: 'Ver elenco' });
   for (const l of loansIn(uc).filter(l => loanLeft(l) <= 2))
     out.push({ tipo: 'info', titulo: `Empréstimo de ${P[l.pid].name} termina em ${loanLeft(l)} rodada${loanLeft(l) > 1 ? 's' : ''}`, texto: l.buy ? `Há opção de compra por ${money(l.buy)}.` : 'Ele volta ao clube de origem.', acao: 'go|elenco', rotulo: 'Ver elenco' });
   if (uc.balance < 0) out.push({ tipo: 'erro', titulo: 'Caixa no vermelho', texto: `Saldo de ${money(uc.balance)}. Venda jogadores ou reduza a folha.`, acao: 'go|financas', rotulo: 'Finanças' });

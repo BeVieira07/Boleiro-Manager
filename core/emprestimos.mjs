@@ -1,4 +1,5 @@
 import { P, S, addFin, addNews, addNewsTodos, clubById, ehHumano, tec, userClub } from './estado.mjs';
+import { novoContrato } from './contratos.mjs';
 import { movePlayer } from './mercado.mjs';
 import { ensureSquad } from './partida.mjs';
 import { clamp, money, rnd } from './utils.mjs';
@@ -49,7 +50,7 @@ export function loanChance(p,lender,borrower,l,mode){
   return clamp((best?0.2:0.7)+(l.payer==='to'?0.2:-0.3)+(l.buy?0.1:0),0.05,0.95);
 }
 export function startLoan(l){
-  const p=P[l.pid];movePlayer(p,clubById(l.to)); // movePlayer garante o elenco mínimo de quem cedeu
+  const p=P[l.pid];movePlayer(p,clubById(l.to),true); // movePlayer garante o elenco mínimo de quem cedeu
   loans().push(l);
   addNews(`🤝 ${p.name} emprestado do ${clubById(l.from).name} ao ${clubById(l.to).name} até a rodada ${l.until}.`);
 }
@@ -57,7 +58,7 @@ export function endLoan(l,back){ // back: devolve ao clube de origem
   S.loans=loans().filter(x=>x!==l);
   const p=P[l.pid];if(!p||!back)return;
   const from=clubById(l.from),to=clubById(l.to);
-  movePlayer(p,from);ensureSquad(to);
+  movePlayer(p,from,true);ensureSquad(to);
   const msg=`🔙 ${p.name} voltou ao ${from.name} (fim do empréstimo).`;addNews(msg,from.id);if(to.id!==from.id)addNews(msg,to.id);
 }
 // chamada a cada rodada, depois de S.round++
@@ -67,7 +68,7 @@ export function processLoans(){
     const p=P[l.pid];
     if(l.buy&&p&&ehHumano(l.from)&&!ehHumano(l.to)&&rnd()<0.4){ // clube de IA exerce a opção de compra
       addFin(`Opção de compra de ${p.name} (${clubById(l.to).name})`,l.buy,clubById(l.from));addNewsTodos(`💰 ${clubById(l.to).name} exerceu a opção de compra de ${p.name} por ${money(l.buy)}.`); // transferência com a IA: todos veem (#35)
-      S.loans=loans().filter(x=>x!==l);continue;
+      S.loans=loans().filter(x=>x!==l);novoContrato(p);continue;
     }
     endLoan(l,true);
   }
@@ -78,5 +79,5 @@ export function exercerOpcaoCompra(pid){
   if(l.buy>userClub().balance)return {erro:'Caixa insuficiente.'};
   addFin(`Compra de ${p.name} (opção de compra, ${clubById(l.from).name})`,-l.buy);
   if(ehHumano(l.from))addFin(`Venda de ${p.name} (opção de compra, ${userClub().name})`,l.buy,clubById(l.from)); // empréstimo entre técnicos (#36)
-  S.loans=loans().filter(x=>x!==l);addNews(`✅ Opção de compra exercida: ${p.name} por ${money(l.buy)}.`);return {ok:true};
+  S.loans=loans().filter(x=>x!==l);novoContrato(p);addNews(`✅ Opção de compra exercida: ${p.name} por ${money(l.buy)}.`);return {ok:true};
 }

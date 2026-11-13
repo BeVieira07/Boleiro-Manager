@@ -1,12 +1,14 @@
+import { novoContrato } from './contratos.mjs';
 import { P, S, addFin, addNews, clubById, ehHumano, tec, tecnicos, userClub } from './estado.mjs';
 import { ensureSquad } from './partida.mjs';
 import { money, pick, rnd } from './utils.mjs';
 
 /* ================= transferências ================= */
-export function movePlayer(p,to){
+// emprestimo: ida ou volta de empréstimo, que não mexe no contrato com o clube dono (#49)
+export function movePlayer(p,to,emprestimo=false){
   const from=clubById(p.clubId);from.players=from.players.filter(x=>x!==p);
   if(from.lineup)from.lineup=from.lineup.filter(id=>id!==p.id);
-  to.players.push(p);p.clubId=to.id;p.listed=false;
+  to.players.push(p);p.clubId=to.id;p.listed=false;if(!emprestimo)novoContrato(p);
   for(const t of tecnicos())t.offers=t.offers.filter(o=>o.pid!==p.id);
   ensureSquad(from);
 }

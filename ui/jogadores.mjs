@@ -9,7 +9,7 @@ export const GRUPOS = [['', 'Todos'], ['G', 'Goleiros'], ['D', 'Defensores'], ['
 // valor de cada coluna para ordenar
 export const CHAVES = {
   pos: p => POSD_ORDEM.indexOf(posDSigla(p)) * 1000 - p.ovr, nome: p => norm(p.name), idade: p => p.age, ovr: p => p.ovr,
-  forma: p => p.forma || 0, gols: p => p.goals || 0, valor: p => p.value, salario: p => p.wage
+  forma: p => p.forma || 0, gols: p => p.goals || 0, valor: p => p.value, salario: p => p.wage, contrato: p => p.contrato ?? 9
 };
 export const pctForma = p => Math.round(((Math.max(-2, Math.min(2, p.forma || 0)) + 2) / 4) * 100);
 

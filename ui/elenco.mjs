@@ -1,15 +1,17 @@
 /* ================= Elenco como tabela moderna (#60) =================
    Filtros por grupo com contagem, busca, ordenação por coluna, cabeçalho e coluna do jogador fixos,
    força em chip com a tendência, barra de forma e as ações de mercado. No celular cada linha vira um cartão. */
+import { RENOVA_ATE, pedidoRenovacao, renovarContrato } from '../core/contratos.mjs';
 import { loanOf, wageBill } from '../core/emprestimos.mjs';
 import { unavailable } from '../core/escalacao.mjs';
-import { userClub } from '../core/estado.mjs';
+import { P, userClub } from '../core/estado.mjs';
 import { getXI } from '../core/motor.mjs';
 import { esc, money } from '../core/utils.mjs';
 import { barra, ovrChip } from './componentes.mjs';
 import { loanBtn, loanTag, vLoans } from './emprestimos.mjs';
-import { ui } from './estado.mjs';
-import { botaoProposta } from './ligajogo.mjs';
+import { avisar, confirmar } from './avisos.mjs';
+import { save, ui } from './estado.mjs';
+import { botaoProposta, mercadoLiga } from './ligajogo.mjs';
 import { tendenciaTag } from './forma.mjs';
 import { icone } from './icones.mjs';
 import { campoBusca, chipsGrupo, filtrar, mudarFiltro, pctForma, th } from './jogadores.mjs';
@@ -25,6 +27,10 @@ function status(p, tit) {
   return `<span class="st ${tit ? 'ok' : ''}">${tit ? 'Titular' : 'Reserva'}</span>`;
 }
 
+// contrato (#49): temporadas que faltam; emprestado ao clube não renova aqui (o contrato é com o dono)
+const contratoTxt = p => p.contrato == null || loanOf(p.id) ? '—' : p.contrato === 1 ? '<span class="st aviso">Última temporada</span>' : `${p.contrato} temporadas`;
+const podeRenovar = p => p.contrato != null && p.contrato <= RENOVA_ATE && !loanOf(p.id);
+
 function linha(p, xi) {
   const tit = xi.includes(p.id), f = pctForma(p);
   const acoes = loanOf(p.id) ? '' : `<button class="btn sm ${p.listed ? 'perigo' : 'sec'}" data-acao="toggleListed|${p.id}" aria-pressed="${!!p.listed}">${p.listed ? 'À venda' : 'Pôr à venda'}</button><button class="btn sec sm" data-acao="quickSell|${p.id}">Vender já</button>${botaoProposta(p)}`;
@@ -37,16 +43,27 @@ function linha(p, xi) {
     <td class="n c-gols"><span class="rot">Gols </span>${p.goals || 0}</td>
     <td class="n c-valor">${money(p.value)}</td>
     <td class="n c-sal">${money(p.wage)}</td>
-    <td class="c-acoes"><div class="acoes">${acoes}${loanBtn(p, 'out')}</div></td></tr>`;
+    <td class="c-contr"><span class="rot">Contrato: </span>${contratoTxt(p)}</td>
+    <td class="c-acoes"><div class="acoes">${podeRenovar(p) ? `<button class="btn sec sm" data-acao="renovar|${p.id}">Renovar</button>` : ''}${acoes}${loanBtn(p, 'out')}</div></td></tr>`;
 }
 
-export const corpoElenco = () => { const uc = userClub(), xi = getXI(uc); return filtrar(uc.players, ui.ef).map(p => linha(p, xi)).join('') || '<tr><td colspan="9" class="muted">Nenhum jogador com esse filtro.</td></tr>' };
+export const corpoElenco = () => { const uc = userClub(), xi = getXI(uc); return filtrar(uc.players, ui.ef).map(p => linha(p, xi)).join('') || '<tr><td colspan="10" class="muted">Nenhum jogador com esse filtro.</td></tr>' };
 
 /** Filtro do elenco: chips e colunas redesenham a tela; a busca só troca as linhas, para não perder o foco do campo. */
 export function filtrarElenco(campo, valor) {
   mudarFiltro(ui.ef, campo, valor);
   const corpo = campo === 'q' && document.getElementById('corpoElenco');
   if (corpo && corpo.isConnected === true) corpo.innerHTML = corpoElenco(); else render();
+}
+
+/** Renovação de contrato (#49): mostra o que o jogador pede e, confirmado, faz a proposta (ele pode recusar). */
+export function renovar(pid) {
+  const p = P[pid], q = pedidoRenovacao(pid);
+  if (q.erro) { avisar(q.erro, 'erro'); return }
+  confirmar({ titulo: `Renovar com ${p.name}?`, texto: `Ele pede ${Math.round(q.aumento * 100)}% de aumento: o salário vai de ${money(p.wage)} para ${money(q.salario)} por rodada, e o contrato passa de ${p.contrato} para ${q.anos} temporadas. Ele pode recusar.`, ok: 'Propor renovação' }, () => {
+    if (ui.liga) return mercadoLiga({ tipo: 'renovar', pid }); // na liga, a resposta é sorteada no servidor (#35)
+    const r = renovarContrato(pid); save(); render(); avisar(r.erro || r.msg, r.erro ? 'erro' : r.ok ? 'ok' : 'aviso');
+  });
 }
 
 export function vElenco() {
@@ -56,8 +73,8 @@ export function vElenco() {
   <p class="muted resumo">${uc.players.length} jogadores · folha de ${money(wageBill(uc))} por rodada · titulares em destaque. A escalação é feita na tela de Escalação.</p>
   <section class="card tabela-card"><div class="tabela-rolavel"><table class="tabela-jogadores">
     <caption class="sr">Elenco do ${esc(uc.name)}</caption>
-    <thead><tr>${th('Pos', 'pos', f, a)}${th('Jogador', 'nome', f, a, 'c-nome')}${th('Idade', 'idade', f, a, 'n')}${th('Força', 'ovr', f, a, 'c')}${th('Forma', 'forma', f, a)}${th('Gols', 'gols', f, a, 'n')}${th('Valor', 'valor', f, a, 'n')}${th('Salário', 'salario', f, a, 'n')}${th('Mercado', '', f, a)}</tr></thead>
+    <thead><tr>${th('Pos', 'pos', f, a)}${th('Jogador', 'nome', f, a, 'c-nome')}${th('Idade', 'idade', f, a, 'n')}${th('Força', 'ovr', f, a, 'c')}${th('Forma', 'forma', f, a)}${th('Gols', 'gols', f, a, 'n')}${th('Valor', 'valor', f, a, 'n')}${th('Salário', 'salario', f, a, 'n')}${th('Contrato', 'contrato', f, a)}${th('Mercado', '', f, a)}</tr></thead>
     <tbody id="corpoElenco">${corpoElenco()}</tbody></table></div></section>
-  <p class="muted nota">As setas mostram a variação do overall desde o início da temporada. A barra de forma sobe com bons jogos e cai no banco.</p>
+  <p class="muted nota">As setas mostram a variação do overall desde o início da temporada. A barra de forma sobe com bons jogos e cai no banco. Quem chega ao fim do contrato sem renovar sai de graça na virada da temporada.</p>
   ${vLoans()}`;
 }
