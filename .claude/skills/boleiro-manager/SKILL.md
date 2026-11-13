@@ -63,6 +63,12 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 - Ligas (#32): `ui/liga.mjs` (telas `ligas` e `lobby`, botão "Ligas com amigos" no menu só para quem está logado). Ações pelas funções do banco `criar_liga`, `entrar_liga`, `escolher_clube` (migração `..._ligas_funcoes.sql`); as tabelas da liga só são lidas pelo navegador. O estado da liga (`liga_estado`) ainda não é criado: fica para #34. Teste das regras no banco real: `supabase/tests/rls_ligas.sql`.
 - `tests/jogo.mjs` importa os módulos um de cada vez: em paralelo, os ciclos entre módulos de `ui/` quebram no Node 22.
 
+## Front (#56–#65)
+- Visual da maquete do front (tema escuro verde): tokens e componentes em `css/style.css`, documentados em `docs/front.md` (leia antes de mexer em tela). Ícones SVG em `ui/icones.mjs` (`icone(nome)`), nada de emoji nas telas.
+- Layout: menu lateral/barra inferior e barra de ações em `ui/layout.mjs`; cada tela do jogo tem título em `TITULOS`.
+- Mensagens: `avisar(msg, tipo)`, `confirmar({...}, sim)` e `pedirValor({...}, enviar)` de `ui/avisos.mjs`. **Nunca** `alert`, `confirm` ou `prompt` (há teste). Nos testes, as mensagens vão para `j.alertas` e as confirmações respondem "sim".
+- Testes de front: contraste dos tokens (`tests/contraste.test.mjs`), classes sem uso e telas (`tests/telas.test.mjs`), acessibilidade (`tests/acessibilidade.test.mjs`).
+
 ## Testes
 - `npm test` roda `node --test` com os testes de `tests/` (uns 20 s). Rodar antes de commitar mudanças no jogo.
 - `tests/jogo.mjs` importa os módulos de `core/` e `ui/` em Node com um DOM falso: `carregarJogo()` zera o estado e devolve `run(código)` (com todos os exports à vista), `acao('nome|arg')` (clica como o botão), o HTML da tela atual, os alertas e o localStorage em memória. Para trocar o jogo use `usarEstado(...)`. Use `jogarRodada`/`jogarTemporada` (corrigem a escalação quando há lesionados) e `problemasNasTelas` (acha "undefined", "NaN" e "[object" nas telas).

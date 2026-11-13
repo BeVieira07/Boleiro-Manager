@@ -18,7 +18,8 @@ import { vMenu } from './saves.mjs';
 import { APIKEY_KEY, DATA_KEY, store } from './utils.mjs';
 
 /* ================= telas ================= */
-export function go(v){ui.view=v;ui.maisAberto=false;render();window.scrollTo(0,0)}
+// #65: ao trocar de tela, o foco vai para o conteúdo (teclado e leitor de tela começam pelo título)
+export function go(v){ui.view=v;ui.maisAberto=false;render();window.scrollTo(0,0);const a=document.getElementById('app');if(a&&a.focus)a.focus({preventScroll:true})}
 export const curDiv=()=>ui.vDiv&&divisions().includes(ui.vDiv)?ui.vDiv:divOf(userClub());
 export const inDiv=(g,d)=>divOf(clubById(g.h))===d;
 export function divTabs(){
@@ -28,12 +29,15 @@ export function divTabs(){
 export function render(){
   if(!S&&!['dados','inicio','ligas','lobby'].includes(ui.view))ui.view='menu';
   if(S&&!TITULOS[ui.view])ui.view='clube';
+  // #65: redesenhar a tela não pode jogar o foco do teclado para o começo da página: volta ao mesmo botão/campo
+  const at=document.activeElement,chave=at&&at.dataset&&(at.dataset.acao?['data-acao',at.dataset.acao]:at.dataset.digitar?['data-digitar',at.dataset.digitar]:at.id?['id',at.id]:null);
   // #58: menu lateral (computador) / barra inferior (celular) e barra de ações no topo de cada tela do jogo
   document.body.classList.toggle('em-jogo',!!S);
   document.getElementById('lateral').innerHTML=lateral();
   const V={menu:vMenu,inicio:vInicio,clube:vClube,elenco:vElenco,escalacao:vEscalacao,tabela:vTabela,jogos:vJogos,artilharia:vArt,mercado:vMercado,financas:vFin,dados:vDados,rodada:vRodada,ligas:vLigas,lobby:vLobby};
   const topo=S?barraAcoes(TITULOS[ui.view]):ui.view==='menu'?'':`<div class="topo-simples"><button class="btn fantasma" data-acao="go|menu">${icone('voltar')}Tela inicial</button></div>`;
   document.getElementById('app').innerHTML=topo+V[ui.view]();
+  if(chave&&at.isConnected===false){const n=document.querySelector(`[${chave[0]}="${(globalThis.CSS&&CSS.escape?CSS.escape(chave[1]):chave[1])}"]`);if(n&&n.focus)n.focus({preventScroll:true})}
 }
 export function autoLineup(){escalarMelhores();save();render()}
 

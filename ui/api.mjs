@@ -102,8 +102,8 @@ export async function importFromApi(){
     if(data.clubs.length>clubs.length)out(`Juntado com os ${data.clubs.length-clubs.length} clubes da outra série já carregada.`);
     if(!store.set(DATA_KEY,data))out('Aviso: não consegui salvar no navegador. Use "Exportar dados".');
     window._lastData=data;
-    out(`✅ Importação concluída: ${clubs.length} clubes, ${clubs.reduce((s,c)=>s+c.players.length,0)} jogadores. Inicie um novo jogo para usar os dados reais.`);
-  }catch(e){out('❌ '+e.message);if(/application key|token/i.test(e.message))out('Dica: a API não reconheceu a chave enviada pelo navegador. Teste a chave no Soccer Tester do painel ou use o script baixar-brasileirao.mjs e depois "Carregar JSON".')}
+    out(`Concluído: importação de ${clubs.length} clubes, ${clubs.reduce((s,c)=>s+c.players.length,0)} jogadores. Inicie um novo jogo para usar os dados reais.`);
+  }catch(e){out('Erro: '+e.message);if(/application key|token/i.test(e.message))out('Dica: a API não reconheceu a chave enviada pelo navegador. Teste a chave no Soccer Tester do painel ou use o script baixar-brasileirao.mjs e depois "Carregar JSON".')}
   finally{const b=document.getElementById('impbtn');if(b)b.disabled=false}
 }
 export function exportData(){
