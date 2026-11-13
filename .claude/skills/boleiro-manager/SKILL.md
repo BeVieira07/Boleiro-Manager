@@ -51,6 +51,12 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 - Com porta: `npm start` (`npx serve .`, normalmente `http://localhost:3000`) ou Live Server do VS Code (`http://127.0.0.1:5500`).
 - O `localStorage` é separado por origem: save feito em `file://` não aparece em `localhost`. Para mudar de origem, usar **Exportar save** e **Importar save** na aba **Dados**.
 
+## Online (#30)
+- Site: GitHub Pages, publicado pelo workflow `.github/workflows/pages.yml` a cada push na `main` (roda `npm test` antes). Endereço: https://bevieira07.github.io/Boleiro-Manager/. O site leva só `index.html`, `css/`, `img/`, `core/` e `ui/`.
+- Supabase: `ui/config.mjs` (URL e chave **pública**; vazio = offline, sem login), `ui/conta.mjs` (login por link mágico, `supabase-js` da CDN com versão fixa), `supabase/migrations/*.sql` (tabelas e RLS, aplicadas com `npx supabase db push`). A chave service_role/secret **nunca** entra no repositório (`tests/conta.test.mjs` confere).
+- Configurar: veja "Online (Supabase)" no README. O plano gratuito pausa o projeto após cerca de uma semana sem uso (dados ficam; reativar no painel).
+- Nos testes, `configurarConta({url, chave, cliente})` troca o Supabase por um cliente falso.
+
 ## Testes
 - `npm test` roda `node --test` com os testes de `tests/` (uns 20 s). Rodar antes de commitar mudanças no jogo.
 - `tests/jogo.mjs` importa os módulos de `core/` e `ui/` em Node com um DOM falso: `carregarJogo()` zera o estado e devolve `run(código)` (com todos os exports à vista), `acao('nome|arg')` (clica como o botão), o HTML da tela atual, os alertas e o localStorage em memória. Para trocar o jogo use `usarEstado(...)`. Use `jogarRodada`/`jogarTemporada` (corrigem a escalação quando há lesionados) e `problemasNasTelas` (acha "undefined", "NaN" e "[object" nas telas).

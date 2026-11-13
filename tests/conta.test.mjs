@@ -1,0 +1,104 @@
+// #30: login online (Supabase), com um cliente falso no lugar do servidor
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { carregarJogo } from './jogo.mjs';
+
+const conta = await import(new URL('../ui/conta.mjs', import.meta.url));
+
+// cliente falso do Supabase: guarda o que foi pedido
+function clienteFalso({ sessao = null } = {}) {
+  const f = { pedidos: [], ouvinte: null, perfis: { u1: { nome: 'Ana' } } };
+  f.auth = {
+    getSession: async () => ({ data: { session: sessao } }),
+    onAuthStateChange: cb => { f.ouvinte = cb; return { data: { subscription: { unsubscribe() {} } } } },
+    signInWithOtp: async a => { f.pedidos.push(['otp', a.email]); return { error: null } },
+    signOut: async () => { f.pedidos.push(['sair']); return { error: null } }
+  };
+  f.from = tabela => ({
+    select: () => ({ eq: (_c, id) => ({ maybeSingle: async () => ({ data: f.perfis[id] ?? null }) }) }),
+    update: v => ({ eq: async (_c, id) => { f.pedidos.push(['nome', id, v.nome]); f.perfis[id] = { ...f.perfis[id], ...v }; return { error: null } } })
+  });
+  return f;
+}
+const espera = () => new Promise(r => setTimeout(r, 0));
+
+test('sem configuração: nada de login, o jogo funciona offline', () => {
+  conta.configurarConta({ url: '', chave: '' });
+  const j = carregarJogo({ boot: true });
+  assert.equal(conta.onlineConfigurado(), false);
+  assert.equal(conta.painelConta(), '');
+  assert.doesNotMatch(j.html(), /emailConta|Entrar/);
+  assert.match(j.html(), /Novo jogo/);
+});
+
+test('entrar manda o link mágico; a sessão aparece e sair encerra', async () => {
+  const f = clienteFalso();
+  conta.configurarConta({ url: 'https://exemplo.supabase.co', chave: 'chave-publica', cliente: f });
+  const j = carregarJogo({ boot: true });
+  let avisos = 0;
+  await conta.iniciarConta(() => avisos++);
+  j.run('render()');
+  assert.match(j.html(), /id="emailConta"/, 'mostra o campo de e-mail na tela inicial');
+  j.campo('emailConta', 'nao-e-email');
+  await j.acao('entrar');
+  assert.ok(j.alertas.some(a => a.includes('e-mail válido')));
+  j.campo('emailConta', 'ana@exemplo.com');
+  await j.acao('entrar');
+  assert.deepEqual(f.pedidos.at(-1), ['otp', 'ana@exemplo.com']);
+  assert.ok(j.alertas.some(a => a.includes('Enviamos um link')));
+  // a pessoa clica no link do e-mail: o Supabase avisa que a sessão começou
+  await f.ouvinte('SIGNED_IN', { user: { id: 'u1', email: 'ana@exemplo.com' } });
+  assert.equal(conta.usuarioAtual().email, 'ana@exemplo.com');
+  j.run('render()');
+  assert.match(j.html(), /Conectado como <b>Ana<\/b>/);
+  j.campo('nomeConta', 'Ana Técnica');
+  await j.acao('mudarNomeTecnico');
+  assert.deepEqual(f.pedidos.at(-1), ['nome', 'u1', 'Ana Técnica']);
+  await j.acao('sair');
+  assert.deepEqual(f.pedidos.at(-1), ['sair']);
+  assert.equal(conta.usuarioAtual(), null);
+  j.run('render()');
+  assert.match(j.html(), /id="emailConta"/);
+  assert.ok(avisos >= 3, 'a tela é avisada quando o login muda');
+});
+
+test('quem já estava logado continua logado ao abrir o jogo', async () => {
+  const f = clienteFalso({ sessao: { user: { id: 'u1', email: 'ana@exemplo.com' } } });
+  conta.configurarConta({ url: 'https://exemplo.supabase.co', chave: 'chave-publica', cliente: f });
+  carregarJogo({ boot: true });
+  await conta.iniciarConta();
+  assert.equal(conta.perfilAtual().nome, 'Ana');
+  await espera();
+});
+
+test('servidor fora do ar: avisa e o jogo continua', async () => {
+  const f = clienteFalso(); f.auth.getSession = async () => { throw new Error('offline') };
+  conta.configurarConta({ url: 'https://exemplo.supabase.co', chave: 'chave-publica', cliente: f });
+  const j = carregarJogo({ boot: true });
+  const erro = console.error; console.error = () => {};
+  await conta.iniciarConta(); console.error = erro;
+  assert.match(conta.painelConta(), /continua offline/);
+  j.acao('novoJogo');
+  assert.equal(j.run('ui.view'), 'inicio');
+});
+
+test('nenhum segredo no repositório', () => {
+  const raiz = new URL('..', import.meta.url), achados = [];
+  const varre = dir => {
+    for (const f of readdirSync(new URL(dir, raiz))) {
+      const caminho = dir + f;
+      if (['node_modules', '.git', 'data', '.claude'].includes(f) || f === 'dados-padrao.mjs' || caminho === 'tests/conta.test.mjs') continue; // este teste contém os padrões procurados
+      if (statSync(new URL(caminho, raiz)).isDirectory()) { varre(caminho + '/'); continue }
+      const t = readFileSync(new URL(caminho, raiz), 'utf8');
+      if (/sb_secret_|service_role"\s*:/.test(t)) achados.push(caminho);
+      for (const m of t.matchAll(/eyJ[\w-]{10,}\.([\w-]{10,})\.[\w-]{10,}/g)) {
+        try { if (JSON.parse(Buffer.from(m[1], 'base64url')).role === 'service_role') achados.push(caminho) } catch {}
+      }
+    }
+  };
+  varre('');
+  assert.deepEqual(achados, []);
+  const cfg = readFileSync(new URL('ui/config.mjs', raiz), 'utf8');
+  assert.match(cfg, /SUPABASE_URL/);
+});

@@ -4,6 +4,7 @@ import { migrarPosicoes } from '../core/posicoes.mjs';
 import { esc } from '../core/utils.mjs';
 import { loadSaveFile } from './api.mjs';
 import { getData, save, ui } from './estado.mjs';
+import { painelConta } from './conta.mjs';
 import { crest } from './partida.mjs';
 import { go, render } from './telas.mjs';
 import { SAVE_KEY, store } from './utils.mjs';
@@ -71,6 +72,7 @@ export function vMenu(){
    <label class="btn sec">Importar save<input type="file" accept=".json" style="display:none" data-mudar="loadSaveFile"></label>
    <button class="btn sec" data-acao="go|dados">Dados do jogo</button>
   </div>
+  ${painelConta()}
   <div class="card tw"><h3>Jogos salvos (${idx.list.length}/${MAX_SAVES})</h3>
    ${idx.list.length?`<table>${idx.list.map(linha).join('')}</table>`:'<p class="muted">Nenhum jogo salvo ainda. Comece um novo jogo.</p>'}
   </div></div>`;
