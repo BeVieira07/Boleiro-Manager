@@ -50,3 +50,32 @@ test('tendência e forma mostram os valores reais do jogador; ações de mercado
   assert.match(j.html(), /data-acao="loanForm\|[^|]+\|out"/);
   assert.deepEqual(problemasNasTelas(j, ['elenco']), []);
 });
+
+test('forma do jogo com técnico usa o placar final, aplicado na rodada seguinte (#44)', () => {
+  const j = carregarJogo({ boot: true });
+  j.run(`newGame('${clubeDaSerie(j, 'A', 5)}')`);
+  j.run('if(validateLineup())userClub().lineup=autoXI(userClub());playRound(false)');
+  assert.ok(j.run('S.formaPendente.xi[userClub().id].length===11'), 'o jogo do técnico fica pendente, com os titulares');
+  assert.ok(!j.run('S.formaPendente.xi[S.fixtures[0].find(g=>!ehHumano(g.h)&&!ehHumano(g.a)).h]'), 'jogo só da IA não espera');
+  const snap = j.run('JSON.stringify(S)');
+  // o mesmo jogo com dois placares diferentes (como uma virada ao vivo): a forma dos titulares acompanha o placar final
+  const formaCom = (gf, ga) => {
+    j.run(`usarEstado(JSON.parse(${JSON.stringify(snap)}));reindex()`);
+    return j.run(`(()=>{const uc=userClub(),g=S.fixtures[S.formaPendente.r].find(g=>g.h===uc.id||g.a===uc.id),casa=g.h===uc.id;
+      g.ev=g.ev.filter(e=>e.t!=='gol');g.hg=casa?${gf}:${ga};g.ag=casa?${ga}:${gf};
+      const xi=S.formaPendente.xi[uc.id];aplicarFormaPendente();return xi.reduce((s,id)=>s+P[id].forma,0)})()`);
+  };
+  assert.ok(formaCom(3, 0) > formaCom(0, 3), 'vitória dá mais forma que derrota');
+  assert.equal(j.run('S.formaPendente'), null);
+});
+
+test('jovem que subiu pela idade ainda pode subir por desempenho na temporada (#44)', () => {
+  const j = carregarJogo({ boot: true });
+  j.run(`newGame('${clubeDaSerie(j)}')`);
+  const r = j.run(`(()=>{const uc=userClub(),p=P[userClub().lineup[5]],o=S.clubs.find(c=>c.id!==uc.id);
+    p.o0=p.ovr-4;p.oT=p.ovr;p.forma=1.95; // +4 na virada pela idade
+    const antes=p.ovr;atualizarForma([{h:uc.id,a:o.id,hg:1,ag:0,ev:[{t:'gol',pid:p.id,side:'h',m:10}]}]);
+    return {antes,depois:p.ovr,tag:tendenciaTag(p)}})()`);
+  assert.equal(r.depois, r.antes + 1);
+  assert.match(r.tag, /\+5/, 'o Elenco mostra a tendência desde o início da temporada, com a idade');
+});

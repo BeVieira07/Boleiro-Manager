@@ -4,11 +4,13 @@ import { DIVS, MOVE_N, P, S, addFin, addNews, addNewsTodos, clubById, clubDo, di
 import { autoXI, getXI } from './motor.mjs';
 import { POSD } from './posicoes.mjs';
 import { clamp, ri, rnd } from './utils.mjs';
+import { aplicarFormaPendente } from './forma.mjs';
 
 /* ================= fim de temporada ================= */
 // regra: fecha a temporada (premiação, histórico, diretoria). Devolve o resumo, ou null se já foi fechada.
 export function fecharTemporada(){
   if(S.seasonClosed===S.season)return null;
+  aplicarFormaPendente(); // a última rodada (#44)
   const two=hasTwoDivs(),mv=MOVE_N(),ds=divisions(),res={};
   for(const t of tecnicos()){ // premiação e diretoria de cada técnico
     const uc=clubDo(t),dv=divOf(uc),Tb=table(dv),ps=Tb.findIndex(x=>x.id===uc.id)+1,pr=seasonPrize(dv,ps);
@@ -38,7 +40,7 @@ export function iniciarTemporada(){
       p.o0=p.ovr;p.forma=0;
       p.age++;
       const d=p.age<=21?ri(1,4):p.age<=24?ri(0,3):p.age<=29?ri(-1,1):p.age<=32?ri(-2,0):ri(-4,-1);
-      p.ovr=clamp(p.ovr+d,40,95);p.goals=0;
+      p.ovr=clamp(p.ovr+d,40,95);p.oT=p.ovr;p.goals=0; // oT: o teto da forma conta depois da idade (#44)
       if(p.age>=37){addNews(`👋 ${p.name} se aposentou.`,c.id);continue}
       refreshEconomics(p);keep.push(p);
     }
