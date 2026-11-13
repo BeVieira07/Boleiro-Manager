@@ -1,4 +1,5 @@
 import { P, S, addFin, clubById, ehHumano, tec, userClub } from './estado.mjs';
+import { wageBill } from './emprestimos.mjs';
 import { pickScorer, power } from './motor.mjs';
 import { clamp, hashStr, poisson, ri } from './utils.mjs';
 
@@ -65,7 +66,7 @@ export function ressimularDepois(g,min){
     g.ev.sort((x,y)=>x.m-y.m);
   }
   // bicho por vitória foi lançado antes do jogo acabar: acerta se o resultado virou
-  const bicho=Math.round(userClub().players.reduce((s,p)=>s+p.wage,0)*0.15*1000)/1000,depois=saldo();
+  const bicho=g.bicho?.[uid]??Math.round(wageBill(userClub())*0.15*1000)/1000,depois=saldo(); // o valor cobrado em jogarRodada (#43)
   if(antes>0&&depois<=0)addFin('Bicho por vitória (ajuste)',bicho);
   if(antes<=0&&depois>0)addFin('Bicho por vitória (ajuste)',-bicho);
 }
