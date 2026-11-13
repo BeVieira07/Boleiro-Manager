@@ -1,0 +1,25 @@
+/* ================= componentes do front (#56) =================
+   Pedaços de HTML que várias telas usam. As classes estão em css/style.css e documentadas em docs/front.md. */
+import { esc } from '../core/utils.mjs';
+
+/** Faixa do overall: alto (76+), médio (68–75) ou baixo. */
+export const faixaOvr = v => (v >= 76 ? 'alto' : v >= 68 ? 'medio' : 'baixo');
+export const ovrChip = (v, titulo = '') => `<span class="ovr ${faixaOvr(v)}"${titulo ? ` title="${esc(titulo)}"` : ''}>${v}</span>`;
+
+/** Barra de progresso; `pct` de 0 a 100. */
+export const barra = (pct, cor = '', classe = '') =>
+  `<div class="barra ${classe}" role="presentation"><div style="width:${Math.max(0, Math.min(100, pct))}%${cor ? ';background:' + cor : ''}"></div></div>`;
+
+/** Indicador: rótulo, valor grande, unidade, barra opcional e subtexto. */
+export function stat({ rotulo, valor, unid = '', sub = '', cor = '', pct = null, corBarra = '' }) {
+  return `<div class="stat"><span class="stat-rotulo">${esc(rotulo)}</span>
+    <div class="stat-linha"><span class="stat-valor"${cor ? ` style="color:${cor}"` : ''}>${valor}</span>${unid ? `<span class="stat-unid">${unid}</span>` : ''}</div>
+    ${pct == null ? '' : barra(pct, corBarra)}${sub ? `<span class="stat-sub">${sub}</span>` : ''}</div>`;
+}
+
+/** Chip clicável (filtro, opção). `acao` é o data-acao. */
+export const chip = (rotulo, acao, on = false, extra = '') =>
+  `<button type="button" class="chip${on ? ' on' : ''}" aria-pressed="${on}" data-acao="${esc(acao)}">${rotulo}${extra}</button>`;
+
+/** Etiqueta de status: tipo ok | aviso | erro | info. */
+export const tag = (texto, tipo = 'info') => `<span class="tag ${tipo}">${esc(texto)}</span>`;

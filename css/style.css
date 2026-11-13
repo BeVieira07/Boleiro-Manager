@@ -1,59 +1,154 @@
+/* ================= Boleiro Manager: base visual (#56) =================
+   Tokens e componentes do front. Documentação: docs/front.md. */
 :root{
-  --bg:#0d1612; --panel:#14211b; --panel2:#1b2c24; --line:#2a3f35; --text:#e8f1ec; --muted:#93aa9f;
-  --accent:#2fbf71; --accent2:#f2c94c; --danger:#e5534b; --info:#4ea1ff;
+  /* cores */
+  --bg:#0b1511; --lateral:#09110d; --painel:#12201a; --painel2:#182a22; --painel3:#0f1b15;
+  --linha:#25392f; --linha2:#1f3228;
+  --texto:#e9f3ee; --texto2:#b4c8bd; --muted:#8fa79b;
+  --verde:#2fbf71; --verde-esc:#1d4a32; --verde-claro:#bff3d4; --tinta-verde:#052414;
+  --ouro:#f2c94c; --ouro-esc:#3a3517; --ouro-borda:#b39a2e; --ouro-claro:#f2e3a1;
+  --perigo:#e5534b; --perigo-forte:#b8372f; --perigo-esc:#3a1d1b; --perigo-borda:#a8433d; --perigo-claro:#f4b8b4;
+  --info:#4ea1ff; --neutro:#5a6b63;
+  /* grupos de posição (fundo, texto): contraste >= 4,5:1 */
+  --pos-g:#d9a21b; --pos-g-t:#2a1d00; --pos-d:#2a64b8; --pos-d-t:#fff; --pos-m:#2fbf71; --pos-m-t:#06240f; --pos-a:#c0392b; --pos-a-t:#fff;
+  /* forma, raios, sombras, espaços */
+  --r-sm:8px; --r:12px; --r-lg:16px; --r-pill:999px;
+  --sombra:0 10px 30px rgba(0,0,0,.4);
+  --e1:4px; --e2:8px; --e3:12px; --e4:16px; --e5:20px; --e6:28px;
+  --f-titulo:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;
+  --f-texto:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --foco:0 0 0 3px var(--bg),0 0 0 5px var(--ouro);
+  /* nomes antigos, ainda usados em alguns estilos inline */
+  --panel:var(--painel); --panel2:var(--painel2); --line:var(--linha); --text:var(--texto);
+  --accent:var(--verde); --accent2:var(--ouro); --danger:var(--perigo); --ok:var(--verde); --warn:var(--ouro);
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-header{position:sticky;top:0;z-index:5;background:#0a120e;border-bottom:1px solid var(--line);padding:10px 16px}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--texto);font:14px/1.45 var(--f-texto)}
+h1,h2{font-family:var(--f-titulo);font-weight:700;letter-spacing:.02em;line-height:1.05}
+h1{font-size:38px;margin:0}
+h2{font-size:30px;margin:4px 0 14px}
+h3{margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--ouro);font-family:var(--f-texto)}
+a{color:var(--verde)}
+.muted{color:var(--muted)} .ok{color:var(--verde)} .bad{color:var(--perigo)} .gold{color:var(--ouro)}
+.num,table,.stat-valor{font-variant-numeric:tabular-nums}
+.icone{width:18px;height:18px;flex:none;vertical-align:middle}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ---------- cartão ---------- */
+.card{background:var(--painel);border:1px solid var(--linha);border-radius:var(--r-lg);padding:var(--e4) 18px;margin-bottom:var(--e4)}
+.card.destaque{background:linear-gradient(135deg,#17331f,var(--painel) 60%)}
+.card-topo{display:flex;justify-content:space-between;align-items:center;gap:var(--e2);flex-wrap:wrap;margin-bottom:var(--e3)}
+.card-topo h3{margin:0}
+
+/* ---------- botões ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--e2);min-height:40px;padding:8px 16px;border-radius:10px;border:1px solid transparent;
+  background:var(--verde);color:var(--tinta-verde);font:inherit;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{filter:brightness(1.08)}
+.btn.sec{background:var(--painel2);color:var(--texto);border-color:var(--linha);font-weight:500}
+.btn.sec:hover{border-color:var(--verde)}
+.btn.red,.btn.perigo{background:var(--perigo-forte);color:#fff}
+.btn.fantasma{background:transparent;color:var(--texto2);border-color:var(--linha);font-weight:500}
+.btn.icone-so{padding:8px;min-width:40px}
+.btn.sm{min-height:32px;padding:4px 10px;font-size:12px;border-radius:var(--r-sm)}
+.btn.big{min-height:48px;padding:12px 22px;font-size:16px}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+
+/* ---------- chips, pílulas e etiquetas ---------- */
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--linha);
+  background:var(--painel2);color:var(--texto2);font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip:hover{border-color:var(--verde)}
+.chip.on,.chip[aria-pressed="true"]{border-color:var(--verde);background:var(--verde-esc);color:var(--verde-claro)}
+.chip .n{opacity:.8;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:var(--e2);align-items:center}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:var(--r-pill);background:var(--painel2);border:1px solid var(--linha);font-size:12px;color:var(--texto2)}
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;border:1px solid}
+.tag.ok{background:var(--verde-esc);border-color:var(--verde);color:var(--verde-claro)}
+.tag.aviso{background:var(--ouro-esc);border-color:var(--ouro-borda);color:var(--ouro-claro)}
+.tag.erro{background:var(--perigo-esc);border-color:var(--perigo-borda);color:var(--perigo-claro)}
+.tag.info{background:#13283f;border-color:#2f5f94;color:#cfe4ff}
+
+/* posição (sigla colorida por grupo) e overall (alto, médio, baixo) */
+.pos{display:inline-block;min-width:40px;text-align:center;border-radius:6px;padding:2px 6px;font-size:11px;font-weight:700}
+.pos.G{background:var(--pos-g);color:var(--pos-g-t)}.pos.D{background:var(--pos-d);color:var(--pos-d-t)}
+.pos.M{background:var(--pos-m);color:var(--pos-m-t)}.pos.A{background:var(--pos-a);color:var(--pos-a-t)}
+.ovr{display:inline-block;min-width:36px;text-align:center;border-radius:var(--r-sm);padding:2px 0;font-weight:800;font-size:14px;border:1px solid var(--linha);font-variant-numeric:tabular-nums}
+.ovr.alto{border-color:var(--verde);background:var(--verde-esc);color:var(--verde-claro)}
+.ovr.medio{border-color:var(--ouro-borda);background:var(--ouro-esc);color:var(--ouro-claro)}
+.ovr.baixo{border-color:var(--perigo-borda);background:var(--perigo-esc);color:var(--perigo-claro)}
+.tend{font-size:12px;font-weight:600;min-width:34px;display:inline-block}
+
+/* ---------- barra de progresso ---------- */
+.barra,.bar{height:8px;background:var(--painel2);border-radius:6px;overflow:hidden}
+.barra>div,.bar>div{height:100%;background:var(--verde);border-radius:inherit}
+.barra.fina{height:6px}
+
+/* ---------- indicador (stat) ---------- */
+.stats{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-bottom:var(--e5)}
+.stat{background:var(--painel);border:1px solid var(--linha);border-radius:14px;padding:var(--e4);display:flex;flex-direction:column;gap:var(--e2);min-width:0}
+.stat-rotulo{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.stat-linha{display:flex;align-items:baseline;gap:var(--e2);flex-wrap:wrap}
+.stat-valor{font-family:var(--f-titulo);font-weight:700;font-size:40px;line-height:1}
+.stat-unid{color:var(--muted);font-size:13px}
+.stat-sub{font-size:13px;color:var(--muted)}
+
+/* ---------- tabela ---------- */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:9px 8px;border-bottom:1px solid var(--linha2);text-align:left;white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.07em;background:var(--painel3);position:sticky;top:0;z-index:1}
+td.n,th.n{text-align:right} td.c,th.c{text-align:center}
+tr.me td{background:rgba(47,191,113,.14);font-weight:700}
+tr.tit td{background:rgba(47,191,113,.07)}
+.card.tabela-card{padding:0;overflow:hidden}
+.card.tabela-card>h3,.card.tabela-card>.card-topo{padding:var(--e4) 18px 0}
+
+/* ---------- formulários ---------- */
+input,select{background:var(--painel2);color:var(--texto);border:1px solid var(--linha);border-radius:10px;padding:9px 11px;font:inherit;min-height:40px}
+input[type=checkbox]{min-height:0;width:18px;height:18px;accent-color:var(--verde)}
+.busca{display:inline-flex;align-items:center;gap:var(--e2);background:var(--painel2);border:1px solid var(--linha);border-radius:10px;padding:0 12px;color:var(--muted);min-height:40px}
+.busca input{background:transparent;border:0;padding:0;min-height:38px;width:160px;color:var(--texto)}
+.busca input:focus{outline:0}
+
+/* ---------- escudo ---------- */
+.crest{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;vertical-align:middle;object-fit:contain;background:var(--painel2);flex:none}
+.crest.g{width:68px;height:68px;font-size:18px}
+.crest.m{width:40px;height:40px;font-size:12px}
+.club{display:inline-flex;align-items:center;gap:var(--e2)}
+
+/* ---------- utilidades de layout ---------- */
+.row{display:flex;gap:var(--e2);align-items:center;flex-wrap:wrap}
+.grid{display:grid;gap:var(--e3);grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.cols{display:grid;gap:var(--e4);grid-template-columns:1fr 1fr}
+@media(max-width:800px){.cols{grid-template-columns:1fr}}
+
+/* ---------- foco visível ---------- */
+:focus-visible{outline:0;box-shadow:var(--foco)}
+
+/* ================= legado: telas ainda não refeitas (#58–#63 substituem) ================= */
+header{position:sticky;top:0;z-index:5;background:var(--lateral);border-bottom:1px solid var(--linha);padding:10px 16px}
 .top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.brand{font-weight:800;font-size:18px;color:var(--accent);letter-spacing:.5px}
+.brand{font-family:var(--f-titulo);font-weight:700;font-size:22px;color:var(--verde);letter-spacing:.06em}
 .hinfo{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px}
-.hinfo b{color:var(--text)}
+.hinfo b{color:var(--texto)}
 nav{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-nav button{background:var(--panel);color:var(--text);border:1px solid var(--line);padding:6px 10px;border-radius:8px;cursor:pointer}
-nav button.on{background:var(--accent);color:#06240f;border-color:var(--accent);font-weight:700}
+nav button{background:var(--painel);color:var(--texto);border:1px solid var(--linha);padding:6px 10px;border-radius:8px;cursor:pointer;font:inherit}
+nav button.on{background:var(--verde);color:var(--tinta-verde);border-color:var(--verde);font-weight:700}
 main{max-width:1150px;margin:0 auto;padding:16px}
-h2{margin:4px 0 12px;font-size:20px} h3{margin:16px 0 8px;font-size:15px;color:var(--accent2)}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
-.cols{display:grid;gap:14px;grid-template-columns:1fr 1fr} @media(max-width:800px){.cols{grid-template-columns:1fr}}
-.btn{background:var(--accent);color:#06240f;border:0;padding:8px 14px;border-radius:8px;font-weight:700;cursor:pointer}
-.btn.sec{background:var(--panel2);color:var(--text);border:1px solid var(--line);font-weight:500}
-.btn.red{background:var(--danger);color:#fff}
-.btn.sm{padding:4px 8px;font-size:12px}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.btn.big{font-size:16px;padding:12px 22px}
-input,select{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font:inherit}
-.tw{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
-th{color:var(--muted);font-weight:600;font-size:12px;position:sticky;top:0;background:var(--panel)}
-tr.me td{background:rgba(47,191,113,.12);font-weight:700}
-td.n,th.n{text-align:right}
-.muted{color:var(--muted)} .ok{color:var(--accent)} .bad{color:var(--danger)} .gold{color:var(--accent2)}
-.pos{display:inline-block;min-width:34px;text-align:center;border-radius:5px;padding:1px 4px;font-size:11px;font-weight:700}
-.pos.G{background:#d9a21b;color:#2a1d00}.pos.D{background:#3577d4;color:#fff}.pos.M{background:#2fbf71;color:#06240f}.pos.A{background:#e5534b;color:#fff}
-.ovr{font-weight:800}
-.crest{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;vertical-align:middle;object-fit:contain;background:var(--panel2);flex:none}
-.club{display:inline-flex;align-items:center;gap:8px}
 .clubcard{cursor:pointer;text-align:center;padding:14px 10px}
-.clubcard:hover{border-color:var(--accent)}
+.clubcard:hover{border-color:var(--verde)}
 .clubcard .crest{width:52px;height:52px;font-size:15px;margin-bottom:6px}
-.stars{color:var(--accent2);letter-spacing:2px}
-.zone-lib{border-left:3px solid var(--info)} .zone-z4{border-left:3px solid var(--danger)}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.stars{color:var(--ouro);letter-spacing:2px}
+.zone-lib{border-left:3px solid var(--info)} .zone-z4{border-left:3px solid var(--perigo)}
 .news li{margin-bottom:6px}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
-#modal .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:620px;width:100%;max-height:90vh;overflow:auto;padding:18px}
+#modal .box{background:var(--painel);border:1px solid var(--linha);border-radius:var(--r-lg);max-width:620px;width:100%;max-height:90vh;overflow:auto;padding:18px;box-shadow:var(--sombra)}
 .score{display:flex;align-items:center;justify-content:center;gap:16px;font-size:18px;font-weight:700;text-align:center}
 .score .num{font-size:40px;font-weight:900;min-width:110px}
-.clock{text-align:center;color:var(--accent2);font-weight:800;font-size:20px;margin:6px 0}
+.clock{text-align:center;color:var(--ouro);font-weight:800;font-size:20px;margin:6px 0}
 .feed{list-style:none;padding:0;margin:10px 0;max-height:280px;overflow:auto}
-.feed li{padding:5px 8px;border-bottom:1px solid var(--line)}
-.bar{height:10px;background:var(--panel2);border-radius:6px;overflow:hidden}
-.bar>div{height:100%;background:var(--accent)}
-.pill{display:inline-block;padding:2px 8px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);font-size:12px}
-/* tela inicial (#21) */
+.feed li{padding:5px 8px;border-bottom:1px solid var(--linha)}
 .menu-ini{max-width:860px;margin:0 auto}
 .menu-ini h1{font-size:34px;margin:18px 0 14px}
 .menu-ini>.row{margin-bottom:16px;flex-wrap:wrap}
