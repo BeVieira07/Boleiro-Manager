@@ -109,3 +109,14 @@ test('nenhum segredo no repositório', () => {
   const cfg = readFileSync(new URL('ui/config.mjs', raiz), 'utf8');
   assert.match(cfg, /SUPABASE_URL/);
 });
+
+test('trava da sessão é só da aba: faz fila em ordem e um erro não prende as próximas', async () => {
+  const ordem = [];
+  const lenta = conta.travaDaAba('x', -1, () => new Promise(r => setTimeout(() => { ordem.push(1); r(1) }, 20)));
+  const falha = conta.travaDaAba('x', -1, async () => { ordem.push(2); throw new Error('falhou') });
+  const depois = conta.travaDaAba('x', -1, async () => { ordem.push(3); return 3 });
+  assert.equal(await lenta, 1);
+  await assert.rejects(falha, /falhou/);
+  assert.equal(await depois, 3);
+  assert.deepEqual(ordem, [1, 2, 3]);
+});
