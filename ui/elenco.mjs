@@ -29,7 +29,7 @@ function linha(p, xi) {
   const acoes = loanOf(p.id) ? '' : `<button class="btn sm ${p.listed ? 'perigo' : 'sec'}" data-acao="toggleListed|${p.id}" aria-pressed="${!!p.listed}">${p.listed ? 'À venda' : 'Pôr à venda'}</button><button class="btn sec sm" data-acao="quickSell|${p.id}">Vender já</button>`;
   return `<tr class="${tit ? 'tit' : ''}${unavailable(p) ? ' indisp' : ''}">
     <td class="c-pos">${posTag(p)}</td>
-    <th scope="row" class="c-nome"><div class="jogador"><span class="camisa" aria-label="camisa ${p.number ?? '—'}">${p.number ?? ''}</span><div><b>${esc(p.name)}</b>${loanTag(p)}${status(p, tit)}</div></div></th>
+    <th scope="row" class="c-nome"><div class="jogador"><span class="camisa" aria-hidden="true">${p.number ?? ''}</span>${p.number != null ? `<span class="sr">camisa ${p.number}, </span>` : ''}<div><b>${esc(p.name)}</b>${loanTag(p)}${status(p, tit)}</div></div></th>
     <td class="n c-idade"><span class="rot">Idade </span>${p.age}</td>
     <td class="c c-ovr"><span class="forca">${ovrChip(p.ovr)}${tendenciaTag(p)}</span></td>
     <td class="c-forma" title="Forma: ${f}%"><span class="sr">Forma ${f}%</span>${barra(f, corForma(f), 'fina')}</td>

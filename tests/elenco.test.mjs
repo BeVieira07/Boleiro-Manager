@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { carregarJogo, clubeDaSerie, jogarRodada, problemasNasTelas } from './jogo.mjs';
 
-const nomes = h => [...h.matchAll(/class="c-nome"><div class="jogador"><span[^>]*>[^<]*<\/span><div><b>([^<]+)<\/b>/g)].map(m => m[1]);
+const nomes = h => [...h.matchAll(/class="c-nome"><div class="jogador"><span[^>]*>[^<]*<\/span>(?:<span class="sr">[^<]*<\/span>)?<div><b>([^<]+)<\/b>/g)].map(m => m[1]);
 
 test('filtrar por grupo e buscar atualizam a lista', () => {
   const j = carregarJogo({ boot: true });

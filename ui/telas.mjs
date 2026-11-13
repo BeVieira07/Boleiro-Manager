@@ -42,7 +42,7 @@ export function render(){
 export function autoLineup(){escalarMelhores();save();render()}
 
 /* ---------- novo jogo ---------- */
-export function stars(s){const n=clamp(Math.round((s-62)/4),1,5);return `<span class="estrelas" aria-label="Força ${n} de 5">${'★'.repeat(n)}<span class="apagada">${'★'.repeat(5-n)}</span></span>`}
+export function stars(s){const n=clamp(Math.round((s-62)/4),1,5);return `<span class="estrelas" aria-hidden="true">${'★'.repeat(n)}<span class="apagada">${'★'.repeat(5-n)}</span></span><span class="sr">Força ${n} de 5</span>`}
 export function vInicio(){
   const d=getData(),ds=divsOf(d.clubs);
   const card=c=>`<button type="button" class="clube-escolha" data-acao="newGame|${c.id}">${crest(c,'m')}<b>${esc(c.name)}</b>${stars(c.strength)}<span class="muted">${c.players.length} jogadores</span></button>`;

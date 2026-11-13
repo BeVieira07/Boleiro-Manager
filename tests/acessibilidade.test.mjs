@@ -16,6 +16,8 @@ function problemas(html, tela) {
   for (const m of html.matchAll(/<div class="chips[^"]*"[^>]*>/g)) if (/role="group"/.test(m[0]) && !/aria-label=/.test(m[0])) out.push(`${tela}: grupo de chips sem nome`);
   // svg decorativo escondido, ou com nome
   for (const m of html.matchAll(/<svg\b[^>]*>/g)) if (!/aria-hidden="true"|aria-label=/.test(m[0])) out.push(`${tela}: svg sem aria-hidden nem nome`);
+  // aria-label em span/div sem papel é ignorado pelo leitor de tela: use texto .sr
+  for (const m of html.matchAll(/<(span|div|p|b|td|li)\b[^>]*aria-(label|labelledby)=[^>]*>/g)) if (!/\srole=/.test(m[0])) out.push(`${tela}: aria-label em <${m[1]}> sem role`);
   // campos com rótulo
   for (const m of html.matchAll(/<(input|select)\b[^>]*>/g)) {
     const t = m[0]; if (/type="(file|hidden)"/.test(t)) continue;

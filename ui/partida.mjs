@@ -29,7 +29,7 @@ export const marcador=(e,H,A)=>{const team=e.side==='h'?H:A,[,nome]=EVENTO[e.t]|
 export function showLive(g,done){
   const H=clubById(g.h),A=clubById(g.a),meu=userClub().id;let min=0,hs=0,as=0,timer=null;
   const lado=(c,cls)=>`<div class="placar-time ${cls}">${crest(c,'g')}<b>${esc(c.name)}</b></div>`;
-  openModal(`<div class="ao-vivo" aria-labelledby="lsc">
+  openModal(`<div class="ao-vivo">
     <div class="placar">${lado(H,'casa')}<div class="placar-centro"><div class="placar-num" id="lsc" aria-live="polite">0 x 0</div><div class="relogio" id="lclk">0'</div></div>${lado(A,'fora')}</div>
     <div class="tempo" aria-hidden="true"><div class="tempo-trilho"><div class="tempo-feito" id="lbar"></div></div><div class="tempo-marcas" id="lmarcas"></div>
       <div class="tempo-escala"><span>0'</span><span>45'</span><span>90'</span></div></div>
@@ -57,7 +57,7 @@ export function showLive(g,done){
   document.getElementById('ldone').onclick=()=>{closeModal();done()};
 }
 // #64: o modal prende o foco; Esc fecha quando `fechavel` (o jogo ao vivo e a demissão não fecham)
-export function openModal(html,{fechavel=true}={}){const m=document.getElementById('modal');document.getElementById('mbox').innerHTML=html;m.style.display='flex';fecharCamada(m);abrirCamada(m,fechavel?closeModal:null)}
+export function openModal(html,{fechavel=true}={}){const m=document.getElementById('modal');const b=document.getElementById('mbox');b.innerHTML=html;const t=b.querySelector&&b.querySelector('h2,.placar-num');if(t&&b.setAttribute){t.id=t.id||'mtitulo';b.setAttribute('aria-labelledby',t.id)}m.style.display='flex';fecharCamada(m);abrirCamada(m,fechavel?closeModal:null)}
 export function closeModal(){const m=document.getElementById('modal');m.style.display='none';fecharCamada(m)}
 
 export function seasonEnd(){

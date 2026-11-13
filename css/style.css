@@ -309,7 +309,7 @@ th[aria-sort="ascending"],th[aria-sort="descending"]{color:var(--verde-claro)}
   display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;text-align:center}
 .clube-escolha:hover{border-color:var(--verde);background:var(--painel2)}
 .estrelas{color:var(--ouro);letter-spacing:2px}
-.estrelas .apagada{color:var(--linha)}
+.estrelas .apagada{color:var(--muted);opacity:1}
 .sub-serie{margin-top:var(--e5)}
 /* ================= avisos (toasts) e diálogos (#64) ================= */
 .avisos{position:fixed;right:16px;bottom:16px;z-index:40;display:flex;flex-direction:column;gap:10px;width:min(380px,calc(100vw - 32px));pointer-events:none}
