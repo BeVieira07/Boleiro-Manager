@@ -4,6 +4,7 @@
    Para acrescentar uma migração: ponha a função no FIM de MIGRACOES (nunca no meio nem mudando as de antes). Ela recebe
    o estado já em S e deve deixar o save no formato novo; VERSAO_SAVE acompanha sozinho. Saves sem versão rodam todas,
    por isso cada uma confere se o campo já existe (vários saves antigos já tinham parte das mudanças). */
+import { migrarBase } from './base.mjs';
 import { migrarContratos } from './contratos.mjs';
 import { migrarDiretoria } from './diretoria.mjs';
 import { migrarTecnicos, reindex, usarEstado } from './estado.mjs';
@@ -15,7 +16,8 @@ const MIGRACOES = [
   s => migrarTecnicos(s), // 2: técnicos em S.managers, caixa e finanças no clube (#28)
   s => { if (s.seed == null) { s.seed = novaSemente(); s.rng = s.seed } }, // 3: semente do sorteio (#26)
   s => migrarDiretoria(s), // 4: confiança e meta da diretoria (#11); precisa dos técnicos
-  s => migrarContratos(s) // 5: contrato de cada jogador (#49)
+  s => migrarContratos(s), // 5: contrato de cada jogador (#49)
+  s => migrarBase(s) // 6: potencial de cada jogador e base dos clubes com técnico (#50)
 ];
 export const VERSAO_SAVE = MIGRACOES.length;
 

@@ -6,6 +6,7 @@
 import { usarEstado } from '../core/estado.mjs';
 import * as api from './api.mjs';
 import * as avisos from './avisos.mjs';
+import * as base from './base.mjs';
 import * as conta from './conta.mjs';
 import * as diretoria from './diretoria.mjs';
 import * as elenco from './elenco.mjs';
@@ -27,7 +28,7 @@ import * as telas from './telas.mjs';
 import * as utils from './utils.mjs';
 
 export const acoes = Object.fromEntries(
-  [api, avisos, conta, diretoria, elenco, emprestimos, escalacao, estado, forma, layout, liga, ligajogo, mercado, motor, nuvem, partida, posicoes, saves, taticas, telas, utils]
+  [api, avisos, base, conta, diretoria, elenco, emprestimos, escalacao, estado, forma, layout, liga, ligajogo, mercado, motor, nuvem, partida, posicoes, saves, taticas, telas, utils]
     .flatMap(m => Object.entries(m)).filter(([, f]) => typeof f === 'function'));
 
 /** Executa a ação descrita em data-acao / data-mudar. */

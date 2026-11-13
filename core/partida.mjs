@@ -1,3 +1,4 @@
+import { potInicial, tetoOvr, virarBase } from './base.mjs';
 import { CONTRATO_NOVO, vencerContratos } from './contratos.mjs';
 import { fakePlayer, refreshEconomics } from './dados.mjs';
 import { confiancaFimTemporada, confiancaNovaTemporada } from './diretoria.mjs';
@@ -42,12 +43,13 @@ export function iniciarTemporada(){
       p.o0=p.ovr;p.forma=0;
       p.age++;
       const d=p.age<=21?ri(1,4):p.age<=24?ri(0,3):p.age<=29?ri(-1,1):p.age<=32?ri(-2,0):ri(-4,-1);
-      p.ovr=clamp(p.ovr+d,40,95);p.oT=p.ovr;p.goals=0; // oT: o teto da forma conta depois da idade (#44)
+      p.ovr=clamp(d>0?Math.max(p.ovr,Math.min(p.ovr+d,tetoOvr(p))):p.ovr+d,40,95);p.oT=p.ovr;p.goals=0; // sobe só até o potencial (#50); oT: o teto da forma conta depois da idade (#44)
       if(p.age>=37){addNews(`👋 ${p.name} se aposentou.`,c.id);continue}
       refreshEconomics(p);keep.push(p);
     }
     c.players=keep;ensureSquad(c);
   }
+  virarBase(); // #50: a base dos clubes com técnico
   S.season++;S.round=0;S.fixtures=makeAllFixtures(S.clubs);
   reindex();
   for(const t of tecnicos()){t.offers=[];confiancaNovaTemporada(t);const uc=clubDo(t);uc.lineup=getXI(uc);if(uc.lineup.length<11)uc.lineup=autoXI(uc)}
@@ -58,7 +60,7 @@ export function ensureSquad(c){
   for(const [pos,n] of Object.entries({G:2,D:5,M:5,A:3})){
     while(c.players.filter(p=>p.pos===pos).length<n){
       const p=fakePlayer(c.id,i++,c.strength,pos,r,[17,19]);p.ovr=clamp(c.strength-10+ri(-4,6),40,85);
-      p.goals=0;p.listed=false;p.contrato=CONTRATO_NOVO;refreshEconomics(p);p.clubId=c.id;c.players.push(p);P[p.id]=p;
+      p.goals=0;p.listed=false;p.contrato=CONTRATO_NOVO;p.pot=potInicial(p);refreshEconomics(p);p.clubId=c.id;c.players.push(p);P[p.id]=p;
       addNews(`🌱 ${p.name} (${POSD[p.pd].nome}) subiu da base.`,c.id);
     }
   }

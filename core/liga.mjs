@@ -3,6 +3,7 @@
    com as escolhas de cada técnico. Puro (sem rede nem DOM), para ser testado no Node e rodar igual no Deno.
    Atenção: usa o estado global do core (S). Quem chama precisa fazer usarEstado -> regra -> JSON.stringify(S)
    num bloco síncrono, sem await no meio (várias requisições podem dividir o mesmo processo). */
+import { promoverDaBase, venderDaBase } from './base.mjs';
 import { renovarContrato } from './contratos.mjs';
 import { exercerOpcaoCompra, proporEmprestimo } from './emprestimos.mjs';
 import { unavailable } from './escalacao.mjs';
@@ -96,6 +97,8 @@ const MERCADO = {
   opcaoCompra: a => exercerOpcaoCompra(a.pid),
   emprestimo: emprestimoLiga,
   renovar: (a, uc) => meu(a.pid, uc) || renovarContrato(a.pid), // #49
+  promoverBase: a => promoverDaBase(String(a.pid)), // #50: só acha jogador da base do próprio clube
+  venderBase: a => venderDaBase(String(a.pid)),
   // entre técnicos (#36)
   proporTecnico: a => proporTecnico(a),
   aceitarProposta: a => aceitarProposta(a.id),
