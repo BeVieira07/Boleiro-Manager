@@ -1,0 +1,67 @@
+// #61: Escalação visual (e #54: laterais do lado certo do campo)
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { carregarJogo, clubeDaSerie, problemasNasTelas } from './jogo.mjs';
+
+const vagas = h => [...h.matchAll(/class="carta-vaga">(\w+)</g)].map(m => m[1]);
+
+test('o campo mostra as vagas da formação e trocar de formação remonta as cartas', () => {
+  const j = carregarJogo({ boot: true });
+  j.run(`newGame('${clubeDaSerie(j)}');go('escalacao')`);
+  for (const f of ['4-3-3', '4-4-2', '5-3-2', '3-4-3']) {
+    j.acao(`setFormation|${f}`);
+    const v = vagas(j.html());
+    assert.equal(v.length, 11, f);
+    assert.deepEqual([...v].sort(), [...j.run(`slotsDe('${f}')`)].sort(), f);
+    assert.equal(j.run('getXI(userClub()).length'), 11);
+  }
+  assert.deepEqual(problemasNasTelas(j, ['escalacao']), []);
+});
+
+test('#54: lateral esquerdo à esquerda e direito à direita, sem mudar as vagas', () => {
+  const j = carregarJogo({ boot: true });
+  j.run(`newGame('${clubeDaSerie(j)}');go('escalacao')`);
+  for (const f of ['4-4-2', '4-3-3', '4-5-1', '5-3-2']) {
+    j.acao(`setFormation|${f}`);
+    const v = vagas(j.html());
+    assert.ok(v.indexOf('LE') < v.indexOf('LD'), `${f}: ${v.join(' ')}`);
+    assert.ok(v.indexOf('PE') < 0 || v.indexOf('PE') < v.indexOf('PD'), f);
+    assert.deepEqual(j.run('slotLayout(userClub()).map(s=>s.d)'), j.run(`slotsDe('${f}')`), 'a ordem das vagas no estado não muda');
+  }
+});
+
+test('penalidade de posição aparece na carta e no resumo, com o valor certo', () => {
+  const j = carregarJogo({ boot: true });
+  j.run(`newGame('${clubeDaSerie(j)}');go('escalacao');setFormation('4-3-3')`);
+  // troca a ponta esquerda com a ponta direita: os dois ficam fora de posição
+  const [pe, pd] = j.run(`(()=>{const L=slotLayout(userClub());return [L.find(s=>s.d==='PE').id,L.find(s=>s.d==='PD').id]})()`);
+  j.run(`P['${pe}'].pd='PE';P['${pe}'].ps=[];P['${pd}'].pd='PD';P['${pd}'].ps=[]`);
+  j.acao(`trocarTitulares|${pe}|${pd}`);
+  const pen = j.run(`Math.round(penalidadePosicao(P['${pe}'],'PD').pen*100)`);
+  assert.ok(pen > 0);
+  assert.match(j.html(), new RegExp(`class="carta-nota">-${pen}%`));
+  assert.match(j.html(), /jogará de ponta direita/);
+  assert.match(j.html(), new RegExp(`data-acao="trocarTitulares\\|(${pe}\\|${pd}|${pd}\\|${pe})"`), 'sugere destrocar');
+  j.acao(`trocarTitulares|${pe}|${pd}`);
+  assert.equal(j.run(`slotLayout(userClub()).find(s=>s.id==='${pe}').d`), 'PE');
+});
+
+test('indisponíveis marcados, fora da escalação automática; trocas mantêm a ordem das vagas', () => {
+  const j = carregarJogo({ boot: true });
+  j.run(`newGame('${clubeDaSerie(j)}');go('escalacao')`);
+  const tit = j.run('userClub().lineup[5]');
+  j.run(`P['${tit}'].inj=3;render()`);
+  assert.match(j.html(), /class="carta indisp"[^>]*data-acao="clickEsc\|/);
+  j.acao('escalarMelhoresTela');
+  assert.ok(!j.run('getXI(userClub())').includes(tit), 'escalação automática tira o lesionado');
+  // reserva lesionado não entra
+  j.acao(`clickEsc|${j.run('userClub().lineup[2]')}`);
+  j.acao(`clickEsc|${tit}`);
+  assert.ok(j.alertas.some(a => a.includes('não pode ser escalado')));
+  // titular x reserva: o reserva ocupa a mesma vaga
+  const antes = j.run('slotLayout(userClub()).map(s=>s.d)'), sai = j.run('userClub().lineup[2]');
+  const entra = j.run(`userClub().players.find(p=>!getXI(userClub()).includes(p.id)&&!unavailable(p)).id`);
+  j.acao(`clickEsc|${sai}`); j.acao(`clickEsc|${entra}`);
+  assert.equal(j.run('userClub().lineup[2]'), entra);
+  assert.deepEqual(j.run('slotLayout(userClub()).map(s=>s.d)'), antes);
+});

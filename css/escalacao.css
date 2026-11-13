@@ -1,8 +1,44 @@
-.campo{background:linear-gradient(#1d6b3c,#175a31);border:2px solid #e8f1ec55;border-radius:12px;padding:14px 6px;display:flex;flex-direction:column;gap:22px;min-height:420px;justify-content:space-around;margin-bottom:14px}
-.campo .linha{display:flex;justify-content:space-evenly;gap:6px}
-.ec{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:62px;padding:5px 4px;border-radius:10px;background:rgba(0,0,0,.35);border:2px solid transparent;position:relative;font-size:12px}
-.ec:hover{border-color:var(--accent2)} .ec.sel{border-color:var(--accent2);background:rgba(242,201,76,.25)}
-.ec.fora{border-color:var(--accent2)} .ec.indisp{border-color:var(--danger);opacity:.8}
-.ec.vazio{border:2px dashed #fff5;color:#fff9}
-.ec i{position:absolute;top:-8px;right:-4px;font-style:normal}
-.aviso{border-color:var(--accent2);color:var(--accent2)}
+/* ================= Escalação visual (#61) ================= */
+.esc-topo{display:flex;flex-wrap:wrap;gap:var(--e3);align-items:center;justify-content:space-between;margin-bottom:var(--e4)}
+.esc-topo p{margin:0;flex:1 1 300px}
+.esc{display:flex;flex-wrap:wrap;gap:var(--e5);align-items:flex-start}
+.campo{flex:1.6 1 480px;min-width:0;position:relative;border-radius:18px;overflow:hidden;border:2px solid rgba(233,243,238,.2);
+  background:repeating-linear-gradient(180deg,#1d6b3c 0 64px,#1a6337 64px 128px);min-height:640px;padding:28px 10px;
+  display:flex;flex-direction:column;justify-content:space-between;gap:var(--e5)}
+.campo-linhas{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:#e9f3ee;stroke-opacity:.28;stroke-width:2;pointer-events:none}
+.campo .linha{position:relative;display:flex;justify-content:space-evenly;gap:6px}
+.carta{appearance:none;font:inherit;color:var(--texto);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:88px;max-width:120px;
+  padding:8px 8px 9px;border-radius:var(--r);background:rgba(6,20,12,.72);border:2px solid rgba(255,255,255,.14)}
+.carta:hover{border-color:var(--ouro-borda)}
+.carta-vaga{font-size:10px;font-weight:800;letter-spacing:.06em;padding:1px 7px;border-radius:5px;color:var(--tinta-verde);background:var(--verde-claro)}
+.carta-nome{font-weight:700;font-size:13px;line-height:1.2;text-align:center;overflow-wrap:anywhere}
+.carta-pe{display:flex;gap:6px;align-items:center}
+.carta-nota{font-size:11px;font-weight:700;color:var(--ouro)}
+.carta.sel{border-color:var(--ouro);background:rgba(58,53,23,.92);box-shadow:0 0 0 3px rgba(242,201,76,.35)}
+.carta.fora{border-color:var(--ouro);border-style:dashed}
+.carta.fora .carta-vaga{background:var(--ouro)}
+.carta.indisp{border-color:var(--perigo)}
+.carta.indisp .carta-vaga{background:var(--perigo-claro)}
+.carta.indisp .carta-nota{color:var(--perigo-claro)}
+.carta.vazia{border-style:dashed;color:var(--texto2);cursor:default}
+.esc-lado{flex:1 1 320px;min-width:0}
+.titulares{margin:0 0 var(--e3)}
+.setor{margin-bottom:var(--e3)}
+.setor-topo{display:flex;justify-content:space-between;color:var(--texto2);margin-bottom:6px}
+.setor-topo b{color:var(--texto);font-variant-numeric:tabular-nums}
+.aviso-posicao{display:flex;gap:var(--e3);align-items:flex-start;background:var(--ouro-esc);border:1px solid var(--ouro-borda);border-radius:14px;padding:14px;margin-bottom:var(--e4);color:var(--ouro-claro)}
+.aviso-posicao>.icone{color:var(--ouro);flex:none;margin-top:1px}
+.aviso-posicao ul{margin:6px 0 10px;padding-left:18px;font-size:13px;line-height:1.45}
+.aviso-posicao .btn{margin:0 6px 6px 0;white-space:normal;text-align:left}
+.reservas{list-style:none;margin:0;padding:0}
+.reserva{appearance:none;font:inherit;color:var(--texto);background:transparent;border:0;border-top:1px solid var(--linha2);width:100%;
+  display:flex;align-items:center;gap:var(--e3);padding:8px 4px;min-height:48px;cursor:pointer;text-align:left;border-radius:6px}
+.reserva:hover{background:var(--painel2)}
+.reserva.sel{background:var(--ouro-esc);box-shadow:inset 3px 0 var(--ouro)}
+.reserva.indisp{opacity:.75}
+.reserva-nome{flex:1;display:flex;flex-direction:column;line-height:1.3;min-width:0}
+@media(max-width:799px){
+  .campo{flex-basis:100%;min-height:520px;padding:18px 4px}
+  .carta{min-width:0;flex:1 1 0;max-width:96px;padding:6px 4px}
+  .carta-nome{font-size:12px}
+}
