@@ -169,7 +169,38 @@ body.em-jogo .conteudo{max-width:1280px;padding:0 28px 40px}
   .barra-botoes .btn{flex:1 1 auto}
 }
 
-/* ================= legado: telas ainda não refeitas (#59–#63 substituem) ================= */
+/* ================= painel do clube (#59) ================= */
+.painel{display:flex;flex-wrap:wrap;gap:var(--e5);align-items:flex-start}
+.painel-principal{flex:1.5 1 440px;min-width:0}
+.painel-lateral{flex:1 1 320px;min-width:0}
+.confronto{display:flex;align-items:center;justify-content:space-around;gap:var(--e3);flex-wrap:wrap;margin:var(--e2) 0 var(--e4)}
+.time{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;min-width:120px}
+.confronto .x{font-family:var(--f-titulo);font-size:44px;font-weight:700;color:var(--muted)}
+.taticas{display:flex;flex-direction:column;gap:var(--e2)}
+.taticas .chips>.muted{font-size:12px;min-width:64px}
+.dica{font-size:13px;margin:var(--e3) 0 0}
+.forma{display:flex;gap:var(--e2);flex-wrap:wrap;list-style:none;margin:0 0 var(--e3);padding:0}
+.bola-forma{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+.bola-forma.V{background:var(--verde);color:var(--tinta-verde)}
+.bola-forma.E{background:var(--neutro);color:#fff}
+.bola-forma.D{background:var(--perigo-forte);color:#fff;border-radius:8px}
+.alertas{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.alerta{display:flex;gap:var(--e3);align-items:center;padding:10px 12px;background:var(--painel2);border-radius:10px;border-left:3px solid var(--info);flex-wrap:wrap}
+.alerta>.icone{color:var(--info)}
+.alerta.erro{border-left-color:var(--perigo)} .alerta.erro>.icone{color:var(--perigo)}
+.alerta.aviso{border-left-color:var(--ouro)} .alerta.aviso>.icone{color:var(--ouro)}
+.alerta-texto{flex:1 1 200px;display:flex;flex-direction:column;line-height:1.35;min-width:0}
+.alerta-texto .muted{font-size:13px}
+.alerta-acoes{display:flex;gap:6px}
+.zona-lib{box-shadow:inset 3px 0 var(--info)} .zona-z4{box-shadow:inset 3px 0 var(--perigo)}
+.legenda{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:10px 0 6px}
+.zona-cor{display:inline-block;width:4px;height:12px;margin-right:6px;vertical-align:-1px;border-radius:2px}
+.zona-cor.lib{background:var(--info)} .zona-cor.z4{background:var(--perigo)}
+.noticias{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.noticias li{display:flex;gap:10px;font-size:13px;line-height:1.4}
+.noticias .num{min-width:32px}
+
+/* ================= legado: telas ainda não refeitas (#60–#63 substituem) ================= */
 .clubcard{cursor:pointer;text-align:center;padding:14px 10px}
 .clubcard:hover{border-color:var(--verde)}
 .clubcard .crest{width:52px;height:52px;font-size:15px;margin-bottom:6px}

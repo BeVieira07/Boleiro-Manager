@@ -17,6 +17,7 @@ import { acceptOffer, makeBid, quickSell, rejectOffer, toggleListed } from './me
 import { botaoRodada, playRound, simToEnd } from './motor.mjs';
 import { crest, newSeason, seasonEnd } from './partida.mjs';
 import { posTag } from './posicoes.mjs';
+import { vClube } from './clube.mjs';
 import { vLigas, vLobby } from './liga.mjs';
 import { vMenu, voltarMenu } from './saves.mjs';
 import { painelTatica } from './taticas.mjs';
@@ -57,27 +58,10 @@ export function resultLine(g,me){
   const cls=me&&(g.h===me||g.a===me)?' class="me"':'';
   return `<tr${cls}><td class="n">${crest(H)} ${esc(H.name)}</td><td style="text-align:center"><b>${g.hg==null?'x':g.hg+' x '+g.ag}</b></td><td>${esc(A.name)} ${crest(A)}</td></tr>`;
 }
-export function vClube(){
-  const uc=userClub(),me=uc.id;
-  const next=S.round<S.fixtures.length?S.fixtures[S.round].find(g=>g.h===me||g.a===me):null;
-  const T=table(),pos=T.findIndex(t=>t.id===me)+1,row=T.find(t=>t.id===me);
-  const offers=tec().offers.filter(o=>P[o.pid]&&P[o.pid].clubId===me);
-  const last=[];for(let r=S.round-1;r>=0&&last.length<5;r--){const g=S.fixtures[r].find(g=>g.h===me||g.a===me);if(g)last.push(g)}
-  return `
-  <div class="cols">
-   <div class="card"><h3>Próximo jogo</h3>${next?`<div class="score" style="font-size:15px">${crest(clubById(next.h))} ${esc(clubById(next.h).name)} <span class="muted">x</span> ${esc(clubById(next.a).name)} ${crest(clubById(next.a))}</div>
-     <p class="muted" style="text-align:center">${next.h===me?'Em casa':'Fora de casa'} · Rodada ${S.round+1}</p>
-     <div class="row" style="justify-content:center">${botaoRodada('btn big','▶ Jogar rodada')}${tecnicos().length>1?'':'<button class="btn sec" data-acao="simToEnd">Simular até o fim</button>'}</div>`
-     :`<p>Temporada encerrada.</p><button class="btn" data-acao="proximaTemporada">Iniciar temporada ${S.season+1}</button>`}</div>
-   <div class="card"><h3>Campanha</h3><p>${S.round?`<b>${pos}º</b> lugar · ${row.Pts} pts · ${row.V}V ${row.E}E ${row.D}D · saldo ${row.GP-row.GC}`:'A temporada ainda não começou.'}</p>
-     <h3>Últimos jogos</h3><table>${last.map(g=>resultLine(g)).join('')||'<tr><td class="muted">—</td></tr>'}</table></div>
-  </div>
-  ${offers.length?`<div class="card"><h3>Propostas recebidas</h3><table>${offers.map(o=>`<tr><td>${esc(P[o.pid].name)}</td><td>${esc(clubById(o.from).name)}</td><td class="n">${money(o.amount)}</td><td class="muted">valor ${money(P[o.pid].value)}</td><td><button class="btn sm" data-acao="acceptOffer|${o.id}">Aceitar</button> <button class="btn sec sm" data-acao="rejectOffer|${o.id}">Recusar</button></td></tr>`).join('')}</table></div>`:''}
-  ${painelDiretoria()}
-  ${painelTatica()}
-  <div class="card"><h3>Notícias</h3><ul class="news">${tec().news.slice(0,12).map(n=>`<li>${esc(n.t)}</li>`).join('')}</ul></div>
-  ${S.history.length?(()=>{const ch=h=>h.champs||{A:h.champ,...(h.champB?{B:h.champB}:{})};const hd=[...new Set(S.history.flatMap(h=>Object.keys(ch(h))))].sort(),many=hd.length>1;
-   return `<div class="card"><h3>Histórico</h3><table><tr><th>Temporada</th>${hd.map(x=>`<th>Campeão${many?' '+DIVS[x]:''}</th>`).join('')}<th>Sua posição</th><th>Artilheiro</th></tr>${S.history.map(h=>`<tr><td>${h.season}</td>${hd.map(x=>`<td>${esc(ch(h)[x]||'-')}</td>`).join('')}<td>${h.me}º${many&&h.div?' ('+DIVS[h.div]+')':''}</td><td>${esc(h.scorer)}</td></tr>`).join('')}</table></div>`})():''}`;
+// zonas da classificação de uma série: G (Libertadores ou acesso) e Z (rebaixamento)
+export function zonas(d){
+  const two=hasTwoDivs(),mv=two?MOVE_N():4,ds=divisions(),di=ds.indexOf(d),last=di===ds.length-1,top=di===0?6:mv,bottom=!two?4:last?0:mv;
+  return {top,bottom,nomeTop:di===0?'Libertadores (G6)':`Acesso à ${DIVS[ds[di-1]]} (G${mv})`,nomeBottom:bottom?`Rebaixamento${two?' para a '+DIVS[ds[di+1]]:''} (Z${bottom})`:''};
 }
 export function autoLineup(){escalarMelhores();save();render()}
 export function vElenco(){
