@@ -46,9 +46,9 @@ test('virada de temporada também é reproduzível', () => {
 
 test('save antigo, sem semente, ganha uma ao carregar', () => {
   const s = JSON.parse(estadoInicial(5));
-  delete s.seed; delete s.rng;
+  delete s.seed; delete s.rng; delete s.versao; // save de antes da #46
   const j = carregarJogo();
-  j.run(`usarEstado(JSON.parse(${JSON.stringify(JSON.stringify(s))}));reindex()`);
+  j.run(`migrarSave(JSON.parse(${JSON.stringify(JSON.stringify(s))}))`);
   assert.equal(j.run('Number.isInteger(S.seed)&&Number.isInteger(S.rng)'), true);
   jogarRodada(j);
   assert.equal(j.run('S.round'), 2);
