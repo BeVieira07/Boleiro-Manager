@@ -6,7 +6,7 @@ import { render } from './telas.mjs';
 import { DATA_KEY, store } from './utils.mjs';
 
 // estado só da tela (não vai para o save)
-export const ui={view:'clube',lastRound:null,selEsc:null,vDiv:null,jogosRound:null,mf:{pos:'',q:'',max:'',club:''},tvAoVivo:null,novos:[]};
+export const ui={view:'clube',lastRound:null,selEsc:null,vDiv:null,jogosRound:null,mf:{pos:'',q:'',max:'',club:''},ef:{grupo:'',q:'',ord:'pos',dir:1},tvAoVivo:null,novos:[]};
 export function save(){if(S)salvarJogo()} // js/saves.js: grava no save da campanha atual
 export function getData(){return store.get(DATA_KEY)||(typeof DADOS_PADRAO!=='undefined'?DADOS_PADRAO:sampleData())}
 

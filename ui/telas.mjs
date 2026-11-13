@@ -18,6 +18,7 @@ import { botaoRodada, playRound, simToEnd } from './motor.mjs';
 import { crest, newSeason, seasonEnd } from './partida.mjs';
 import { posTag } from './posicoes.mjs';
 import { vClube } from './clube.mjs';
+import { vElenco } from './elenco.mjs';
 import { vLigas, vLobby } from './liga.mjs';
 import { vMenu, voltarMenu } from './saves.mjs';
 import { painelTatica } from './taticas.mjs';
@@ -64,16 +65,6 @@ export function zonas(d){
   return {top,bottom,nomeTop:di===0?'Libertadores (G6)':`Acesso à ${DIVS[ds[di-1]]} (G${mv})`,nomeBottom:bottom?`Rebaixamento${two?' para a '+DIVS[ds[di+1]]:''} (Z${bottom})`:''};
 }
 export function autoLineup(){escalarMelhores();save();render()}
-export function vElenco(){
-  const uc=userClub(),xi=getXI(uc),ps=[...uc.players].sort((a,b)=>POSD_ORDEM.indexOf(posDSigla(a))-POSD_ORDEM.indexOf(posDSigla(b))||b.ovr-a.ovr);
-  return `
-  <p class="muted">Titulares (linha destacada), reservas e formação são definidos na tela de Escalação.</p>
-  <div class="card tw"><table><tr><th>Pos</th><th>#</th><th>Nome</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Tend.</th><th class="n">Gols</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th>Mercado</th></tr>
-  ${ps.map(p=>`<tr${xi.includes(p.id)?' class="me"':''}><td>${posTag(p)}</td><td class="muted">${p.number??''}</td><td>${esc(p.name)}${loanTag(p)}</td><td class="n">${p.age}</td><td class="c">${ovrChip(p.ovr)}</td><td class="n">${tendenciaTag(p)}</td><td class="n">${p.goals||0}</td>
-   <td class="n">${money(p.value)}</td><td class="n">${money(p.wage)}</td>
-   <td>${loanOf(p.id)?'':`<button class="btn sm ${p.listed?'red':'sec'}" data-acao="toggleListed|${p.id}">${p.listed?'À venda ✓':'Pôr à venda'}</button> <button class="btn sec sm" data-acao="quickSell|${p.id}">Vender já</button> `}${loanBtn(p,'out')}</td></tr>`).join('')}
-  </table></div>${vLoans()}`;
-}
 export function vTabela(){
   const d=curDiv(),T=table(d),me=tec().clubId,two=hasTwoDivs(),mv=two?MOVE_N():4;
   const ds=divisions(),di=ds.indexOf(d),last=di===ds.length-1;
