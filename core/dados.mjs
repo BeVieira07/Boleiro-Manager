@@ -76,3 +76,15 @@ export function valueOf(p){
   return Math.round(0.3*Math.pow(1.13,p.ovr-50)*af*10)/10 || 0.1;
 }
 export function refreshEconomics(p){p.value=Math.max(0.1,valueOf(p));p.wage=Math.round(p.value*0.01*1000)/1000}
+
+/* #47: ids e cores vão para atributos HTML. Dados de fora (aba Dados, save importado) só entram com ids simples,
+   e a cor só é usada se for #rgb ou #rrggbb (conferida na hora de desenhar, vale para qualquer origem). */
+const idOk=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,40}$/.test(x);
+export const corOk=c=>typeof c==='string'&&/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(c);
+export function erroIds(clubs){
+  for(const c of clubs||[]){
+    if(!c||!idOk(c.id))return 'O arquivo tem um clube com id inválido (use só letras, números, _ e -).';
+    for(const p of c.players||[])if(!p||!idOk(p.id))return `O arquivo tem um jogador com id inválido no clube ${c.name}.`;
+  }
+  return null;
+}
