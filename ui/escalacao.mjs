@@ -35,7 +35,7 @@ export function vEscalacao(){
   const sz=FORMS[uc.formation]||FORMS['4-4-2'];
   const rows=[['A',sz[2],1+sz[0]+sz[1]],['M',sz[1],1+sz[0]],['D',sz[0],1],['G',1,0]]
     .map(([g,n,off])=>`<div class="linha">${Array.from({length:n},(_,k)=>chip(lay[off+k].id&&P[lay[off+k].id],lay[off+k].d)).join('')}</div>`).join('');
-  return `<h2>Escalação — ${esc(uc.name)}</h2>
+  return `
   <div class="card row">
     <label>Formação <select data-mudar="setFormation">${Object.keys(FORMS).map(f=>`<option ${uc.formation===f?'selected':''}>${f}</option>`).join('')}</select></label>
     <button class="btn sec" data-acao="escalarMelhoresTela">Escalar melhores</button>
