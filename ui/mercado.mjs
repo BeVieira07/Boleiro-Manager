@@ -55,7 +55,7 @@ export function makeBid(pid){
   const p=P[pid],seller=clubById(p.clubId);
   const e=podeProporCompra(pid);if(e){avisar(e,'erro');return}
   const caixa=userClub().balance;
-  pedirValor({titulo:`Proposta por ${p.name}`,texto:`${posDNome(p)}, força ${p.ovr}, do ${seller.name}.\nValor de mercado: ${money(p.value)}. Seu caixa: ${money(caixa)}.`,rotulo:'Quanto oferecer',sufixo:'milhões',valor:p.value.toFixed(1).replace('.',','),ok:'Enviar proposta',
+  pedirValor({titulo:`Proposta por ${p.name}`,texto:`${posDNome(p)}, força ${p.ovr}, do ${seller.name}.\nValor de mercado: ${money(p.value)}${p.contrato!=null?` (contrato: ${p.contrato} temporada${p.contrato>1?'s':''})`:''}. Seu caixa: ${money(caixa)}.`,rotulo:'Quanto oferecer',sufixo:'milhões',valor:p.value.toFixed(1).replace('.',','),ok:'Enviar proposta',
     validar:v=>isNaN(v)||v<=0?'Digite um valor maior que zero, em milhões (ex.: 4,5).':v>caixa?`O caixa só tem ${money(caixa)}.`:''},
     v=>{if(ui.liga)return mercadoLiga({tipo:'compra',pid,valor:v}); // #35: na liga, a IA responde no servidor
       const r=proporCompra(pid,v);avisar(r.erro||r.msg,r.erro?'erro':'ok');save();render()});

@@ -1,0 +1,145 @@
+// #49: contratos (prazo, renovação e fim de contrato)
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { carregarJogo, clubeDaSerie, jogarRodada, jogarTemporada, virarTemporada, problemasNasTelas } from './jogo.mjs';
+
+const novo = (div = 'A', i = 10) => { const j = carregarJogo({ boot: true }); j.run(`newGame('${clubeDaSerie(j, div, i)}')`); return j };
+const todos = 'S.clubs.flatMap(c=>c.players)';
+
+test('jogo novo: todo jogador tem contrato de 1 a 4 temporadas, e o mesmo jogador recebe sempre o mesmo prazo', () => {
+  const j = novo();
+  assert.equal(j.run(`${todos}.every(p=>Number.isInteger(p.contrato)&&p.contrato>=1&&p.contrato<=4)`), true);
+  assert.deepEqual(j.run(`[1,2,3,4].map(n=>${todos}.some(p=>p.contrato===n))`), [true, true, true, true]);
+  assert.equal(j.run(`${todos}.filter(p=>p.age>=33).every(p=>p.contrato<=2)`), true, 'veterano tem contrato curto');
+  const antes = j.run(`JSON.stringify(userClub().players.map(p=>p.contrato))`);
+  const k = novo();
+  assert.equal(k.run(`JSON.stringify(userClub().players.map(p=>p.contrato))`), antes);
+});
+
+test('contrato curto vale menos no mercado, e o salário não muda com o prazo', () => {
+  const j = novo();
+  const r = j.run(`(()=>{const p=userClub().players.find(p=>p.value>2);const v=n=>{p.contrato=n;refreshEconomics(p);return [p.value,p.wage]};return [v(4),v(3),v(2),v(1)]})()`);
+  assert.deepEqual(r[0], r[1], '3 temporadas ou mais: valor cheio');
+  assert.ok(r[2][0] < r[1][0] && r[3][0] < r[2][0], `valor cai com o prazo: ${r.map(x => x[0])}`);
+  assert.equal(new Set(r.map(x => x[1])).size, 1, 'salário igual');
+});
+
+test('renovar: o jogador pede aumento, o contrato cresce e a folha sobe', () => {
+  const j = novo();
+  const pid = j.run(`(()=>{const p=userClub().players.find(p=>p.age<=28&&p.contrato<=4);p.contrato=1;p.forma=0;refreshEconomics(p);return p.id})()`);
+  const q = j.run(`pedidoRenovacao('${pid}')`), antes = j.run(`P['${pid}'].wage`), folha = j.run('wageBill(userClub())');
+  assert.equal(q.anos, 3);
+  assert.ok(q.aumento >= 0.08 && q.salario > antes && q.chance > 0 && q.chance <= 0.95);
+  j.run(`S.rng=1;while(rnd()>=${q.chance}){}`); // deixa o sorteio num ponto qualquer
+  const r = j.run(`(()=>{let r;for(let k=0;k<40;k++){r=renovarContrato('${pid}');if(r.ok||r.erro)break;delete P['${pid}'].renRound}return r})()`);
+  assert.equal(r.ok, true);
+  assert.equal(j.run(`P['${pid}'].contrato`), 3);
+  assert.equal(j.run(`P['${pid}'].wage`), q.salario);
+  assert.ok(j.run('wageBill(userClub())') > folha);
+  assert.match(j.run(`pedidoRenovacao('${pid}').erro`), /ainda tem 3 temporadas/);
+  // a evolução do overall mantém o aumento negociado
+  assert.equal(j.run(`(()=>{const p=P['${pid}'];refreshEconomics(p);return p.wage})()`), q.salario);
+});
+
+test('renovar: recusa vale para a rodada, e emprestado ou jogador de outro clube não renova', () => {
+  const j = novo();
+  const pid = j.run(`(()=>{const p=userClub().players[3];p.contrato=1;return p.id})()`);
+  // força a recusa: sorteio sempre acima da chance
+  const r = j.run(`(()=>{let r;for(let k=0;k<200;k++){r=renovarContrato('${pid}');if(r.ok===false)break;P['${pid}'].contrato=1;delete P['${pid}'].aum}return r})()`);
+  assert.equal(r.ok, false);
+  assert.match(j.run(`renovarContrato('${pid}').erro`), /não quer conversar de novo nesta rodada/);
+  jogarRodada(j);
+  assert.equal(j.run(`renovarContrato('${pid}').erro`), undefined, 'na rodada seguinte dá para tentar de novo');
+  const outro = j.run(`Object.values(P).find(p=>p.clubId!==userClub().id).id`);
+  assert.match(j.run(`renovarContrato('${outro}').erro`), /inválido/);
+  const emp = j.run(`(()=>{const o=S.clubs.find(c=>c.id!==userClub().id),p=o.players[20];p.contrato=1;startLoan({pid:p.id,from:o.id,to:userClub().id,until:S.round+3,payer:'to',buy:null});return p.id})()`);
+  assert.match(j.run(`renovarContrato('${emp}').erro`), /emprestado/);
+  assert.equal(j.run(`P['${emp}'].contrato`), 1, 'o empréstimo não mexe no contrato');
+});
+
+test('comprar dá contrato novo e tira o aumento antigo', () => {
+  const j = novo();
+  const pid = j.run(`(()=>{const p=Object.values(P).find(p=>!ehHumano(p.clubId)&&p.age<30&&p.value<3&&clubById(p.clubId).players.filter(x=>x.pos===p.pos).length>4);p.contrato=1;p.aum=1.3;refreshEconomics(p);return p.id})()`);
+  j.run(`userClub().balance=500;userClub().players.length=28`); // abre vaga no elenco (máximo 32)
+  const r = j.run(`proporCompra('${pid}',P['${pid}'].value*3)`);
+  assert.equal(r.ok, true);
+  assert.equal(j.run(`[P['${pid}'].contrato,P['${pid}'].aum]`)[0], 3);
+  assert.equal(j.run(`P['${pid}'].aum`), undefined);
+});
+
+test('virada: os contratos perdem um ano; no meu clube quem ficou sem contrato sai de graça, e os elencos continuam completos', () => {
+  const j = novo();
+  jogarTemporada(j);
+  const meus = JSON.parse(j.run(`JSON.stringify(userClub().players.map(p=>[p.id,p.contrato,p.age]))`));
+  const acabam = meus.filter(x => x[1] === 1).map(x => x[0]), ficam = meus.filter(x => x[1] > 1 && x[2] < 36);
+  assert.ok(acabam.length > 0, 'o clube tem contratos no fim');
+  virarTemporada(j);
+  const eu = j.run('userClub().id');
+  for (const id of acabam) assert.notEqual(j.run(`P['${id}']&&P['${id}'].clubId`), eu, 'saiu do meu clube');
+  for (const [id, c] of ficam) assert.equal(j.run(`P['${id}'].contrato`), c - 1);
+  assert.match(j.run('tec().news.map(n=>n.t).join("|")'), /Fim de contrato: .+ saiu de graça/);
+  assert.equal(j.run(`S.clubs.every(c=>c.players.length>=15)`), true, 'todo clube tem elenco');
+  assert.equal(j.run(`S.clubs.every(c=>['G','D','M','A'].every((g,i)=>c.players.filter(p=>p.pos===g).length>=[2,5,5,3][i]))`), true, 'com o mínimo por posição');
+  assert.equal(j.run(`${todos}.every(p=>Number.isInteger(p.contrato)&&p.contrato>=1&&p.contrato<=4)`), true, 'ninguém começa a temporada sem contrato');
+  assert.equal(j.run(`${todos}.every(p=>p.clubId&&clubById(p.clubId).players.includes(p))`), true);
+  assert.equal(j.run('validateLineup()'), null, 'a escalação foi refeita sem quem saiu');
+  // quem saiu de graça foi para um clube da IA com contrato novo
+  const foi = acabam.map(id => j.run(`P['${id}']?P['${id}'].contrato:null`)).filter(x => x != null);
+  assert.ok(foi.every(c => c === 2));
+  jogarRodada(j, 3);
+  assert.deepEqual(problemasNasTelas(j), []);
+});
+
+test('várias temporadas: os elencos não esvaziam nem incham', () => {
+  const j = novo('B');
+  for (let t = 0; t < 4; t++) { jogarTemporada(j); virarTemporada(j) }
+  const n = j.run('S.clubs.map(c=>c.players.length)');
+  assert.ok(Math.min(...n) >= 15 && Math.max(...n) <= 45, `elencos entre ${Math.min(...n)} e ${Math.max(...n)}`);
+  assert.equal(j.run(`${todos}.some(p=>[p.ovr,p.value,p.wage,p.contrato].some(x=>typeof x!=='number'||Number.isNaN(x)))`), false);
+});
+
+test('save antigo sem contratos: recebe o contrato padrão ao carregar e continua jogando', () => {
+  const j = novo();
+  jogarRodada(j, 2);
+  const s = JSON.parse(j.run('JSON.stringify(S)'));
+  for (const c of s.clubs) for (const p of c.players) delete p.contrato;
+  s.versao = 4;
+  const salarios = JSON.stringify(s.clubs[0].players.map(p => p.wage));
+  globalThis.__save = s;
+  assert.equal(j.run('migrarSave(globalThis.__save).ok'), true);
+  assert.equal(j.run('S.versao'), j.run('VERSAO_SAVE'));
+  assert.equal(j.run(`${todos}.every(p=>p.contrato>=1&&p.contrato<=4)`), true);
+  assert.equal(j.run('JSON.stringify(S.clubs[0].players.map(p=>p.wage))'), salarios, 'os salários não mudam com a migração');
+  jogarRodada(j);
+  assert.deepEqual(problemasNasTelas(j), []);
+});
+
+test('Elenco mostra o contrato e o botão Renovar; o Clube avisa na reta final', () => {
+  const j = novo();
+  j.run(`userClub().players.forEach((p,i)=>{p.contrato=i===0?1:i===1?2:4})`);
+  j.run(`go('elenco')`);
+  const h = j.html();
+  assert.match(h, /filtrarElenco\|ord\|contrato/);
+  assert.match(h, /Última temporada/);
+  assert.match(h, /2 temporadas/);
+  assert.equal((h.match(/data-acao="renovar\|/g) || []).length, 2, 'só quem tem até 2 temporadas');
+  const pid = j.run('userClub().players[1].id');
+  j.acao(`renovar|${pid}`);
+  assert.ok(j.alertas.some(a => /pede \d+% de aumento/.test(a)), 'o diálogo mostra o pedido');
+  assert.ok(j.alertas.some(a => /renovou por 4 temporadas|recusou a renovação/.test(a)));
+  j.run(`go('clube')`);
+  assert.doesNotMatch(j.html(), /ao fim da temporada/, 'no começo da temporada não avisa');
+  j.run('S.round=S.fixtures.length-5;go("clube")');
+  assert.match(j.html(), /contratos? acabam? ao fim da temporada/);
+});
+
+test('liga: renovar pelo servidor confere o dono do jogador', async () => {
+  const { acaoMercadoLiga } = await import(new URL('../core/liga.mjs', import.meta.url));
+  const j = novo();
+  const s = JSON.parse(j.run('JSON.stringify(S)'));
+  const meu = s.clubs.find(c => c.id === s.managers.local.clubId).players[0], alheio = s.clubs.find(c => c.id !== s.managers.local.clubId).players[0];
+  meu.contrato = 1;
+  assert.match(acaoMercadoLiga(s, 'local', { tipo: 'renovar', pid: alheio.id }).erro, /inválido/);
+  const r = acaoMercadoLiga(s, 'local', { tipo: 'renovar', pid: meu.id });
+  assert.equal(typeof r.ok, 'boolean');
+});

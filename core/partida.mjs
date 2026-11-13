@@ -1,3 +1,4 @@
+import { CONTRATO_NOVO, vencerContratos } from './contratos.mjs';
 import { fakePlayer, refreshEconomics } from './dados.mjs';
 import { confiancaFimTemporada, confiancaNovaTemporada } from './diretoria.mjs';
 import { DIVS, MOVE_N, P, S, addFin, addNews, addNewsTodos, clubById, clubDo, divOf, divisions, hasTwoDivs, makeAllFixtures, reindex, seasonPrize, table, tecnicos, topScorers, userClub } from './estado.mjs';
@@ -23,7 +24,7 @@ export function fecharTemporada(){
   for(const t of tecnicos())confiancaFimTemporada(t,res[t.id].pos);S.seasonClosed=S.season;
   return {div,T,pos,two,mv,prize,ds,di,champs,top};
 }
-// regra: começa a temporada seguinte (acesso/rebaixamento, idade, aposentadoria, calendário)
+// regra: começa a temporada seguinte (acesso/rebaixamento, fim de contratos, idade, aposentadoria, calendário)
 export function iniciarTemporada(){
   if(hasTwoDivs()){ // acesso e rebaixamento entre séries vizinhas, com base nas tabelas finais
     const ds=divisions(),n=MOVE_N(),moves=[];
@@ -34,6 +35,7 @@ export function iniciarTemporada(){
       addNewsTodos(`⬇️ Caem para a ${DIVS[m.lo]}: ${m.down.map(c=>c.name).join(', ')}.`);
     }
   }
+  vencerContratos(); // #49: antes da idade; o elenco que ficar pequeno é completado logo abaixo (ensureSquad)
   for(const c of S.clubs){
     const keep=[];
     for(const p of c.players){
@@ -56,7 +58,7 @@ export function ensureSquad(c){
   for(const [pos,n] of Object.entries({G:2,D:5,M:5,A:3})){
     while(c.players.filter(p=>p.pos===pos).length<n){
       const p=fakePlayer(c.id,i++,c.strength,pos,r,[17,19]);p.ovr=clamp(c.strength-10+ri(-4,6),40,85);
-      p.goals=0;p.listed=false;refreshEconomics(p);p.clubId=c.id;c.players.push(p);P[p.id]=p;
+      p.goals=0;p.listed=false;p.contrato=CONTRATO_NOVO;refreshEconomics(p);p.clubId=c.id;c.players.push(p);P[p.id]=p;
       addNews(`🌱 ${p.name} (${POSD[p.pd].nome}) subiu da base.`,c.id);
     }
   }

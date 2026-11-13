@@ -242,7 +242,7 @@ th[aria-sort="ascending"],th[aria-sort="descending"]{color:var(--verde-claro)}
   .tabela-jogadores .c-pos{order:0;padding:0}
   .tabela-jogadores .c-nome{min-width:0}
   .tabela-jogadores .c-ovr{order:2}
-  .tabela-jogadores .c-idade,.tabela-jogadores .c-gols,.tabela-jogadores .c-valor{order:3;font-size:12px;color:var(--muted)}
+  .tabela-jogadores .c-idade,.tabela-jogadores .c-gols,.tabela-jogadores .c-valor,.tabela-jogadores .c-contr{order:3;font-size:12px;color:var(--muted)}
   .tabela-jogadores .c-forma,.tabela-jogadores .c-sal{display:none}
   .tabela-jogadores .c-acoes{order:4;flex-basis:100%}
   .acoes{justify-content:flex-start;flex-wrap:wrap}
