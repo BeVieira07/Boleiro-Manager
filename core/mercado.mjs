@@ -1,5 +1,9 @@
+import { P, S, addFin, addNews, clubById, userClub } from './estado.mjs';
+import { ensureSquad } from './partida.mjs';
+import { money, pick, rnd } from './utils.mjs';
+
 /* ================= transferências ================= */
-function movePlayer(p,to){
+export function movePlayer(p,to){
   const from=clubById(p.clubId);from.players=from.players.filter(x=>x!==p);
   if(from.lineup)from.lineup=from.lineup.filter(id=>id!==p.id);
   to.players.push(p);p.clubId=to.id;p.listed=false;
@@ -7,14 +11,14 @@ function movePlayer(p,to){
   ensureSquad(from);
 }
 // regra: pode fazer proposta por este jogador agora? (texto do erro ou null)
-function podeProporCompra(pid){
+export function podeProporCompra(pid){
   const p=P[pid],seller=clubById(p.clubId),uc=userClub();
   if(p.bidRound===S.round+'_'+S.season)return `${seller.name} não quer negociar ${p.name} de novo nesta rodada.`;
   if(uc.players.length>=32)return 'Seu elenco já tem 32 jogadores. Venda alguém antes.';
   return null;
 }
 // regra: proposta de compra a um clube da IA. Devolve {erro} ou {ok, msg}.
-function proporCompra(pid,amt){
+export function proporCompra(pid,amt){
   const p=P[pid],seller=clubById(p.clubId),uc=userClub();
   const e=podeProporCompra(pid);if(e)return {erro:e};
   if(!(amt>0))return {erro:'Valor inválido.'};
@@ -31,38 +35,19 @@ function proporCompra(pid,amt){
   }
   addNews(`❌ ${seller.name} recusou ${money(amt)} por ${p.name}.`);return {ok:false,msg:`${seller.name} recusou a proposta.`};
 }
-function makeBid(pid){
-  const p=P[pid],seller=clubById(p.clubId);
-  const e=podeProporCompra(pid);if(e){alert(e);return}
-  const s=prompt(`Proposta por ${p.name} (${posDNome(p)}, ${p.ovr}) do ${seller.name}.\nValor de mercado: ${money(p.value)}.\nSeu caixa: ${money(S.balance)}.\n\nQuanto oferecer (em milhões)?`,p.value.toFixed(1));
-  if(s==null)return;
-  const r=proporCompra(pid,parseFloat(String(s).replace(',','.')));
-  alert(r.erro||r.msg);save();render();
-}
 // regras de venda: devolvem {erro} ou {ok}
-function aceitarOferta(oid){
+export function aceitarOferta(oid){
   const o=S.offers.find(x=>x.id===oid);if(!o)return {erro:'Proposta não encontrada.'};const p=P[o.pid],b=clubById(o.from);
   if(userClub().players.length<=16)return {erro:'Seu elenco ficaria pequeno demais (mínimo 16).'};
   addFin(`Venda de ${p.name} (${b.name})`,o.amount);movePlayer(p,b);
   addNews(`💰 ${p.name} vendido ao ${b.name} por ${money(o.amount)}.`);return {ok:true};
 }
-function recusarOferta(oid){S.offers=S.offers.filter(o=>o.id!==oid);return {ok:true}}
-const valorVendaRapida=pid=>Math.round(P[pid].value*0.7*10)/10;
-function venderJa(pid){
+export function recusarOferta(oid){S.offers=S.offers.filter(o=>o.id!==oid);return {ok:true}}
+export const valorVendaRapida=pid=>Math.round(P[pid].value*0.7*10)/10;
+export function venderJa(pid){
   const p=P[pid],uc=userClub();
   if(uc.players.length<=16)return {erro:'Seu elenco ficaria pequeno demais (mínimo 16).'};
   const amt=valorVendaRapida(pid),buyers=S.clubs.filter(c=>c.id!==uc.id&&c.players.length<32),b=pick(buyers);
   addFin(`Venda de ${p.name} (${b.name})`,amt);movePlayer(p,b);addNews(`💰 ${p.name} vendido ao ${b.name} por ${money(amt)}.`);return {ok:true};
 }
-function alternarVenda(pid){P[pid].listed=!P[pid].listed;return {ok:true}}
-// tela
-const feito=r=>{if(r.erro){alert(r.erro);return}save();render()};
-function acceptOffer(oid){feito(aceitarOferta(oid))}
-function rejectOffer(oid){feito(recusarOferta(oid))}
-function quickSell(pid){
-  if(userClub().players.length<=16){alert('Seu elenco ficaria pequeno demais (mínimo 16).');return}
-  if(!confirm(`Vender ${P[pid].name} agora por ${money(valorVendaRapida(pid))} (70% do valor)?`))return;
-  feito(venderJa(pid));
-}
-function toggleListed(pid){feito(alternarVenda(pid))}
-
+export function alternarVenda(pid){P[pid].listed=!P[pid].listed;return {ok:true}}

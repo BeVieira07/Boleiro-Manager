@@ -6,7 +6,7 @@ const saveIds = ls => Object.keys(ls).filter(k => k.startsWith('brasfoot_save_v2
 
 test('abertura: tela inicial, sem jogo carregado', () => {
   const j = carregarJogo({ boot: true });
-  assert.equal(j.run('view'), 'menu');
+  assert.equal(j.run('ui.view'), 'menu');
   assert.equal(j.run('S'), null);
   assert.match(j.html(), /Boleiro Manager/);
   assert.match(j.html(), /Novo jogo/);
@@ -24,7 +24,7 @@ test('save antigo de slot único vira o primeiro da lista', () => {
   assert.match(j.html(), /Continuar/);
   j.run('abrirSave(indiceSaves().cur)');
   assert.equal(j.run('S.round'), 1, 'continua na rodada em que parou');
-  assert.equal(j.run('view'), 'clube');
+  assert.equal(j.run('ui.view'), 'clube');
 });
 
 test('vários saves: novo jogo não apaga o outro, abrir e excluir', () => {
@@ -48,7 +48,7 @@ test('vários saves: novo jogo não apaga o outro, abrir e excluir', () => {
 test('limite de saves', () => {
   const j = carregarJogo({ boot: true });
   const max = j.run('MAX_SAVES');
-  j.run(`for(let i=0;i<${max + 2};i++){S=null;newGame(getData().clubs[i].id)}`);
+  j.run(`for(let i=0;i<${max + 2};i++){usarEstado(null);newGame(getData().clubs[i].id)}`);
   assert.equal(j.run('indiceSaves().list.length'), max);
   assert.ok(j.alertas.some(a => a.includes('jogos salvos')), 'avisa que chegou ao limite');
 });

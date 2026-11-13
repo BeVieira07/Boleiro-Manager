@@ -1,9 +1,14 @@
+import { refreshEconomics } from './dados.mjs';
+import { unavailable } from './escalacao.mjs';
+import { S, addNews, clubById } from './estado.mjs';
+import { getXI } from './motor.mjs';
+
 /* ================= forma e evolução do overall (#13) =================
    p.forma acumula o desempenho nas rodadas; ao passar de ±2 o overall sobe ou desce 1 ponto
    (no máximo ±3 por temporada). p.o0 é o overall do início da temporada, para mostrar a tendência.
    A idade age na virada de temporada (newSeason). Saves antigos não têm forma/o0: assumem 0 e o overall atual. */
-const FORMA_LIM=2,FORMA_MAX_TEMP=3;
-function atualizarForma(games){
+export const FORMA_LIM=2,FORMA_MAX_TEMP=3;
+export function atualizarForma(games){
   const gols={};
   for(const g of games)for(const e of g.ev)if(e.t==='gol')gols[e.pid]=(gols[e.pid]||0)+1;
   for(const g of games)for(const [id,meu,dele] of [[g.h,g.hg,g.ag],[g.a,g.ag,g.hg]]){
@@ -20,5 +25,3 @@ function atualizarForma(games){
     }
   }
 }
-// seta de tendência para o elenco: variação desde o início da temporada
-function tendenciaTag(p){const d=p.ovr-(p.o0??p.ovr);return d>0?`<span class="ok">▲ +${d}</span>`:d<0?`<span class="bad">▼ ${d}</span>`:'<span class="muted">—</span>'}
