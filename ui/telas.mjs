@@ -5,7 +5,6 @@ import { getXI } from '../core/motor.mjs';
 import { POSD, POSD_ORDEM, posDSigla } from '../core/posicoes.mjs';
 import { clamp, esc, money, norm } from '../core/utils.mjs';
 import { API, exportData, exportSave, importFromApi, loadDataFile, loadSaveFile, resetData, resetGame } from './api.mjs';
-import { painelDiretoria } from './diretoria.mjs';
 import { loanBtn, loanTag, vLoans } from './emprestimos.mjs';
 import { vEscalacao } from './escalacao.mjs';
 import { MAX_TECNICOS, getData, newGame, save, ui } from './estado.mjs';
@@ -21,7 +20,6 @@ import { vClube } from './clube.mjs';
 import { vElenco } from './elenco.mjs';
 import { vLigas, vLobby } from './liga.mjs';
 import { vMenu, voltarMenu } from './saves.mjs';
-import { painelTatica } from './taticas.mjs';
 import { APIKEY_KEY, DATA_KEY, store } from './utils.mjs';
 
 /* ================= telas ================= */
