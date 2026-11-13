@@ -98,7 +98,8 @@ const MERCADO = {
  *  (o estado em S mudou e deve ser gravado; ok=false é proposta recusada). Negócio fechado vira notícia para todos da liga. */
 export function acaoMercadoLiga(estado, eu, a) {
   usarEstado(estado); reindex(); usarTecnico(eu);
-  const f = MERCADO[a && a.tipo]; if (!f) return { erro: 'Ação de mercado desconhecida.' };
+  if (!a || !Object.hasOwn(MERCADO, a.tipo)) return { erro: 'Ação de mercado desconhecida.' }; // hasOwn: "constructor" não vale
+  const f = MERCADO[a.tipo];
   const t = tec(), uc = userClub(), antes = t.news[0];
   const r = f(a, uc);
   if (r.ok) {

@@ -129,7 +129,7 @@ test('mercado da liga: nada com clube de outro técnico, e o que vem do navegado
   assert.match(r({ tipo: 'compra', pid: ia.id, valor: 'abc' }).erro, /inválido/i);
   assert.match(r({ tipo: 'compra', pid: daAna.id, valor: 1 }).erro, /inválido/);
   assert.match(r({ tipo: 'venderJa', pid: ia.id }).erro, /inválido/);
-  assert.match(r({ tipo: 'apagarTudo' }).erro, /desconhecida/);
+  for (const tipo of ['apagarTudo', 'constructor', 'toString', '__proto__']) assert.match(r({ tipo }).erro, /desconhecida/);
   for (let i = 0; i < 20; i++) { // venda rápida nunca vai para o clube de outro técnico
     const x = copia(s), meu = x.clubs.find(c => c.id === ana).players[i];
     assert.ok(acaoMercadoLiga(x, 'u-ana', { tipo: 'venderJa', pid: meu.id }).ok);

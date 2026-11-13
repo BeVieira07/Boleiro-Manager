@@ -1,4 +1,4 @@
-import { P, S, addFin, addNews, clubById, ehHumano, tec, userClub } from './estado.mjs';
+import { P, S, addFin, addNews, addNewsTodos, clubById, ehHumano, tec, userClub } from './estado.mjs';
 import { movePlayer } from './mercado.mjs';
 import { ensureSquad } from './partida.mjs';
 import { clamp, money, rnd } from './utils.mjs';
@@ -66,7 +66,7 @@ export function processLoans(){
     if(S.round<l.until)continue;
     const p=P[l.pid];
     if(l.buy&&p&&ehHumano(l.from)&&!ehHumano(l.to)&&rnd()<0.4){ // clube de IA exerce a opção de compra
-      addFin(`Opção de compra de ${p.name} (${clubById(l.to).name})`,l.buy,clubById(l.from));addNews(`💰 ${clubById(l.to).name} exerceu a opção de compra de ${p.name} por ${money(l.buy)}.`,l.from);
+      addFin(`Opção de compra de ${p.name} (${clubById(l.to).name})`,l.buy,clubById(l.from));addNewsTodos(`💰 ${clubById(l.to).name} exerceu a opção de compra de ${p.name} por ${money(l.buy)}.`); // transferência com a IA: todos veem (#35)
       S.loans=loans().filter(x=>x!==l);continue;
     }
     endLoan(l,true);
