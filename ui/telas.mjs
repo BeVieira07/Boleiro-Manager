@@ -1,3 +1,4 @@
+import { FOLHA_LIMITE, folhaSobreReceita, receitaEsperada } from '../core/diretoria.mjs';
 import { wageBill } from '../core/emprestimos.mjs';
 import { escalarMelhores } from '../core/escalacao.mjs';
 import { DIVS, MOVE_N, S, clubById, divOf, divisions, divsOf, hasTwoDivs, table, tec, topScorers, tvQuota, userClub } from '../core/estado.mjs';
@@ -117,11 +118,11 @@ export function vArt(){
 
 /* ---------- finanças ---------- */
 export function vFin(){
-  const uc=userClub(),w=wageBill(uc),val=uc.players.reduce((s,p)=>s+p.value,0);
+  const uc=userClub(),w=wageBill(uc),val=uc.players.reduce((s,p)=>s+p.value,0),q=folhaSobreReceita(uc),alta=q>FOLHA_LIMITE;
   const ent=uc.fin.filter(f=>f.amount>0).reduce((s,f)=>s+f.amount,0),sai=uc.fin.filter(f=>f.amount<0).reduce((s,f)=>s+f.amount,0);
   return `<div class="stats">
    ${stat({rotulo:'Caixa',valor:money(uc.balance),cor:uc.balance<0?'var(--perigo)':'var(--verde)',sub:uc.fin.length?`Entradas ${money(ent)} · saídas ${money(sai)} nos lançamentos abaixo`:''})}
-   ${stat({rotulo:'Folha salarial',valor:money(w),unid:'por rodada'})}
+   ${stat({rotulo:'Folha salarial',valor:money(w),unid:'por rodada',cor:alta?'var(--perigo)':'',sub:`${Math.round(q*100)}% da receita esperada (${money(receitaEsperada(uc))} por rodada)${alta?` · acima do que a diretoria aceita (${Math.round(FOLHA_LIMITE*100)}%)`:''}`})}
    ${stat({rotulo:'Valor do elenco',valor:money(val),unid:`${uc.players.length} jogadores`})}
    ${stat({rotulo:'Receitas',valor:money(tvQuota(divOf(uc))),unid:'de TV por rodada',sub:'Mais bilheteria em casa e premiação no fim da temporada'})}
   </div>

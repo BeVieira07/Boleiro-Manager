@@ -1,4 +1,5 @@
-import { DIVS, MOVE_N, S, addNews, clubById, clubDo, divOf, divisions, hasTwoDivs, table, tec, userClub } from './estado.mjs';
+import { wageBill } from './emprestimos.mjs';
+import { DIVS, MOVE_N, S, addNews, bilheteriaBase, clubById, clubDo, divOf, divisions, hasTwoDivs, seasonPrize, table, tec, tvQuota, userClub } from './estado.mjs';
 import { clamp } from './utils.mjs';
 
 /* ================= confiança da diretoria (#11) =================
@@ -8,6 +9,25 @@ import { clamp } from './utils.mjs';
 export const CONF_INICIO=60,DEMISSAO_NIVEL=10,DEMISSAO_RODADAS=3;
 export const FAIXAS=[[80,'Segurança total'],[55,'Estável'],[30,'Em risco'],[0,'Demissão iminente']];
 export const faixaConf=c=>FAIXAS.find(f=>c>=f[0])[1];
+/* finanças (#48). Receita esperada por rodada: cota de TV + meia bilheteria (um jogo em casa a cada dois), sem a premiação.
+   A folha só pesa acima de FOLHA_LIMITE vezes a receita: no elenco padrão a mais alta começa em 1,41 e passa de 1,7 com a evolução
+   dos jogadores (Flamengo, que fecha a temporada no vermelho); os outros 79 clubes ficam abaixo do limite, ou perto dele.
+   Caixa em queda: QUEDA_RODADAS rodadas seguidas no vermelho e, no ritmo delas (a mediana, para uma compra isolada não pesar),
+   nem a premiação da meta cobre o buraco até o fim da temporada. O elenco padrão perde dinheiro por rodada e fecha a conta na premiação. */
+export const FOLHA_LIMITE=1.6,QUEDA_RODADAS=4;
+export const receitaEsperada=c=>tvQuota(divOf(c))+Math.max(0,bilheteriaBase(c))/2;
+export const folhaSobreReceita=c=>wageBill(c)/receitaEsperada(c);
+export function fatoresFinanceiros(uc,meta){
+  const fat=[],q=folhaSobreReceita(uc);
+  if(q>FOLHA_LIMITE)fat.push({t:'Folha acima da receita',v:-clamp((q-FOLHA_LIMITE)*3,0.3,1.5)});
+  const saldos=[];for(let r=S.round-1;r>=0&&saldos.length<QUEDA_RODADAS;r--)saldos.push((uc.fin||[]).filter(f=>f.s===S.season&&f.r===r).reduce((s,f)=>s+f.amount,0));
+  if(uc.balance<0)fat.push({t:'Caixa negativo',v:-1.5});
+  else if(saldos.length===QUEDA_RODADAS&&saldos.every(x=>x<0)){
+    const o=[...saldos].sort((a,b)=>a-b),ritmo=(o[1]+o[2])/2,premio=meta?seasonPrize(divOf(uc),meta.alvo):0;
+    if(uc.balance+ritmo*(S.fixtures.length-S.round)+premio<0)fat.push({t:`Caixa em queda há ${QUEDA_RODADAS} rodadas`,v:-0.8});
+  }
+  return fat;
+}
 export function definirMeta(t=tec()){
   const uc=clubDo(t),d=divOf(uc),ds=divisions(),di=ds.indexOf(d),n=S.clubs.filter(c=>divOf(c)===d).length;
   const esp=1+S.clubs.filter(c=>divOf(c)===d&&c.strength>uc.strength).length; // posição esperada pela força
@@ -27,8 +47,7 @@ export function atualizarConfianca(t,jogo){
   if(seq.length===3&&seq.every(x=>x===-1))add('Três derrotas seguidas',-1.5);
   const pos=table(divOf(uc)).findIndex(x=>x.id===me)+1;
   add(`Posição (${pos}º) contra a meta (${t.meta.alvo}º)`,clamp((t.meta.alvo-pos)*0.3,-2,2)*Math.min(1,S.round/8)); // pesa pouco nas primeiras rodadas
-  // shortcut: finanças = só caixa negativo, sem comparar a folha com a receita; ampliar se a diretoria precisar cobrar gasto alto
-  if(uc.balance<0)add('Caixa negativo',-1.5);
+  for(const f of fatoresFinanceiros(uc,t.meta))add(f.t,f.v);
   aplicarConfianca(t,fat,6);
 }
 export function aplicarConfianca(t,fat,lim){
@@ -39,7 +58,9 @@ export function aplicarConfianca(t,fat,lim){
 }
 export function confiancaFimTemporada(t,pos){
   const dif=t.meta.alvo-pos,ok=dif>=0;
-  aplicarConfianca(t,[{t:`Fim de temporada: ${pos}º (meta: ${t.meta.texto})`,v:ok?Math.min(15,5+dif*2):Math.max(-20,dif*3)}],20);
+  const fat=[{t:`Fim de temporada: ${pos}º (meta: ${t.meta.texto})`,v:ok?Math.min(15,5+dif*2):Math.max(-20,dif*3)}];
+  if(clubDo(t).balance<0)fat.push({t:'Fechou a temporada com caixa negativo',v:-5}); // meta financeira (#48), já com a premiação
+  aplicarConfianca(t,fat,20);
 }
 // confiança volta a meia distância do neutro a cada temporada
 export function confiancaNovaTemporada(t){t.conf=Math.round((t.conf+CONF_INICIO)/2);t.confBaixa=0;definirMeta(t);addNews(`🎯 Meta da diretoria: ${t.meta.texto}.`,t.clubId)}
