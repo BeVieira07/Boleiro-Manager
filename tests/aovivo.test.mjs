@@ -11,7 +11,7 @@ test('marcadores da linha do tempo batem com os eventos e o gol do seu time tem 
     const H=clubById(g.h),A=clubById(g.a);return {m:g.ev.map(e=>marcador(e,H,A)),i:g.ev.map(e=>itemEvento(e,H,A,userClub().id)),d:DURACAO}})()`);
   assert.match(r.m[0], new RegExp(`class="marca-ev gol h" style="left:${12 / r.d * 100}%"`));
   assert.match(r.m[1], new RegExp(`class="marca-ev cartao a" style="left:${46 / r.d * 100}%"`));
-  assert.match(r.i[0], /class="ev ev-gol nosso"/);
+  assert.match(r.i[0], /class="ev gol nosso"/);
   assert.match(r.i[0], /aria-label="Gol"/, 'ícone com nome, não emoji');
   assert.match(r.i[1], /aria-label="Cartão amarelo"/);
   assert.doesNotMatch(r.i.join(''), /⚽|🟨/);
