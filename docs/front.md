@@ -45,3 +45,28 @@ Os nomes antigos (`--panel`, `--accent`, `--danger`…) apontam para os novos e 
 ## Ícones
 
 `ui/icones.mjs`: `icone(nome, {tam, rotulo})` devolve um `<svg>` de traço que herda a cor do texto. Sem `rotulo` ele é decorativo (`aria-hidden`); com `rotulo` vira imagem com nome. A lista está em `ICONES`. Use ícones no lugar de emoji.
+
+## Módulos das telas
+
+| Módulo | O que tem |
+|---|---|
+| `ui/layout.mjs` | menu lateral (barra inferior no celular) e barra de ações do topo (#58) |
+| `ui/clube.mjs` | painel do clube (#59) |
+| `ui/elenco.mjs`, `ui/jogadores.mjs` | tabela do Elenco; filtros, busca e ordenação reaproveitados pelo Mercado (#60) |
+| `ui/escalacao.mjs`, `css/escalacao.css` | campo com cartas (#61) |
+| `ui/partida.mjs` | jogo ao vivo e modal (#62) |
+| `ui/avisos.mjs` | `avisar` (toasts), `confirmar` e `pedirValor` no lugar de `alert`, `confirm` e `prompt` (#64) |
+
+Atributos de evento (ligados em `ui/main.mjs`): `data-acao` (clique), `data-mudar` (change) e `data-digitar` (cada tecla; use quando a tela não pode ser redesenhada inteira, para o campo não perder o foco).
+
+## Acessibilidade (#65)
+
+- Tudo que se clica é `<button>`, `<a>` ou campo. Nunca `data-acao` em `div`, `li` ou `tr`.
+- Botão só com ícone (`.icone-so`) tem `aria-label`. Ícone decorativo é `aria-hidden`; ícone que carrega sentido usa `icone(nome, {rotulo})`.
+- Todo campo tem `<label>` (ou `aria-label`). Grupos de chips têm `role="group"` e `aria-label`. Tabelas têm `<caption>` (pode ser `.sr`) e `scope` nos cabeçalhos.
+- Cor nunca é a única informação: V/E/D têm a letra (e a derrota tem outra forma), zonas da tabela têm texto para leitor de tela, lesão e penalidade aparecem escritas.
+- Foco: anel dourado em `:focus-visible`; `render()` devolve o foco ao mesmo botão ou campo depois de redesenhar; trocar de tela leva o foco ao conteúdo; o primeiro Tab mostra "Pular para o conteúdo". Modais prendem o foco e fecham com Esc.
+- Alvos de toque de 44 px em tela de toque (`@media(pointer:coarse)`). No computador, botões `.sm` continuam compactos.
+- Animações e transições somem com `prefers-reduced-motion`.
+- Larguras conferidas: 360, 768 e 1280 px sem rolagem horizontal da página; tabelas largas rolam dentro do cartão.
+- `tests/acessibilidade.test.mjs` percorre todas as telas e confere essas regras; `tests/telas.test.mjs` garante que nenhuma classe do CSS fica sem uso.

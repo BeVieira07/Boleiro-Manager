@@ -86,8 +86,8 @@ export function painelConta() {
   if (conta.erro) return `<div class="card"><p class="muted">${esc(conta.erro)}</p></div>`;
   const u = conta.usuario;
   if (u) return `<div class="card row"><span>Conectado como <b>${esc(conta.perfil?.nome || u.email)}</b> <span class="muted">${esc(u.email)}</span></span>
-    <input id="nomeConta" placeholder="Nome do técnico" value="${esc(conta.perfil?.nome || '')}" style="width:180px"><button class="btn sec sm" data-acao="mudarNomeTecnico">Salvar nome</button>
+    <input id="nomeConta" aria-label="Nome do técnico" placeholder="Nome do técnico" value="${esc(conta.perfil?.nome || '')}" style="width:180px"><button class="btn sec sm" data-acao="mudarNomeTecnico">Salvar nome</button>
     <button class="btn sec sm" data-acao="sair">Sair</button></div>`;
   return `<div class="card row"><span>Jogar online: entre com seu e-mail (você recebe um link de acesso, sem senha).</span>
-    <input id="emailConta" type="email" placeholder="seu@email.com" style="width:220px"><button class="btn sm" data-acao="entrar">Entrar</button></div>`;
+    <input id="emailConta" type="email" aria-label="Seu e-mail" autocomplete="email" placeholder="seu@email.com" style="width:220px"><button class="btn sm" data-acao="entrar">Entrar</button></div>`;
 }

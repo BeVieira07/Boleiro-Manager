@@ -6,6 +6,7 @@ import { loadSaveFile } from './api.mjs';
 import { getData, save, ui } from './estado.mjs';
 import { painelConta, usuarioAtual } from './conta.mjs';
 import { agendarEnvio, apagarNaNuvem, liberarEspaco, pendente, savesNuvem } from './nuvem.mjs';
+import { icone } from './icones.mjs';
 import { crest } from './partida.mjs';
 import { go, render } from './telas.mjs';
 import { SAVE_KEY, store } from './utils.mjs';
@@ -69,22 +70,22 @@ export function vMenu(){
   const status=x=>{
     if(!usuarioAtual())return '';
     const n=naNuvem(x.id);
-    if(n&&t(n.atualizado_em)>t(x.data))return `<br><span class="bad">☁ versão mais nova na nuvem (${quando(n.atualizado_em)})</span>`;
-    return pendente(x)?'<br><span class="muted">⏳ aguardando envio para a nuvem</span>':'<br><span class="ok">☁ salvo na nuvem</span>';
+    if(n&&t(n.atualizado_em)>t(x.data))return `<br><span class="bad">${icone('nuvem',{tam:14})} versão mais nova na nuvem (${quando(n.atualizado_em)})</span>`;
+    return pendente(x)?`<br><span class="muted">${icone('relogio',{tam:14})} aguardando envio para a nuvem</span>`:`<br><span class="ok">${icone('nuvem',{tam:14})} salvo na nuvem</span>`;
   };
   const linha=(x,soNaNuvem)=>{const c=clube(x.clubId);
-    return `<tr><td>${c?crest(c):''}</td><td><b>${esc(x.clube)}</b>${x.div&&DIVS[x.div]?` <span class="muted">${DIVS[x.div]}</span>`:''}${x.tecnicos?`<br><span class="muted">${x.tecnicos.map(esc).join(', ')}</span>`:''}${soNaNuvem?'<br><span class="muted">☁ só na nuvem</span>':status(x)}</td>
+    return `<tr><td>${c?crest(c):''}</td><td><b>${esc(x.clube)}</b>${x.div&&DIVS[x.div]?` <span class="muted">${DIVS[x.div]}</span>`:''}${x.tecnicos?`<br><span class="muted">${x.tecnicos.map(esc).join(', ')}</span>`:''}${soNaNuvem?`<br><span class="muted">${icone('nuvem',{tam:14})} só na nuvem</span>`:status(x)}</td>
     <td>Temporada ${x.season}</td><td>Rodada ${x.round}/${x.total}</td><td class="muted">${quando(x.data)}</td>
     <td><button class="btn sm" data-acao="abrirMaisNovo|${esc(x.id)}">Abrir</button> <button class="btn red sm" data-acao="excluirSave|${esc(x.id)}">Excluir</button></td></tr>`};
   const soNuvem=(nv||[]).filter(n=>!idx.list.some(x=>x.id===n.id)).map(n=>({...n.resumo,id:n.id,data:n.atualizado_em}));
   return `<div class="menu-ini">
-  <h1>⚽ Boleiro Manager</h1>
+  <h1 class="marca-inicio">${icone('logo',{tam:44})}Boleiro Manager</h1>
   <div class="row">
-   ${cur?`<button class="btn" data-acao="abrirMaisNovo|${esc(cur.id)}">▶ Continuar — ${esc(cur.clube)}, temporada ${cur.season}</button>`:''}
-   <button class="btn ${cur?'sec':''}" data-acao="novoJogo">＋ Novo jogo</button>
-   <label class="btn sec">Importar save<input type="file" accept=".json" style="display:none" data-mudar="loadSaveFile"></label>
+   ${cur?`<button class="btn" data-acao="abrirMaisNovo|${esc(cur.id)}">${icone('play',{tam:16})}Continuar — ${esc(cur.clube)}, temporada ${cur.season}</button>`:''}
+   <button class="btn ${cur?'sec':''}" data-acao="novoJogo">${icone('mais',{tam:16})}Novo jogo</button>
+   <label class="btn sec">Importar save<input type="file" accept=".json" class="sr" data-mudar="loadSaveFile"></label>
    <button class="btn sec" data-acao="go|dados">Dados do jogo</button>
-   ${usuarioAtual()?'<button class="btn sec" data-acao="abrirLigas">🏆 Ligas com amigos</button>':''}
+   ${usuarioAtual()?`<button class="btn sec" data-acao="abrirLigas">${icone('liga',{tam:16})}Ligas com amigos</button>`:''}
   </div>
   ${painelConta()}
   <div class="card tw"><h3>Jogos salvos (${usuarioAtual()?idx.list.length+soNuvem.length:idx.list.length+'/'+MAX_SAVES})</h3>

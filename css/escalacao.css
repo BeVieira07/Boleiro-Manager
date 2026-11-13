@@ -35,7 +35,7 @@
   display:flex;align-items:center;gap:var(--e3);padding:8px 4px;min-height:48px;cursor:pointer;text-align:left;border-radius:6px}
 .reserva:hover{background:var(--painel2)}
 .reserva.sel{background:var(--ouro-esc);box-shadow:inset 3px 0 var(--ouro)}
-.reserva.indisp{opacity:.75}
+.reserva.indisp .reserva-nome b{text-decoration:line-through;text-decoration-color:var(--perigo-claro)}
 .reserva-nome{flex:1;display:flex;flex-direction:column;line-height:1.3;min-width:0}
 @media(max-width:799px){
   .campo{flex-basis:100%;min-height:520px;padding:18px 4px}

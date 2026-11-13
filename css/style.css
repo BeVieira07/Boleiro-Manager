@@ -110,6 +110,7 @@ input[type=checkbox]{min-height:0;width:18px;height:18px;accent-color:var(--verd
 .busca{display:inline-flex;align-items:center;gap:var(--e2);background:var(--painel2);border:1px solid var(--linha);border-radius:10px;padding:0 12px;color:var(--muted);min-height:40px}
 .busca input{background:transparent;border:0;padding:0;min-height:38px;width:160px;color:var(--texto)}
 .busca input:focus{outline:0}
+.busca:focus-within,label.btn:focus-within{box-shadow:var(--foco)}
 
 /* ---------- escudo ---------- */
 .crest{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;vertical-align:middle;object-fit:contain;background:var(--painel2);flex:none}
@@ -142,6 +143,11 @@ body.em-jogo .lateral{display:flex;flex:0 0 232px;flex-direction:column;gap:24px
 .clube-cartao .muted{font-size:12px}
 .conteudo{flex:1;min-width:0;max-width:1000px;margin:0 auto;padding:24px 16px 40px}
 .conteudo:focus{outline:0}
+/* #65: link para pular o menu, visível só com o foco do teclado */
+.pular{position:fixed;left:16px;top:-60px;z-index:50;background:var(--verde);color:var(--tinta-verde);font-weight:700;padding:10px 16px;border-radius:10px;text-decoration:none}
+.pular:focus{top:12px}
+/* #65: alvos de toque de pelo menos 44 px em tela de toque */
+@media(pointer:coarse){.btn,.btn.sm,.chip,input,select{min-height:44px}.btn.icone-so{min-width:44px}th button.ordem{min-height:44px}}
 body.em-jogo .conteudo{max-width:1280px;padding:0 28px 40px}
 .barra-acoes{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;
   margin:0 -28px 20px;padding:20px 28px 16px;background:rgba(11,21,17,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--linha2)}
@@ -303,7 +309,7 @@ th[aria-sort="ascending"],th[aria-sort="descending"]{color:var(--verde-claro)}
   display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;text-align:center}
 .clube-escolha:hover{border-color:var(--verde);background:var(--painel2)}
 .estrelas{color:var(--ouro);letter-spacing:2px}
-.estrelas .apagada{color:var(--linha)}
+.estrelas .apagada{color:var(--muted);opacity:1}
 .sub-serie{margin-top:var(--e5)}
 /* ================= avisos (toasts) e diálogos (#64) ================= */
 .avisos{position:fixed;right:16px;bottom:16px;z-index:40;display:flex;flex-direction:column;gap:10px;width:min(380px,calc(100vw - 32px));pointer-events:none}
@@ -334,7 +340,7 @@ body.em-jogo .avisos{bottom:24px}
 #modal .box{background:var(--painel);border:1px solid var(--linha);border-radius:var(--r-lg);max-width:640px;width:100%;max-height:90vh;overflow:auto;padding:20px;box-shadow:var(--sombra)}
 /* tela inicial e ligas */
 .menu-ini{max-width:900px;margin:0 auto}
-.menu-ini h1{font-size:46px;margin:12px 0 18px;color:var(--verde);letter-spacing:.04em}
+.menu-ini h1{font-size:46px;margin:12px 0 18px;color:var(--verde);letter-spacing:.04em;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .menu-ini>.row{margin-bottom:var(--e4)}
 .menu-ini td img{width:28px;height:28px;object-fit:contain}
 @media(max-width:420px){.jogo{padding:10px;font-size:13px;gap:6px}.jogo-placar{font-size:20px;min-width:48px}}

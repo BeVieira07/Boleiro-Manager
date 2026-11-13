@@ -4,6 +4,7 @@ import { autoXI, confirmarRodada, jogarRodada, validateLineup } from '../core/mo
 import { demissao } from './diretoria.mjs';
 import { save, ui } from './estado.mjs';
 import { seasonEnd, showLive } from './partida.mjs';
+import { icone } from './icones.mjs';
 import { render } from './telas.mjs';
 import { avisar, confirmar } from './avisos.mjs';
 
@@ -37,6 +38,6 @@ export function confirmarVez(){
 }
 // botão da rodada: no solo joga direto; com vários técnicos, cada um confirma a sua vez
 export function botaoRodada(cls,txt){
-  if(tecnicos().length>1)return `<button class="${cls}" data-acao="confirmarVez">✔ Confirmar rodada ${S.round+1} — ${esc(tec().nome)}</button>`;
+  if(tecnicos().length>1)return `<button class="${cls}" data-acao="confirmarVez">${icone('ok',{tam:16})}Confirmar rodada ${S.round+1} — ${esc(tec().nome)}</button>`;
   return `<button class="${cls}" data-acao="playRound">${txt}</button>`;
 }

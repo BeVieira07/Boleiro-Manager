@@ -95,12 +95,12 @@ export function vLigas() {
    ${liga.erro ? `<p class="bad">${esc(liga.erro)}</p>` : !liga.lista ? '<p class="muted">Carregando…</p>' : linhas ? `<table>${linhas}</table>` : '<p class="muted">Você ainda não está em nenhuma liga.</p>'}
   </div>
   <div class="card"><h3>Entrar com código</h3><div class="row">
-   <input id="codigoLiga" placeholder="Código de convite" maxlength="12" style="width:160px;text-transform:uppercase">
+   <input id="codigoLiga" aria-label="Código de convite" placeholder="Código de convite" maxlength="12" style="width:160px;text-transform:uppercase">
    <button class="btn" data-acao="entrarLiga">Entrar</button></div></div>
   <div class="card"><h3>Criar liga</h3><div class="row">
-   <input id="nomeLiga" placeholder="Nome da liga" maxlength="60" style="width:220px">
+   <input id="nomeLiga" aria-label="Nome da liga" placeholder="Nome da liga" maxlength="60" style="width:220px">
    ${SERIES.map(s => `<label><input type="checkbox" id="serieLiga${s}"${s === 'A' ? ' checked' : ''}> Série ${s}</label>`).join(' ')}
-   <select id="clubeLiga"><option value="">Seu clube…</option>${opcoesClubes(SERIES)}</select>
+   <select id="clubeLiga" aria-label="Seu clube"><option value="">Seu clube…</option>${opcoesClubes(SERIES)}</select>
    <button class="btn" data-acao="criarLiga">Criar</button></div>
    <p class="muted">Depois de criar, mande o código de convite para os amigos. Cada um escolhe um clube diferente.</p></div>
   <button class="btn sec" data-acao="go|menu">← Voltar</button></div>`;
@@ -121,7 +121,7 @@ export function vLobby() {
    <span class="muted">Séries ${l.series.join(', ')} · ${STATUS[l.status] || esc(l.status)}</span></div>
   <div class="card tw"><h3>Técnicos (${l.membros.length})</h3><table>${membros}</table></div>
   ${meu && l.status === 'aberta' ? `<div class="card row"><span>Seu clube:</span>
-   <select data-mudar="escolherClubeLiga|${esc(l.id)}"><option value="">Escolha…</option>${opcoesClubes(l.series, ocupados, meu.club_id)}</select></div>` : ''}
+   <select aria-label="Seu clube" data-mudar="escolherClubeLiga|${esc(l.id)}"><option value="">Escolha…</option>${opcoesClubes(l.series, ocupados, meu.club_id)}</select></div>` : ''}
   <p class="muted">A liga começa quando as rodadas online estiverem prontas (#34).</p>
   <div class="row"><button class="btn sec" data-acao="abrirLobby|${esc(l.id)}">Atualizar</button>
    <button class="btn sec" data-acao="abrirLigas">← Minhas ligas</button></div></div>`;
