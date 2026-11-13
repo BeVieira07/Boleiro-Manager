@@ -1,8 +1,9 @@
-import { DIVS, S, clubById, divisions } from '../core/estado.mjs';
+import { DIVS, S, clubById, divisions, userClub } from '../core/estado.mjs';
 import { fecharTemporada, iniciarTemporada } from '../core/partida.mjs';
 import { esc, money } from '../core/utils.mjs';
 import { save, ui } from './estado.mjs';
-import { controlesTatica, tvLive } from './taticas.mjs';
+import { icone } from './icones.mjs';
+import { chipsTaticaAoVivo } from './taticas.mjs';
 import { render } from './telas.mjs';
 
 /* ================= jogo ao vivo ================= */
@@ -12,32 +13,46 @@ export function crest(c,cls=''){
   if(c.logo)return `<img class="crest ${cls}" src="${esc(c.logo)}" alt="" data-f="${esc(sigla)}" onerror="this.outerHTML=this.dataset.f">`;
   return sigla;
 }
+/* #62: jogo ao vivo com placar grande, linha do tempo com marcadores, eventos com ícones e tática em chips */
+export const DURACAO=93;
+const EVENTO={gol:['bola','Gol'],cartao:['cartao','Cartão amarelo'],vermelho:['cartao','Cartão vermelho'],lesao:['lesao','Lesão']};
+/** Linha do evento na lista; o gol do seu time ganha destaque. */
+export function itemEvento(e,H,A,meu){
+  const team=e.side==='h'?H:A,[ic,nome]=EVENTO[e.t]||['info',e.t],nosso=team.id===meu;
+  return `<li class="ev ev-${e.t}${e.t==='gol'&&nosso?' nosso':''}"><span class="ev-min">${e.m}'</span>${icone(ic,{rotulo:nome,classe:'ev-ic'})}
+    <span>${e.t==='gol'?`<b>GOL do ${esc(team.name)}!</b> ${esc(e.name)}`:`${esc(e.name)} <span class="muted">(${esc(team.short||team.name)})</span>`}</span></li>`;
+}
+/** Marcador na barra de tempo, na posição do minuto do evento. */
+export const marcador=(e,H,A)=>{const team=e.side==='h'?H:A,[,nome]=EVENTO[e.t]||['',e.t];
+  return `<span class="marca-ev ${e.t} ${e.side}" style="left:${Math.min(100,e.m/DURACAO*100)}%" title="${e.m}' ${nome}: ${esc(e.name)} (${esc(team.name)})"></span>`};
 export function showLive(g,done){
-  const H=clubById(g.h),A=clubById(g.a);let min=0,hs=0,as=0,timer=null;
-  openModal(`<div class="score"><div>${crest(H)}<br>${esc(H.name)}</div><div class="num" id="lsc">0 x 0</div><div>${crest(A)}<br>${esc(A.name)}</div></div>
-    <div class="clock" id="lclk">0'</div><div class="bar"><div id="lbar" style="width:0"></div></div>
-    <ul class="feed" id="lfeed"><li class="muted">Bola rolando!</li></ul>
-    <div class="row" id="ltat">${controlesTatica('tvLive')}</div>
-    <div class="row" style="justify-content:flex-end"><button class="btn sec" id="lskip">Pular para o fim</button><button class="btn" id="ldone" style="display:none">Continuar</button></div>`);
-  const feed=document.getElementById('lfeed');
+  const H=clubById(g.h),A=clubById(g.a),meu=userClub().id;let min=0,hs=0,as=0,timer=null;
+  const lado=(c,cls)=>`<div class="placar-time ${cls}">${crest(c,'g')}<b>${esc(c.name)}</b></div>`;
+  openModal(`<div class="ao-vivo" aria-labelledby="lsc">
+    <div class="placar">${lado(H,'casa')}<div class="placar-centro"><div class="placar-num" id="lsc" aria-live="polite">0 x 0</div><div class="relogio" id="lclk">0'</div></div>${lado(A,'fora')}</div>
+    <div class="tempo" aria-hidden="true"><div class="tempo-trilho"><div class="tempo-feito" id="lbar"></div></div><div class="tempo-marcas" id="lmarcas"></div>
+      <div class="tempo-escala"><span>0'</span><span>45'</span><span>90'</span></div></div>
+    <ul class="eventos" id="lfeed" aria-label="Lances da partida"><li class="ev muted">Bola rolando!</li></ul>
+    <div class="tatica-vivo" id="ltat">${chipsTaticaAoVivo()}</div>
+    <div class="row fim-acoes"><button class="btn sec" id="lskip">${icone('avancar',{tam:16})}Pular para o fim</button><button class="btn" id="ldone" style="display:none">Continuar</button></div></div>`);
+  const feed=document.getElementById('lfeed'),marcas=document.getElementById('lmarcas'),placar=document.getElementById('lsc');
   const tick=()=>{
     min++;
     for(const e of g.ev.filter(e=>e.m===min)){
-      const team=e.side==='h'?H:A;
-      if(e.t==='gol'){e.side==='h'?hs++:as++;feed.insertAdjacentHTML('afterbegin',`<li>⚽ <b>${e.m}'</b> GOL do ${esc(team.name)}! ${esc(e.name)}</li>`)}
-      else feed.insertAdjacentHTML('afterbegin',`<li class="muted">🟨 ${e.m}' ${esc(e.name)} (${esc(team.short)})</li>`);
+      if(e.t==='gol'){e.side==='h'?hs++:as++;placar.classList.remove('pulsa');void placar.offsetWidth;placar.classList.add('pulsa')}
+      feed.insertAdjacentHTML('afterbegin',itemEvento(e,H,A,meu));marcas.insertAdjacentHTML('beforeend',marcador(e,H,A));
     }
-    document.getElementById('lsc').textContent=`${hs} x ${as}`;
+    placar.textContent=`${hs} x ${as}`;
     document.getElementById('lclk').textContent=min+"'";
-    document.getElementById('lbar').style.width=Math.min(100,min/93*100)+'%';
-    if(min>=93)finish();
+    document.getElementById('lbar').style.width=Math.min(100,min/DURACAO*100)+'%';
+    if(min>=DURACAO)finish();
   };
   ui.tvAoVivo={g,min:()=>min};
-  const finish=()=>{clearInterval(timer);while(min<93)tick();ui.tvAoVivo=null;document.getElementById('ltat').style.display='none';
+  const finish=()=>{clearInterval(timer);while(min<DURACAO)tick();ui.tvAoVivo=null;document.getElementById('ltat').style.display='none';
     document.getElementById('lclk').textContent='Fim de jogo';
-    document.getElementById('lskip').style.display='none';document.getElementById('ldone').style.display='';};
+    document.getElementById('lskip').style.display='none';const ok=document.getElementById('ldone');ok.style.display='';ok.focus();};
   timer=setInterval(tick,55);
-  document.getElementById('lskip').onclick=()=>{clearInterval(timer);if(min<93){while(min<92)tick();tick()}};
+  document.getElementById('lskip').onclick=()=>{clearInterval(timer);if(min<DURACAO){while(min<DURACAO-1)tick();tick()}};
   document.getElementById('ldone').onclick=()=>{closeModal();done()};
 }
 export function openModal(html){document.getElementById('mbox').innerHTML=html;document.getElementById('modal').style.display='flex'}
