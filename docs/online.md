@@ -116,6 +116,8 @@ liga_noticias   (liga_id, user_id null, rodada, texto)                          
 - **Entre humanos:** proposta → o outro técnico aceita, recusa ou faz contraproposta → a função aplica a transferência com o mesmo controle de `versao` (se o estado mudou no meio, refaz a checagem).
 - Opcional: janelas de transferência (ex.: só entre rodadas, ou só no início e no meio da temporada).
 
+**Como ficou (#35):** com a IA, cada ação vai para `jogar-rodada` com `acao: 'mercado'` (uma função só, em vez de `acao-mercado`), que roda `acaoMercadoLiga` e grava por `liga_gravar_acao` com controle de `versao`. Negócio fechado vira notícia para todos (`addNews` de cada técnico). Os outros navegadores recebem a mudança de `versao` pelo tempo real e baixam o estado de novo, mantendo a escalação ainda não confirmada. Com clube de outro técnico não há negócio ainda. A tela **Liga** (só dentro da liga) mostra técnicos, clubes, posição e quem confirmou.
+
 ### 3.6 Solo com conta e save na nuvem
 
 - Mesmo jogo de hoje. O `ui/saves.mjs` ganha um segundo destino: além do `localStorage`, envia o save para a tabela `saves` quando o usuário está logado.

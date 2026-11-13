@@ -1,11 +1,12 @@
-// Função do servidor da liga com amigos (#34): começa a liga e joga a rodada quando todos confirmam (ou o dono força).
+// Função do servidor da liga com amigos (#34): começa a liga, joga a rodada quando todos confirmam (ou o dono força)
+// e faz as ações de mercado com a IA (#35). Uma função só: um deploy e um commit do core/ para manter igual ao site.
 // O motor é o mesmo do site: o core/ é importado do GitHub (jsDelivr) FIXADO num commit.
 // Sempre que core/ mudar, troque o commit nos três imports abaixo e publique a função de novo, senão site e servidor
 // rodam motores diferentes. Veja supabase/functions/README.md.
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
-import { iniciarLiga, jogarRodadaLiga } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@fb6f2ab15541dc9950b5e8da0a6b45f2677d5b18/core/liga.mjs';
-import { S } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@fb6f2ab15541dc9950b5e8da0a6b45f2677d5b18/core/estado.mjs';
-import { DADOS_PADRAO } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@fb6f2ab15541dc9950b5e8da0a6b45f2677d5b18/core/dados-padrao.mjs';
+import { acaoMercadoLiga, iniciarLiga, jogarRodadaLiga } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@a2590e1515b4f9542297d14515f000f904611e1e/core/liga.mjs';
+import { S } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@a2590e1515b4f9542297d14515f000f904611e1e/core/estado.mjs';
+import { DADOS_PADRAO } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@a2590e1515b4f9542297d14515f000f904611e1e/core/dados-padrao.mjs';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -49,23 +50,44 @@ Deno.serve(async (req) => {
     }
 
     if (acao === 'jogar') {
-      if (liga.status !== 'andamento') return erro('A liga ainda não começou.', 409);
       if (forcar && liga.dono_id !== eu) return erro('Só o dono pode forçar a rodada.', 403);
-      const { data: entradas } = await admin.from('liga_entradas').select('*').eq('liga_id', ligaId).eq('rodada', liga.rodada);
-      const prontos = new Set((entradas || []).filter((e) => e.pronto).map((e) => e.user_id));
-      const faltam = membros.filter((m) => !prontos.has(m.user_id)).length;
-      if (faltam && !forcar) return resposta({ ok: true, jogada: false, faltam });
-      const { data: est } = await admin.from('liga_estado').select('estado').eq('liga_id', ligaId).single();
-      // bloco síncrono: joga e copia o resultado para texto antes do próximo await
-      const r = jogarRodadaLiga(est.estado, Object.fromEntries((entradas || []).map((e) => [e.user_id, e])));
-      const novo = JSON.stringify(S), jogos = JSON.stringify(r.jogos);
-      const { data: ok, error } = await admin.rpc('liga_gravar_rodada', {
-        p_liga: ligaId, p_rodada: liga.rodada, p_versao: liga.versao, p_estado: JSON.parse(novo),
-        p_temporada: r.temporada, p_rodada_temporada: r.rodada, p_semente: r.semente, p_jogos: JSON.parse(jogos)
-      });
-      if (error) throw error;
-      // false: outra chamada já gravou esta rodada (duas confirmações ao mesmo tempo); não é erro
-      return resposta({ ok: true, jogada: !!ok, jaJogada: !ok, virada: ok ? r.virada : null });
+      // false na gravação: outra rodada ou uma ação de mercado gravou antes. Se a rodada mudou, ela já foi jogada
+      // (duas confirmações ao mesmo tempo, não é erro); senão foi o mercado, e a rodada é refeita com o estado novo.
+      for (let tentativa = 0; tentativa < 3; tentativa++) {
+        const { data: l } = await admin.from('ligas').select('status, rodada').eq('id', ligaId).single();
+        if (l.status !== 'andamento') return erro('A liga ainda não começou.', 409);
+        if (l.rodada !== liga.rodada) return resposta({ ok: true, jogada: false, jaJogada: true });
+        const { data: entradas } = await admin.from('liga_entradas').select('*').eq('liga_id', ligaId).eq('rodada', l.rodada);
+        const prontos = new Set((entradas || []).filter((e) => e.pronto).map((e) => e.user_id));
+        const faltam = membros.filter((m) => !prontos.has(m.user_id)).length;
+        if (faltam && !forcar) return resposta({ ok: true, jogada: false, faltam });
+        const { data: est } = await admin.from('liga_estado').select('estado, versao').eq('liga_id', ligaId).single();
+        // bloco síncrono: joga e copia o resultado para texto antes do próximo await
+        const r = jogarRodadaLiga(est.estado, Object.fromEntries((entradas || []).map((e) => [e.user_id, e])));
+        const novo = JSON.stringify(S), jogos = JSON.stringify(r.jogos);
+        const { data: ok, error } = await admin.rpc('liga_gravar_rodada', {
+          p_liga: ligaId, p_rodada: l.rodada, p_versao: est.versao, p_estado: JSON.parse(novo),
+          p_temporada: r.temporada, p_rodada_temporada: r.rodada, p_semente: r.semente, p_jogos: JSON.parse(jogos)
+        });
+        if (error) throw error;
+        if (ok) return resposta({ ok: true, jogada: true, virada: r.virada });
+      }
+      return erro('A liga mudou ao mesmo tempo. Tente de novo.', 409);
+    }
+
+    if (acao === 'mercado') { // #35: a resposta da IA é sorteada aqui, então recarregar a página não muda nada
+      for (let tentativa = 0; tentativa < 3; tentativa++) {
+        const { data: est } = await admin.from('liga_estado').select('estado, versao').eq('liga_id', ligaId).maybeSingle();
+        if (!est || liga.status !== 'andamento') return erro('A liga ainda não começou.', 409);
+        // bloco síncrono, como na rodada
+        const r = acaoMercadoLiga(est.estado, eu, corpo.mercado || {});
+        if (r.erro) return erro(r.erro);
+        const novo = JSON.stringify(S);
+        const { data: ok, error } = await admin.rpc('liga_gravar_acao', { p_liga: ligaId, p_versao: est.versao, p_estado: JSON.parse(novo) });
+        if (error) throw error;
+        if (ok) return resposta({ ok: true, aceita: r.ok, msg: r.msg || null });
+      }
+      return erro('A liga mudou ao mesmo tempo. Tente de novo.', 409);
     }
     return erro('Ação desconhecida.');
   } catch (e) {
