@@ -84,6 +84,6 @@ test('save de versões antigas, sem os campos novos, carrega e joga', () => {
   jogarRodada(j, 5);
   assert.equal(j.run('S.round'), 6);
   assert.equal(j.run('S.clubs.every(c=>c.players.every(p=>p.pd))'), true, 'posições migradas');
-  assert.equal(j.run('typeof S.conf'), 'number', 'confiança migrada');
+  assert.equal(j.run('typeof tec().conf'), 'number', 'confiança migrada');
   assert.deepEqual(problemasNasTelas(j), []);
 });

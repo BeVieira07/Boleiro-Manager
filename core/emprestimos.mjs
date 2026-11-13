@@ -1,4 +1,4 @@
-import { P, S, addFin, addNews, clubById, userClub } from './estado.mjs';
+import { P, S, addFin, addNews, clubById, ehHumano, tec, userClub } from './estado.mjs';
 import { movePlayer } from './mercado.mjs';
 import { ensureSquad } from './partida.mjs';
 import { clamp, money, rnd } from './utils.mjs';
@@ -32,8 +32,8 @@ export function proporEmprestimo({pid,mode,clubeId,dur,payer,buy}){
 export function loanCheck(p,lender,borrower){
   if(loanOf(p.id))return `${p.name} já está emprestado.`;
   if(borrower.players.length>=32)return `${borrower.name} já tem 32 jogadores.`;
-  if(lender.id===S.userClubId&&lender.players.length<=16)return 'Seu elenco ficaria pequeno demais (mínimo 16).';
-  if(lender.id!==S.userClubId){
+  if(ehHumano(lender)&&lender.players.length<=16)return 'Seu elenco ficaria pequeno demais (mínimo 16).';
+  if(!ehHumano(lender)){
     if(p.bidRound===S.round+'_'+S.season)return `${lender.name} não quer negociar ${p.name} de novo nesta rodada.`;
     p.bidRound=S.round+'_'+S.season;
     if(lender.players.filter(x=>x.pos===p.pos).length<=(p.pos==='G'?2:3))return `${lender.name} recusou: não pode ficar sem reposição na posição.`;
@@ -58,15 +58,15 @@ export function endLoan(l,back){ // back: devolve ao clube de origem
   const p=P[l.pid];if(!p||!back)return;
   const from=clubById(l.from),to=clubById(l.to);
   movePlayer(p,from);ensureSquad(to);
-  if(from.id===S.userClubId||to.id===S.userClubId)addNews(`🔙 ${p.name} voltou ao ${from.name} (fim do empréstimo).`);
+  const msg=`🔙 ${p.name} voltou ao ${from.name} (fim do empréstimo).`;addNews(msg,from.id);if(to.id!==from.id)addNews(msg,to.id);
 }
 // chamada a cada rodada, depois de S.round++
 export function processLoans(){
   for(const l of [...loans()]){
     if(S.round<l.until)continue;
     const p=P[l.pid];
-    if(l.buy&&p&&l.from===S.userClubId&&rnd()<0.4){ // clube de IA exerce a opção de compra
-      addFin(`Opção de compra de ${p.name} (${clubById(l.to).name})`,l.buy);addNews(`💰 ${clubById(l.to).name} exerceu a opção de compra de ${p.name} por ${money(l.buy)}.`);
+    if(l.buy&&p&&ehHumano(l.from)&&!ehHumano(l.to)&&rnd()<0.4){ // clube de IA exerce a opção de compra
+      addFin(`Opção de compra de ${p.name} (${clubById(l.to).name})`,l.buy,clubById(l.from));addNews(`💰 ${clubById(l.to).name} exerceu a opção de compra de ${p.name} por ${money(l.buy)}.`,l.from);
       S.loans=loans().filter(x=>x!==l);continue;
     }
     endLoan(l,true);
@@ -74,8 +74,8 @@ export function processLoans(){
 }
 // regra: exerce a opção de compra de um jogador que peguei emprestado
 export function exercerOpcaoCompra(pid){
-  const l=loanOf(pid),p=P[pid];if(!l||!l.buy||l.to!==S.userClubId)return {erro:'Sem opção de compra.'};
-  if(l.buy>S.balance)return {erro:'Caixa insuficiente.'};
+  const l=loanOf(pid),p=P[pid];if(!l||!l.buy||l.to!==tec().clubId)return {erro:'Sem opção de compra.'};
+  if(l.buy>userClub().balance)return {erro:'Caixa insuficiente.'};
   addFin(`Compra de ${p.name} (opção de compra, ${clubById(l.from).name})`,-l.buy);
   S.loans=loans().filter(x=>x!==l);addNews(`✅ Opção de compra exercida: ${p.name} por ${money(l.buy)}.`);return {ok:true};
 }

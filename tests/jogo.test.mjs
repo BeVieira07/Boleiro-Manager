@@ -35,18 +35,18 @@ test('valores do jogo continuam válidos depois de duas temporadas', () => {
   jogarTemporada(j); virarTemporada(j); jogarTemporada(j);
   assert.equal(j.run('S.clubs.flatMap(c=>c.players).every(p=>p.ovr>=40&&p.ovr<=95)'), true, 'overall entre 40 e 95');
   assert.equal(j.run('S.clubs.flatMap(c=>c.players).some(p=>[p.ovr,p.value,p.wage].some(Number.isNaN))'), false, 'sem NaN em overall, valor ou salário');
-  assert.equal(j.run('Number.isFinite(S.balance)'), true);
+  assert.equal(j.run('Number.isFinite(userClub().balance)'), true);
 });
 
 test('empréstimo: o jogador vai, joga no outro clube e volta no fim do prazo', () => {
   const j = novoJogo();
   const pid = j.run(`(()=>{const uc=userClub();return uc.players.find(p=>!uc.lineup.includes(p.id)&&p.pos==='M').id})()`);
-  const outro = j.run(`S.clubs.find(c=>c.id!==S.userClubId&&c.division===userClub().division).id`);
-  j.run(`startLoan({pid:'${pid}',from:S.userClubId,to:'${outro}',until:3,payer:'from',buy:null})`);
+  const outro = j.run(`S.clubs.find(c=>c.id!==tec().clubId&&c.division===userClub().division).id`);
+  j.run(`startLoan({pid:'${pid}',from:tec().clubId,to:'${outro}',until:3,payer:'from',buy:null})`);
   assert.equal(j.run(`P['${pid}'].clubId`), outro);
   assert.equal(j.run('S.loans.length'), 1);
   for (let r = 0; r < 3; r++) { j.run('if(validateLineup())userClub().lineup=autoXI(userClub());playRound()') }
-  assert.equal(j.run(`P['${pid}'].clubId`), j.run('S.userClubId'), 'voltou ao clube de origem');
+  assert.equal(j.run(`P['${pid}'].clubId`), j.run('tec().clubId'), 'voltou ao clube de origem');
   assert.equal(j.run('S.loans.length'), 0);
 });
 
@@ -68,13 +68,13 @@ test('escalação: todas as formações e penalidade fora de posição', () => {
 
 test('confiança da diretoria muda com as rodadas e a demissão acontece', () => {
   const j = novoJogo();
-  assert.equal(j.run('S.conf'), 60);
+  assert.equal(j.run('tec().conf'), 60);
   for (let r = 0; r < 5; r++) j.run('playRound()');
-  assert.equal(j.run('S.conf>=0&&S.conf<=100'), true);
-  assert.equal(j.run('Array.isArray(S.confFat)'), true);
-  j.run('S.conf=0;S.confBaixa=0');
-  j.run(`(()=>{for(let r=0;r<6&&!S.demitido;r++){S.conf=0;if(validateLineup())userClub().lineup=autoXI(userClub());playRound()}})()`);
-  assert.equal(j.run('!!S.demitido'), true, 'confiança no fundo por várias rodadas leva à demissão');
+  assert.equal(j.run('tec().conf>=0&&tec().conf<=100'), true);
+  assert.equal(j.run('Array.isArray(tec().confFat)'), true);
+  j.run('tec().conf=0;tec().confBaixa=0');
+  j.run(`(()=>{for(let r=0;r<6&&!tec().demitido;r++){tec().conf=0;if(validateLineup())userClub().lineup=autoXI(userClub());playRound()}})()`);
+  assert.equal(j.run('!!tec().demitido'), true, 'confiança no fundo por várias rodadas leva à demissão');
 });
 
 test('overall evolui ao longo da temporada', () => {

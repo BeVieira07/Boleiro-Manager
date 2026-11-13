@@ -7,10 +7,28 @@ import { hashStr, money, mulberry32, novaSemente, shuffle } from './utils.mjs';
 /* ================= estado ================= */
 export let S=null;        // jogo salvo
 export let P={};          // índice jogador por id
-export const userClub=()=>S.clubs.find(c=>c.id===S.userClubId);
+// técnicos humanos (#28): S.managers[id] = {id, nome, clubId, conf, confBaixa, confFat, meta, demitido, news, offers}
+// S.atual é o técnico da vez (no solo, sempre 'local'). Caixa e finanças ficam no clube (c.balance, c.fin).
+export const tecnicos=()=>Object.values(S.managers||{});
+export const tec=()=>S.managers[S.atual];
+export const tecDoClube=id=>tecnicos().find(t=>t.clubId===id);
+export const ehHumano=c=>!!tecDoClube(typeof c==='string'?c:c.id);
+export const clubDo=t=>clubById(t.clubId);
+export const userClub=()=>clubById(tec().clubId);
+export function usarTecnico(id){if(!S.managers[id])throw new Error('Técnico desconhecido: '+id);S.atual=id}
+const novoTecnico=(id,nome,clubId)=>({id,nome,clubId,conf:null,confBaixa:0,confFat:[],meta:null,demitido:false,news:[],offers:[]});
+// saves de antes da #28: o usuário único vira o técnico 'local' e o caixa vai para o clube
+export function migrarTecnicos(s){
+  if(s.managers)return;
+  const t=novoTecnico('local','Você',s.userClubId);
+  for(const k of ['conf','confBaixa','confFat','meta','demitido','news','offers'])if(s[k]!=null)t[k]=s[k];
+  s.managers={local:t};s.atual='local';
+  const c=s.clubs.find(x=>x.id===s.userClubId);if(c){c.balance=s.balance??0;c.fin=s.fin||[]}
+  for(const k of ['userClubId','balance','fin','conf','confBaixa','confFat','meta','demitido','news','offers'])delete s[k];
+}
 export const clubById=id=>S.clubs.find(c=>c.id===id);
 export function usarEstado(s){S=s} // único jeito de trocar o jogo atual de fora deste módulo
-export function reindex(){if(S&&S.seed==null){S.seed=novaSemente();S.rng=S.seed} // saves antigos ganham semente
+export function reindex(){if(S)migrarTecnicos(S);if(S&&S.seed==null){S.seed=novaSemente();S.rng=S.seed} // saves antigos ganham semente
   P={};for(const c of S.clubs)for(const p of c.players){p.clubId=c.id;P[p.id]=p}}
 /* ================= divisões ================= */
 export const DIVS={A:'Série A',B:'Série B',C:'Série C',D:'Série D'};
@@ -24,8 +42,11 @@ export const seasonPrize=(div,pos)=>Math.round(({A:5+(20-pos)*2.1,B:1+(20-pos)*0
 export const startBalance=(div,s)=>Math.round(({A:10+(s-60)*1.5,B:Math.max(2,3+(s-55)*0.5),C:Math.max(1,1.5+(s-50)*0.2),D:Math.max(0.8,1+(s-48)*0.1)})[div]*10)/10;
 export const MOVE_N=()=>Math.min(4,...divisions().map(d=>S.clubs.filter(c=>divOf(c)===d).length-1));
 
-// regra: monta a campanha nova a partir dos dados (sem tela nem armazenamento)
-export function criarJogo(clubId,data){
+// regra: monta a campanha nova a partir dos dados (sem tela nem armazenamento).
+// `quem` é o id do clube (um técnico, o solo) ou uma lista [{id, nome, clubId}] (vários técnicos).
+export function criarJogo(quem,data){
+  const lista=Array.isArray(quem)?quem:[{id:'local',nome:'Você',clubId:quem}];
+  if(!lista.length||new Set(lista.map(t=>t.clubId)).size!==lista.length)throw new Error('Cada técnico precisa de um clube diferente.');
   const clubs=JSON.parse(JSON.stringify(data.clubs));
   for(const c of clubs){
     if(data.posv!==2)converterPosicoesAntigas(c.players); // dados antigos (aba Dados) usam as siglas de antes da #23
@@ -33,20 +54,30 @@ export function criarJogo(clubId,data){
     atribuirPosicoes(c.players);
     const ref=refStrength(c,clubs);
     c.players.forEach(p=>{p.ovr=rate(p,ref);refreshEconomics(p);p.goals=0;p.listed=false});
-    c.formation='4-4-2';
+    c.formation='4-4-2';c.fin=[];
   }
   const seed=novaSemente();
-  S={seed,rng:seed,posv:2,season:data.season||2026,dataSource:data.source,round:0,userClubId:clubId,clubs,
-     fixtures:makeAllFixtures(clubs),news:[],offers:[],fin:[],history:[]};
+  S={seed,rng:seed,posv:2,season:data.season||2026,dataSource:data.source,round:0,clubs,
+     fixtures:makeAllFixtures(clubs),history:[],
+     managers:Object.fromEntries(lista.map(t=>[t.id,novoTecnico(t.id,t.nome,t.clubId)])),atual:lista[0].id};
+  for(const c of S.clubs)c.balance=startBalance(divOf(c),c.strength); // clubes da IA também têm caixa
   reindex();
-  const uc=userClub();
-  S.balance=startBalance(divOf(uc),uc.strength);
-  uc.lineup=autoXI(uc);migrarDiretoria(S);
-  addNews(`Você assumiu o comando do ${uc.name}! Caixa inicial: ${money(S.balance)}.`);
+  for(const t of tecnicos()){const uc=clubDo(t);uc.lineup=autoXI(uc);addNews(`${lista.length>1?t.nome+', você':'Você'} assumiu o comando do ${uc.name}! Caixa inicial: ${money(uc.balance)}.`,uc.id)}
+  migrarDiretoria(S);
   return S;
 }
-export function addNews(t){S.news.unshift({r:S.round,t});S.news=S.news.slice(0,40)}
-export function addFin(desc,amount){S.balance=Math.round((S.balance+amount)*1000)/1000;S.fin.unshift({s:S.season,r:S.round,desc,amount});S.fin=S.fin.slice(0,80)}
+// notícia: sem clube vai para o técnico da vez; com clube, para o técnico daquele clube (clube da IA: descarta)
+export function addNews(t,clubeId){
+  const alvo=clubeId?tecnicos().filter(x=>x.clubId===clubeId):[tec()];
+  for(const m of alvo){m.news.unshift({r:S.round,t});m.news=m.news.slice(0,40)}
+}
+export function addNewsTodos(t){for(const m of tecnicos()){m.news.unshift({r:S.round,t});m.news=m.news.slice(0,40)}}
+// movimento de caixa (padrão: clube do técnico da vez)
+export function addFin(desc,amount,clube=userClub()){
+  clube.balance=Math.round((clube.balance+amount)*1000)/1000;
+  if(!clube.fin)clube.fin=[];
+  clube.fin.unshift({s:S.season,r:S.round,desc,amount});clube.fin=clube.fin.slice(0,80);
+}
 
 /* ================= calendário e tabela ================= */
 export function makeFixtures(ids){

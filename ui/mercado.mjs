@@ -8,7 +8,7 @@ import { render } from './telas.mjs';
 export function makeBid(pid){
   const p=P[pid],seller=clubById(p.clubId);
   const e=podeProporCompra(pid);if(e){alert(e);return}
-  const s=prompt(`Proposta por ${p.name} (${posDNome(p)}, ${p.ovr}) do ${seller.name}.\nValor de mercado: ${money(p.value)}.\nSeu caixa: ${money(S.balance)}.\n\nQuanto oferecer (em milhões)?`,p.value.toFixed(1));
+  const s=prompt(`Proposta por ${p.name} (${posDNome(p)}, ${p.ovr}) do ${seller.name}.\nValor de mercado: ${money(p.value)}.\nSeu caixa: ${money(userClub().balance)}.\n\nQuanto oferecer (em milhões)?`,p.value.toFixed(1));
   if(s==null)return;
   const r=proporCompra(pid,parseFloat(String(s).replace(',','.')));
   alert(r.erro||r.msg);save();render();

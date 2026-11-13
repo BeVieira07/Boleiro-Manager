@@ -1,6 +1,6 @@
 import { loanOf, wageBill } from '../core/emprestimos.mjs';
 import { escalarMelhores } from '../core/escalacao.mjs';
-import { DIVS, MOVE_N, P, S, clubById, divOf, divisions, divsOf, hasTwoDivs, table, topScorers, tvQuota, userClub } from '../core/estado.mjs';
+import { DIVS, MOVE_N, P, S, clubById, divOf, divisions, divsOf, hasTwoDivs, table, tec, topScorers, tvQuota, userClub } from '../core/estado.mjs';
 import { getXI } from '../core/motor.mjs';
 import { POSD, POSD_ORDEM, posDSigla } from '../core/posicoes.mjs';
 import { clamp, esc, money, norm } from '../core/utils.mjs';
@@ -32,7 +32,7 @@ export function render(){
   if(!S){nav.innerHTML=ui.view==='menu'?'':`<button data-acao="go|menu">☰ Menu</button>`;hi.innerHTML='';if(ui.view!=='dados'&&ui.view!=='inicio')ui.view='menu';}
   else{
     const uc=userClub(),pos=table().findIndex(t=>t.id===uc.id)+1;
-    hi.innerHTML=`<span>${crest(uc)} <b>${esc(uc.name)}</b></span>${hasTwoDivs()?`<span><b>${DIVS[divOf(uc)]}</b></span>`:''}<span>Temporada <b>${S.season}</b></span><span>Rodada <b>${Math.min(S.round+1,S.fixtures.length)}/${S.fixtures.length}</b></span><span>Posição <b>${S.round?pos+'º':'-'}</b></span><span>Caixa <b class="${S.balance<0?'bad':'ok'}">${money(S.balance)}</b></span>`;
+    hi.innerHTML=`<span>${crest(uc)} <b>${esc(uc.name)}</b></span>${hasTwoDivs()?`<span><b>${DIVS[divOf(uc)]}</b></span>`:''}<span>Temporada <b>${S.season}</b></span><span>Rodada <b>${Math.min(S.round+1,S.fixtures.length)}/${S.fixtures.length}</b></span><span>Posição <b>${S.round?pos+'º':'-'}</b></span><span>Caixa <b class="${userClub().balance<0?'bad':'ok'}">${money(userClub().balance)}</b></span>`;
     nav.innerHTML=NAV.map(([k,l])=>`<button class="${ui.view===k?'on':''}" data-acao="go|${k}">${l}</button>`).join('')+
       (S.round<S.fixtures.length?`<button class="on" style="margin-left:auto" data-acao="playRound">▶ Jogar rodada ${S.round+1}</button>`:'')+
       `<button data-acao="voltarMenu" title="Salvar e voltar à tela inicial"${S.round<S.fixtures.length?'':' style="margin-left:auto"'}>☰ Menu</button>`;
@@ -60,7 +60,7 @@ export function vClube(){
   const uc=userClub(),me=uc.id;
   const next=S.round<S.fixtures.length?S.fixtures[S.round].find(g=>g.h===me||g.a===me):null;
   const T=table(),pos=T.findIndex(t=>t.id===me)+1,row=T.find(t=>t.id===me);
-  const offers=S.offers.filter(o=>P[o.pid]&&P[o.pid].clubId===me);
+  const offers=tec().offers.filter(o=>P[o.pid]&&P[o.pid].clubId===me);
   const last=[];for(let r=S.round-1;r>=0&&last.length<5;r--){const g=S.fixtures[r].find(g=>g.h===me||g.a===me);if(g)last.push(g)}
   return `<h2>${crest(uc)} ${esc(uc.name)}</h2>
   <div class="cols">
@@ -74,7 +74,7 @@ export function vClube(){
   ${offers.length?`<div class="card"><h3>Propostas recebidas</h3><table>${offers.map(o=>`<tr><td>${esc(P[o.pid].name)}</td><td>${esc(clubById(o.from).name)}</td><td class="n">${money(o.amount)}</td><td class="muted">valor ${money(P[o.pid].value)}</td><td><button class="btn sm" data-acao="acceptOffer|${o.id}">Aceitar</button> <button class="btn sec sm" data-acao="rejectOffer|${o.id}">Recusar</button></td></tr>`).join('')}</table></div>`:''}
   ${painelDiretoria()}
   ${painelTatica()}
-  <div class="card"><h3>Notícias</h3><ul class="news">${S.news.slice(0,12).map(n=>`<li>${esc(n.t)}</li>`).join('')}</ul></div>
+  <div class="card"><h3>Notícias</h3><ul class="news">${tec().news.slice(0,12).map(n=>`<li>${esc(n.t)}</li>`).join('')}</ul></div>
   ${S.history.length?(()=>{const ch=h=>h.champs||{A:h.champ,...(h.champB?{B:h.champB}:{})};const hd=[...new Set(S.history.flatMap(h=>Object.keys(ch(h))))].sort(),many=hd.length>1;
    return `<div class="card"><h3>Histórico</h3><table><tr><th>Temporada</th>${hd.map(x=>`<th>Campeão${many?' '+DIVS[x]:''}</th>`).join('')}<th>Sua posição</th><th>Artilheiro</th></tr>${S.history.map(h=>`<tr><td>${h.season}</td>${hd.map(x=>`<td>${esc(ch(h)[x]||'-')}</td>`).join('')}<td>${h.me}º${many&&h.div?' ('+DIVS[h.div]+')':''}</td><td>${esc(h.scorer)}</td></tr>`).join('')}</table></div>`})():''}`;
 }
@@ -90,7 +90,7 @@ export function vElenco(){
   </table></div>${vLoans()}`;
 }
 export function vTabela(){
-  const d=curDiv(),T=table(d),me=S.userClubId,two=hasTwoDivs(),mv=two?MOVE_N():4;
+  const d=curDiv(),T=table(d),me=tec().clubId,two=hasTwoDivs(),mv=two?MOVE_N():4;
   const ds=divisions(),di=ds.indexOf(d),last=di===ds.length-1;
   const top=di===0?6:mv,bottom=!two?4:last?0:mv;
   return `<h2>Classificação — ${two?DIVS[d]+' ':'Brasileirão '}${S.season}</h2>${divTabs()}
@@ -104,11 +104,11 @@ export function vJogos(){
   const d=curDiv();
   return `<h2>Jogos${hasTwoDivs()?' — '+DIVS[d]:''}</h2>${divTabs()}<div class="card row"><button class="btn sec sm" data-acao="verRodadaJogos|${Math.max(0,r-1)}">◀</button>
   <b>Rodada ${r+1}</b><button class="btn sec sm" data-acao="verRodadaJogos|${Math.min(S.fixtures.length-1,r+1)}">▶</button></div>
-  <div class="card tw"><table>${S.fixtures[r].filter(g=>inDiv(g,d)).map(g=>resultLine(g,S.userClubId)).join('')}</table></div>`;
+  <div class="card tw"><table>${S.fixtures[r].filter(g=>inDiv(g,d)).map(g=>resultLine(g,tec().clubId)).join('')}</table></div>`;
 }
 export function vRodada(){
   if(!ui.lastRound)return vClube();
-  const me=S.userClubId,d=curDiv();
+  const me=tec().clubId,d=curDiv();
   return `<h2>Resultados — rodada ${ui.lastRound.round}${hasTwoDivs()?' — '+DIVS[d]:''}</h2>${divTabs()}
   <div class="card tw"><table>${ui.lastRound.games.filter(g=>inDiv(g,d)).map(g=>resultLine(g,me)).join('')}</table></div>
   <div class="row">${S.round<S.fixtures.length?`<button class="btn big" data-acao="playRound">▶ Jogar rodada ${S.round+1}</button>`:''}<button class="btn sec" data-acao="go|tabela">Ver tabela</button><button class="btn sec" data-acao="go|clube">Clube</button></div>`;
@@ -116,7 +116,7 @@ export function vRodada(){
 export function vArt(){
   const d=curDiv(),L=topScorers(25,d);
   return `<h2>Artilharia${hasTwoDivs()?' — '+DIVS[d]:''}</h2>${divTabs()}<div class="card tw"><table><tr><th>#</th><th>Jogador</th><th>Clube</th><th class="n">Gols</th></tr>
-  ${L.map((p,i)=>`<tr class="${p.clubId===S.userClubId?'me':''}"><td>${i+1}</td><td>${posTag(p)} ${esc(p.name)}</td><td>${esc(clubById(p.clubId).name)}</td><td class="n"><b>${p.goals}</b></td></tr>`).join('')||'<tr><td class="muted">Nenhum gol ainda.</td></tr>'}</table></div>`;
+  ${L.map((p,i)=>`<tr class="${p.clubId===tec().clubId?'me':''}"><td>${i+1}</td><td>${posTag(p)} ${esc(p.name)}</td><td>${esc(clubById(p.clubId).name)}</td><td class="n"><b>${p.goals}</b></td></tr>`).join('')||'<tr><td class="muted">Nenhum gol ainda.</td></tr>'}</table></div>`;
 }
 export function setMF(k,v){ui.mf[k]=v;render()}
 export function vMercado(){
@@ -133,7 +133,7 @@ export function vMercado(){
    <select data-mudar="setMF|club"><option value="">Todos os clubes</option>${S.clubs.filter(c=>c.id!==uc.id).sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}" ${ui.mf.club===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
    <input placeholder="Buscar nome" value="${esc(ui.mf.q)}" data-mudar="setMF|q">
    <input placeholder="Valor máx. (mi)" style="width:130px" value="${esc(ui.mf.max)}" data-mudar="setMF|max">
-   <span class="pill">Caixa: <b>${money(S.balance)}</b></span><span class="pill">Elenco: ${uc.players.length}/32</span>
+   <span class="pill">Caixa: <b>${money(userClub().balance)}</b></span><span class="pill">Elenco: ${uc.players.length}/32</span>
   </div>
   <p class="muted">${total} jogadores${total>120?' (mostrando os 120 melhores)':''}. Craques do time vendedor custam mais caro. Uma proposta por jogador a cada rodada.</p>
   <div class="card tw"><table><tr><th>Pos</th><th>Nome</th><th>Clube</th><th class="n">Idade</th><th class="n">Força</th><th class="n">Valor</th><th class="n">Salário/rod.</th><th></th></tr>
@@ -145,13 +145,13 @@ export function vFin(){
   const val=uc.players.reduce((s,p)=>s+p.value,0);
   return `<h2>Finanças</h2>
   <div class="grid">
-   <div class="card"><div class="muted">Caixa</div><div style="font-size:22px;font-weight:800" class="${S.balance<0?'bad':'ok'}">${money(S.balance)}</div></div>
+   <div class="card"><div class="muted">Caixa</div><div style="font-size:22px;font-weight:800" class="${userClub().balance<0?'bad':'ok'}">${money(userClub().balance)}</div></div>
    <div class="card"><div class="muted">Folha salarial por rodada</div><div style="font-size:22px;font-weight:800">${money(w)}</div></div>
    <div class="card"><div class="muted">Valor do elenco</div><div style="font-size:22px;font-weight:800">${money(val)}</div></div>
    <div class="card"><div class="muted">Receitas</div><div>TV ${money(tvQuota(divOf(uc)))} por rodada + bilheteria em casa + premiação no fim</div></div>
   </div>
   <div class="card tw"><h3>Movimentações</h3><table><tr><th>Temp.</th><th>Rod.</th><th>Descrição</th><th class="n">Valor</th></tr>
-  ${S.fin.map(f=>`<tr><td>${f.s}</td><td>${f.r+1}</td><td>${esc(f.desc)}</td><td class="n ${f.amount<0?'bad':'ok'}">${money(f.amount)}</td></tr>`).join('')||'<tr><td class="muted">Sem movimentações.</td></tr>'}</table></div>`;
+  ${userClub().fin.map(f=>`<tr><td>${f.s}</td><td>${f.r+1}</td><td>${esc(f.desc)}</td><td class="n ${f.amount<0?'bad':'ok'}">${money(f.amount)}</td></tr>`).join('')||'<tr><td class="muted">Sem movimentações.</td></tr>'}</table></div>`;
 }
 export function vDados(){
   const d=getData(),k=store.get(APIKEY_KEY)||'';

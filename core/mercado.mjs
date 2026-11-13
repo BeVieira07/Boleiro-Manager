@@ -1,4 +1,4 @@
-import { P, S, addFin, addNews, clubById, userClub } from './estado.mjs';
+import { P, S, addFin, addNews, clubById, tec, tecnicos, userClub } from './estado.mjs';
 import { ensureSquad } from './partida.mjs';
 import { money, pick, rnd } from './utils.mjs';
 
@@ -7,7 +7,7 @@ export function movePlayer(p,to){
   const from=clubById(p.clubId);from.players=from.players.filter(x=>x!==p);
   if(from.lineup)from.lineup=from.lineup.filter(id=>id!==p.id);
   to.players.push(p);p.clubId=to.id;p.listed=false;
-  S.offers=S.offers.filter(o=>o.pid!==p.id);
+  for(const t of tecnicos())t.offers=t.offers.filter(o=>o.pid!==p.id);
   ensureSquad(from);
 }
 // regra: pode fazer proposta por este jogador agora? (texto do erro ou null)
@@ -22,7 +22,7 @@ export function proporCompra(pid,amt){
   const p=P[pid],seller=clubById(p.clubId),uc=userClub();
   const e=podeProporCompra(pid);if(e)return {erro:e};
   if(!(amt>0))return {erro:'Valor inválido.'};
-  if(amt>S.balance)return {erro:'Caixa insuficiente.'};
+  if(amt>userClub().balance)return {erro:'Caixa insuficiente.'};
   p.bidRound=S.round+'_'+S.season;
   const best=[...seller.players].sort((a,b)=>b.ovr-a.ovr).slice(0,3).includes(p);
   const need=p.value*(best?1.3:1);
@@ -37,12 +37,12 @@ export function proporCompra(pid,amt){
 }
 // regras de venda: devolvem {erro} ou {ok}
 export function aceitarOferta(oid){
-  const o=S.offers.find(x=>x.id===oid);if(!o)return {erro:'Proposta não encontrada.'};const p=P[o.pid],b=clubById(o.from);
+  const o=tec().offers.find(x=>x.id===oid);if(!o)return {erro:'Proposta não encontrada.'};const p=P[o.pid],b=clubById(o.from);
   if(userClub().players.length<=16)return {erro:'Seu elenco ficaria pequeno demais (mínimo 16).'};
   addFin(`Venda de ${p.name} (${b.name})`,o.amount);movePlayer(p,b);
   addNews(`💰 ${p.name} vendido ao ${b.name} por ${money(o.amount)}.`);return {ok:true};
 }
-export function recusarOferta(oid){S.offers=S.offers.filter(o=>o.id!==oid);return {ok:true}}
+export function recusarOferta(oid){tec().offers=tec().offers.filter(o=>o.id!==oid);return {ok:true}}
 export const valorVendaRapida=pid=>Math.round(P[pid].value*0.7*10)/10;
 export function venderJa(pid){
   const p=P[pid],uc=userClub();
