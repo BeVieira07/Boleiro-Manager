@@ -106,10 +106,40 @@ test('versão mais nova na nuvem é indicada e aberta no lugar da local', async 
   await nuvem.carregarNuvem();
   pc2.run('render()');
   assert.match(pc2.html(), /versão mais nova na nuvem/);
-  assert.match(pc2.html(), /data-acao="abrirDaNuvem\|/);
   const id = pc2.run('indiceSaves().list[0].id');
-  await pc2.acao(`abrirDaNuvem|${id}`);
+  await pc2.acao(`abrirMaisNovo|${id}`); // o botão Continuar e o Abrir da linha
   assert.equal(pc2.run('S.round'), 4);
+});
+
+test('cópia antiga jogada em outro computador não sobrescreve a versão mais nova da nuvem', async () => {
+  const srv = servidorFalso();
+  const pc1 = carregarJogo({ boot: true });
+  await logar(srv);
+  pc1.run(`newGame('${clubeDaSerie(pc1)}')`);
+  await nuvem.enviarPendentes();
+  const lsAntigo = structuredClone(pc1.ls), id = pc1.run('S.saveId');
+  jogarRodada(pc1, 4);
+  await new Promise(r => setTimeout(r, 5));
+  pc1.run('salvarJogo()');
+  await nuvem.enviarPendentes();
+  // pc2 abre a cópia local antiga antes de a lista da nuvem carregar e joga uma rodada
+  const pc2 = carregarJogo({ boot: true, ls: lsAntigo });
+  await logar(srv);
+  pc2.run(`abrirSave('${id}')`);
+  jogarRodada(pc2, 1);
+  await new Promise(r => setTimeout(r, 5));
+  pc2.run('salvarJogo()');
+  await nuvem.enviarPendentes();
+  assert.equal(srv.linhas['u1/' + id].estado.round, 4, 'a versão do pc1 continua na nuvem');
+  const outra = Object.values(srv.linhas).find(l => l.id !== id);
+  assert.equal(outra?.estado.round, 1, 'a do pc2 subiu como um save separado');
+  assert.equal(pc2.run('S.saveId'), outra.id, 'o jogo aberto no pc2 passa a gravar no save novo');
+  jogarRodada(pc2, 1);
+  await new Promise(r => setTimeout(r, 5));
+  pc2.run('salvarJogo()');
+  await nuvem.enviarPendentes();
+  assert.equal(srv.linhas['u1/' + id].estado.round, 4);
+  assert.equal(srv.linhas['u1/' + outra.id].estado.round, 2);
 });
 
 test('logado: sem limite de 5 saves; sem espaço, apaga cópias locais que já estão na nuvem', async () => {

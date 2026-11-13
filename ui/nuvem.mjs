@@ -13,6 +13,24 @@ const nuvem = { lista: null, enviando: null, timer: null };
 /** Saves da conta na nuvem: [{id, resumo, atualizado_em}] (sem o estado), ou null se ainda não carregou / deslogado. */
 export const savesNuvem = () => (usuarioAtual() ? nuvem.lista : null);
 export const pendente = x => x.nuvem !== x.data;
+const t = d => Date.parse(d) || 0;
+/** A versão mais nova da nuvem fica onde está; a cópia local ganha outro id (e vira um save à parte). */
+function virarCopia(r, estado) {
+  const id = Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36), idx = indiceSaves();
+  estado.saveId = id; // se for o jogo aberto (S), ele passa a gravar no save novo
+  store.set(SAVE_PREFIX + id, estado); store.del(SAVE_PREFIX + r.id);
+  const x = idx.list.find(y => y.id === r.id), novo = { ...x, id };
+  delete novo.nuvem;
+  idx.list = idx.list.map(y => (y === x ? novo : y));
+  if (idx.cur === r.id) idx.cur = id;
+  store.set(SAVES_KEY, idx);
+  return { r: novo, estado };
+}
+/** Abre pelo botão Abrir/Continuar: se a nuvem tem uma versão mais nova, baixa ela. */
+export function abrirMaisNovo(id) {
+  const n = (savesNuvem() || []).find(x => x.id === id), x = indiceSaves().list.find(y => y.id === id);
+  return n && (!x || t(n.atualizado_em) > t(x.data)) ? abrirDaNuvem(id) : abrirSave(id);
+}
 
 /** Junta vários saves seguidos num envio só (cada save tem uns 600 KB). */
 export function agendarEnvio() {
@@ -28,9 +46,13 @@ export function enviarPendentes() {
   if (!c) return Promise.resolve();
   if (nuvem.enviando) return nuvem.enviando;
   nuvem.enviando = (async () => {
-    for (const r of indiceSaves().list.filter(pendente)) {
-      const estado = S && S.saveId === r.id ? S : store.get(SAVE_PREFIX + r.id);
+    for (let r of indiceSaves().list.filter(pendente)) {
+      let estado = S && S.saveId === r.id ? S : store.get(SAVE_PREFIX + r.id);
       if (!estado) continue;
+      // outro computador enviou uma versão mais nova depois da que esta cópia conhece: não sobrescreve, sobe como save separado
+      const { data: naNuvem, error: e } = await c.from('saves').select('atualizado_em').eq('id', r.id).maybeSingle();
+      if (e) throw e;
+      if (naNuvem && t(naNuvem.atualizado_em) > t(r.nuvem)) ({ r, estado } = virarCopia(r, estado));
       const { nuvem: _n, ...resumo } = r;
       const { error } = await c.from('saves').upsert(
         { id: r.id, user_id: usuarioAtual().id, resumo, estado, atualizado_em: r.data }, { onConflict: 'user_id,id' });

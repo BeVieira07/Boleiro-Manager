@@ -29,7 +29,8 @@ export function salvarJogo(){
     if(!salvarJogo.avisou)alert('Não há espaço para salvar no navegador. Exclua um jogo salvo na tela inicial (ou exporte e apague algum).');
     salvarJogo.avisou=true;return false;
   }
-  idx.list=[resumoSave(S),...idx.list.filter(x=>x.id!==S.saveId)];idx.cur=S.saveId;
+  const antes=idx.list.find(x=>x.id===S.saveId); // mantém x.nuvem: a versão da nuvem em que esta cópia se baseia (#31)
+  idx.list=[{...resumoSave(S),...(antes&&antes.nuvem?{nuvem:antes.nuvem}:{})},...idx.list.filter(x=>x.id!==S.saveId)];idx.cur=S.saveId;
   store.set(SAVES_KEY,idx);agendarEnvio();return true;
 }
 export function podeCriarSave(){
@@ -69,15 +70,15 @@ export function vMenu(){
     if(n&&t(n.atualizado_em)>t(x.data))return `<br><span class="bad">☁ versão mais nova na nuvem (${quando(n.atualizado_em)})</span>`;
     return pendente(x)?'<br><span class="muted">⏳ aguardando envio para a nuvem</span>':'<br><span class="ok">☁ salvo na nuvem</span>';
   };
-  const linha=(x,abrir)=>{const c=clube(x.clubId);
-    return `<tr><td>${c?crest(c):''}</td><td><b>${esc(x.clube)}</b>${x.div&&DIVS[x.div]?` <span class="muted">${DIVS[x.div]}</span>`:''}${x.tecnicos?`<br><span class="muted">${x.tecnicos.map(esc).join(', ')}</span>`:''}${abrir?'<br><span class="muted">☁ só na nuvem</span>':status(x)}</td>
+  const linha=(x,soNaNuvem)=>{const c=clube(x.clubId);
+    return `<tr><td>${c?crest(c):''}</td><td><b>${esc(x.clube)}</b>${x.div&&DIVS[x.div]?` <span class="muted">${DIVS[x.div]}</span>`:''}${x.tecnicos?`<br><span class="muted">${x.tecnicos.map(esc).join(', ')}</span>`:''}${soNaNuvem?'<br><span class="muted">☁ só na nuvem</span>':status(x)}</td>
     <td>Temporada ${x.season}</td><td>Rodada ${x.round}/${x.total}</td><td class="muted">${quando(x.data)}</td>
-    <td><button class="btn sm" data-acao="${abrir||(naNuvem(x.id)&&t(naNuvem(x.id).atualizado_em)>t(x.data)?'abrirDaNuvem':'abrirSave')}|${esc(x.id)}">Abrir</button> <button class="btn red sm" data-acao="excluirSave|${esc(x.id)}">Excluir</button></td></tr>`};
+    <td><button class="btn sm" data-acao="abrirMaisNovo|${esc(x.id)}">Abrir</button> <button class="btn red sm" data-acao="excluirSave|${esc(x.id)}">Excluir</button></td></tr>`};
   const soNuvem=(nv||[]).filter(n=>!idx.list.some(x=>x.id===n.id)).map(n=>({...n.resumo,id:n.id,data:n.atualizado_em}));
   return `<div class="menu-ini">
   <h1>⚽ Boleiro Manager</h1>
   <div class="row">
-   ${cur?`<button class="btn" data-acao="abrirSave|${cur.id}">▶ Continuar — ${esc(cur.clube)}, temporada ${cur.season}</button>`:''}
+   ${cur?`<button class="btn" data-acao="abrirMaisNovo|${esc(cur.id)}">▶ Continuar — ${esc(cur.clube)}, temporada ${cur.season}</button>`:''}
    <button class="btn ${cur?'sec':''}" data-acao="novoJogo">＋ Novo jogo</button>
    <label class="btn sec">Importar save<input type="file" accept=".json" style="display:none" data-mudar="loadSaveFile"></label>
    <button class="btn sec" data-acao="go|dados">Dados do jogo</button>
@@ -85,6 +86,6 @@ export function vMenu(){
   </div>
   ${painelConta()}
   <div class="card tw"><h3>Jogos salvos (${usuarioAtual()?idx.list.length+soNuvem.length:idx.list.length+'/'+MAX_SAVES})</h3>
-   ${idx.list.length+soNuvem.length?`<table>${idx.list.map(x=>linha(x)).join('')}${soNuvem.map(x=>linha(x,'abrirDaNuvem')).join('')}</table>`:'<p class="muted">Nenhum jogo salvo ainda. Comece um novo jogo.</p>'}
+   ${idx.list.length+soNuvem.length?`<table>${idx.list.map(x=>linha(x)).join('')}${soNuvem.map(x=>linha(x,true)).join('')}</table>`:'<p class="muted">Nenhum jogo salvo ainda. Comece um novo jogo.</p>'}
   </div></div>`;
 }
