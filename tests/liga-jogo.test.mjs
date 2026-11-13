@@ -1,0 +1,158 @@
+// #34: o modo liga no navegador (começar, confirmar, tempo real, rodada jogada e replay) com um Supabase falso.
+// A função jogar-rodada é imitada com as mesmas regras do core/ que ela roda no servidor.
+// As regras do banco de verdade (rodada gravada uma vez só, quem pode gravar) estão em supabase/tests/liga_rodada.sql.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { carregarJogo, clubeDaSerie } from './jogo.mjs';
+
+const raiz = new URL('../', import.meta.url);
+const conta = await import(new URL('ui/conta.mjs', raiz));
+const { iniciarLiga, jogarRodadaLiga } = await import(new URL('core/liga.mjs', raiz));
+const est = await import(new URL('core/estado.mjs', raiz)); // est.S: o S muda a cada usarEstado
+const { DADOS_PADRAO } = await import(new URL('core/dados-padrao.mjs', raiz));
+
+// confirmar() chama o callback async sem esperar: deixa as promessas terminarem
+const esperar = () => new Promise(r => setTimeout(r, 0));
+const copia = x => JSON.parse(JSON.stringify(x));
+
+function servidorFalso(clubes) {
+  const srv = {
+    liga: { id: 'L1', nome: 'Pelada', dono_id: 'a', status: 'aberta', rodada: 0, versao: 0, series: ['A'] },
+    membros: [{ user_id: 'a', club_id: clubes[0], nome: 'Ana' }, { user_id: 'b', club_id: clubes[1], nome: 'Bia' }],
+    estado: null, entradas: [], resultados: [], ouvintes: []
+  };
+  // tempo real: avisa os canais assinados
+  srv.emitir = (table, novo) => srv.ouvintes.filter(o => o.table === table).forEach(o => o.cb({ new: copia(novo) }));
+  // a função jogar-rodada, como no servidor
+  const funcao = (uid, { acao, forcar }) => {
+    const L = srv.liga;
+    if (acao === 'iniciar') {
+      if (L.dono_id !== uid) return { erro: 'Só o dono começa a liga.' };
+      assert.ok(iniciarLiga(srv.membros, L.series, DADOS_PADRAO).ok);
+      srv.estado = copia(est.S); Object.assign(L, { status: 'andamento', rodada: 0, versao: 1 });
+      return { ok: true, iniciada: true };
+    }
+    if (forcar && L.dono_id !== uid) return { erro: 'Só o dono pode forçar a rodada.' };
+    const ents = srv.entradas.filter(e => e.rodada === L.rodada);
+    const faltam = srv.membros.filter(m => !ents.some(e => e.user_id === m.user_id && e.pronto)).length;
+    if (faltam && !forcar) return { ok: true, jogada: false, faltam };
+    const r = jogarRodadaLiga(copia(srv.estado), Object.fromEntries(ents.map(e => [e.user_id, e])));
+    srv.estado = copia(est.S);
+    srv.resultados.push({ temporada: r.temporada, rodada: r.rodada, jogos: copia(r.jogos) });
+    srv.entradas.forEach(e => { e.pronto = false });
+    L.rodada++; L.versao++;
+    srv.emitir('ligas', L);
+    return { ok: true, jogada: true };
+  };
+  const resp = data => ({ data: copia(data), error: null });
+  // consulta encadeada (.eq().order().limit()...): o filtro é ignorado, só há uma liga
+  const consulta = dados => {
+    const q = { eq: () => q, order: () => q, limit: () => q, maybeSingle: async () => resp(dados()), then: (ok, ko) => Promise.resolve(resp(dados())).then(ok, ko) };
+    return q;
+  };
+  srv.cliente = uid => ({
+    auth: { getSession: async () => ({ data: { session: { user: { id: uid, email: uid + '@x.com' } } } }), onAuthStateChange: () => ({}) },
+    functions: { invoke: async (_nome, { body }) => {
+      const r = funcao(uid, body);
+      return r.erro ? { data: null, error: { message: r.erro, context: { json: async () => r } } } : { data: r, error: null };
+    } },
+    from: tabela => ({
+      select: () => consulta(() => ({
+        profiles: { nome: srv.membros.find(m => m.user_id === uid)?.nome },
+        ligas: srv.liga,
+        liga_estado: srv.estado && { estado: srv.estado },
+        liga_entradas: srv.entradas,
+        liga_resultados: srv.resultados.at(-1) ?? null
+      })[tabela]),
+      upsert: async linha => {
+        if (linha.rodada !== srv.liga.rodada) return { error: { message: 'RLS' } }; // a regra do banco recusa rodada velha
+        srv.entradas = srv.entradas.filter(e => e.user_id !== linha.user_id).concat(copia(linha));
+        srv.emitir('liga_entradas', linha);
+        return { error: null };
+      }
+    }),
+    channel: () => {
+      const c = { on: (_ev, { table }, cb) => { srv.ouvintes.push({ table, cb, c }); return c }, subscribe: () => c };
+      return c;
+    },
+    removeChannel: c => { srv.ouvintes = srv.ouvintes.filter(o => o.c !== c) }
+  });
+  return srv;
+}
+async function como(srv, uid) {
+  conta.configurarConta({ url: 'https://exemplo.supabase.co', chave: 'chave-publica', cliente: srv.cliente(uid) });
+  await conta.iniciarConta();
+}
+// o replay abre o modal; o DOM falso não guarda o HTML dele, então o teste o captura
+function capturarModal() {
+  const get = document.getElementById, cap = { html: '' };
+  const mbox = new Proxy(get('mbox'), { set: (t, k, v) => { if (k === 'innerHTML') cap.html = v; return true } });
+  document.getElementById = id => id === 'mbox' ? mbox : get(id);
+  const setI = globalThis.setInterval;
+  globalThis.setInterval = () => 0; // o relógio do replay não anda no teste (não deixa timer pendurado)
+  cap.soltar = () => { document.getElementById = get; globalThis.setInterval = setI };
+  return cap;
+}
+
+test('dono começa a liga, confirmações chegam em tempo real e a rodada é jogada quando todos confirmam', async () => {
+  const j0 = carregarJogo();
+  const srv = servidorFalso([clubeDaSerie(j0, 'A', 0), clubeDaSerie(j0, 'A', 1)]);
+  await como(srv, 'a');
+  const j = carregarJogo({ boot: true });
+
+  await j.acao('comecarLiga|L1'); await esperar();
+  assert.equal(srv.liga.status, 'andamento');
+  assert.equal(j.run('ui.view'), 'clube');
+  assert.equal(j.run('S.atual'), 'a', 'o técnico da vez é você');
+  assert.equal(j.run('userClub().id'), srv.membros[0].club_id);
+  assert.match(j.html(), /Confirmar rodada 1/);
+  assert.match(j.html(), /Forçar rodada/, 'o dono pode forçar');
+
+  // fora da liga, nada roda no navegador
+  await j.acao('playRound');
+  assert.equal(j.run('S.round'), 0);
+  assert.ok(j.alertas.some(a => a.includes('resolvidos no servidor')));
+
+  // a Bia confirma no computador dela: chega pelo tempo real
+  srv.entradas.push({ liga_id: 'L1', user_id: 'b', rodada: 0, pronto: true });
+  srv.emitir('liga_entradas', srv.entradas[0]);
+  assert.match(j.html(), /title="confirmou"/);
+  assert.deepEqual(j.run('ui.liga.prontos'), ['b']);
+
+  const modal = capturarModal();
+  try {
+    await j.acao('confirmarLiga'); await esperar(); // o replay vem do aviso de tempo real, que corre à parte
+  } finally { modal.soltar() }
+  const minha = srv.entradas.find(e => e.user_id === 'a');
+  assert.equal(minha.escalacao.lineup.length, 11, 'a escalação foi enviada');
+  assert.equal(srv.resultados.length, 1, 'a rodada foi jogada uma vez');
+  assert.equal(srv.liga.rodada, 1);
+  assert.equal(j.run('S.round'), 1, 'o navegador baixou o estado novo');
+  assert.deepEqual(j.run('ui.liga.prontos'), [], 'as confirmações foram zeradas');
+  assert.match(modal.html, /Replay do jogo simulado no servidor/);
+  j.run('render()'); // no navegador, o "Continuar" do replay mostra a rodada
+  assert.match(j.html(), /Confirmar rodada 2/);
+  assert.ok(!Object.keys(j.ls).some(k => k.startsWith('brasfoot_save_v2_')), 'a liga não vira save local');
+  j.run('sairDaLiga()');
+});
+
+test('quem não é dono não força a rodada e a confirmação sozinha não joga', async () => {
+  const j0 = carregarJogo();
+  const srv = servidorFalso([clubeDaSerie(j0, 'A', 0), clubeDaSerie(j0, 'A', 1)]);
+  await como(srv, 'a');
+  carregarJogo({ boot: true }).acao('comecarLiga|L1'); await esperar();
+
+  await como(srv, 'b');
+  const k = carregarJogo({ boot: true });
+  await k.acao('entrarNaLiga|L1');
+  assert.equal(k.run('S.atual'), 'b');
+  assert.doesNotMatch(k.html(), /Forçar rodada/);
+  await k.acao('confirmarLiga');
+  assert.equal(srv.resultados.length, 0, 'falta a Ana');
+  assert.ok(k.alertas.some(a => a.includes('Falta 1 técnico')));
+  assert.match(k.html(), /Confirmado · 1 de 2/);
+  await k.acao('forcarLiga'); await esperar();
+  assert.ok(k.alertas.some(a => a.includes('Só o dono')));
+  assert.equal(srv.resultados.length, 0);
+  k.run('sairDaLiga()');
+});
