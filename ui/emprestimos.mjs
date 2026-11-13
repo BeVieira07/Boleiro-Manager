@@ -5,6 +5,7 @@ import { esc, money } from '../core/utils.mjs';
 import { save } from './estado.mjs';
 import { closeModal, openModal } from './partida.mjs';
 import { render } from './telas.mjs';
+import { avisar, confirmar } from './avisos.mjs';
 
 export function loanTag(p){
   const l=loanOf(p.id);if(!l)return '';
@@ -17,7 +18,7 @@ export function loanBtn(p,mode){
 }
 export function loanForm(pid,mode){
   const p=P[pid],uc=userClub(),left=S.fixtures.length-S.round;
-  if(left<1){alert('A temporada acabou.');return}
+  if(left<1){avisar('A temporada acabou.');return}
   const durs=[...new Set([5,10,19,left].filter(n=>n<=left))].sort((a,b)=>a-b);
   const clubSel=mode==='out'?`<label>Emprestar para <select id="lnClub">${S.clubs.filter(c=>c.id!==uc.id).sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label>`
     :`<p>Clube de origem: <b>${esc(clubById(p.clubId).name)}</b></p>`;
@@ -33,13 +34,13 @@ export function submitLoan(pid,mode){
   const v=id=>document.getElementById(id);
   const buy=v('lnBuy').checked?Math.round(parseFloat(v('lnBuyV').value)*10)/10:null;
   const r=proporEmprestimo({pid,mode,clubeId:mode==='out'?v('lnClub').value:null,dur:parseInt(v('lnDur').value),payer:v('lnPay').value,buy});
-  if(r.erro){alert(r.erro);return}
-  closeModal();save();render();alert(r.msg);
+  if(r.erro){avisar(r.erro,'erro');return}
+  closeModal();save();render();avisar(r.msg,'ok');
 }
 export function buyLoaned(pid){
   const l=loanOf(pid);if(!l||!l.buy)return;
-  if(!confirm(`Exercer a opção de compra de ${P[pid].name} por ${money(l.buy)}?`))return;
-  const r=exercerOpcaoCompra(pid);if(r.erro){alert(r.erro);return}save();render();
+  confirmar({titulo:'Exercer a opção de compra?',texto:`${P[pid].name} passa a ser do seu clube por ${money(l.buy)}, que saem do caixa (${money(userClub().balance)}).`,ok:`Comprar por ${money(l.buy)}`},()=>{
+    const r=exercerOpcaoCompra(pid);if(r.erro){avisar(r.erro,'erro');return}save();render();avisar(`${P[pid].name} foi comprado.`,'ok')});
 }
 export function vLoans(){
   const uc=userClub(),inn=loansIn(uc),out=loansOut(uc);

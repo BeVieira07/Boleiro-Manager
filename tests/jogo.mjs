@@ -35,6 +35,9 @@ const main = await import(new URL('ui/main.mjs', RAIZ));
 const { usarEstado } = await import(new URL('core/estado.mjs', RAIZ));
 const { ui } = await import(new URL('ui/estado.mjs', RAIZ));
 const { salvarJogo } = await import(new URL('ui/saves.mjs', RAIZ));
+const { avisosTeste } = await import(new URL('ui/avisos.mjs', RAIZ));
+// #64: avisos e confirmações vão para j.alertas; as confirmações respondem "sim", como o confirm falso fazia
+avisosTeste.ouvir = m => amb.alertas.push(m); avisosTeste.autoConfirmar = true;
 const UI_INICIAL = JSON.stringify(ui);
 
 // todos os exports num só escopo (os valores são lidos na hora, então S/P aparecem atualizados)

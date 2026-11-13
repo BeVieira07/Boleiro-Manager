@@ -1,5 +1,5 @@
 import { loanOf } from '../core/emprestimos.mjs';
-import { P, S, clubById, userClub } from '../core/estado.mjs';
+import { P, S, clubById, tec, userClub } from '../core/estado.mjs';
 import { aceitarOferta, alternarVenda, podeProporCompra, proporCompra, recusarOferta, valorVendaRapida, venderJa } from '../core/mercado.mjs';
 import { posDNome } from '../core/posicoes.mjs';
 import { esc, money } from '../core/utils.mjs';
@@ -10,6 +10,7 @@ import { campoBusca, chipsGrupo, filtrar, mudarFiltro, th } from './jogadores.mj
 import { crest } from './partida.mjs';
 import { posTag } from './posicoes.mjs';
 import { render } from './telas.mjs';
+import { avisar, confirmar, pedirValor } from './avisos.mjs';
 
 /* ================= Mercado (#63): mesma tabela do Elenco ================= */
 const LIMITE = 120;
@@ -51,19 +52,21 @@ export function vMercado() {
 
 export function makeBid(pid){
   const p=P[pid],seller=clubById(p.clubId);
-  const e=podeProporCompra(pid);if(e){alert(e);return}
-  const s=prompt(`Proposta por ${p.name} (${posDNome(p)}, ${p.ovr}) do ${seller.name}.\nValor de mercado: ${money(p.value)}.\nSeu caixa: ${money(userClub().balance)}.\n\nQuanto oferecer (em milhões)?`,p.value.toFixed(1));
-  if(s==null)return;
-  const r=proporCompra(pid,parseFloat(String(s).replace(',','.')));
-  alert(r.erro||r.msg);save();render();
+  const e=podeProporCompra(pid);if(e){avisar(e,'erro');return}
+  const caixa=userClub().balance;
+  pedirValor({titulo:`Proposta por ${p.name}`,texto:`${posDNome(p)}, força ${p.ovr}, do ${seller.name}.\nValor de mercado: ${money(p.value)}. Seu caixa: ${money(caixa)}.`,rotulo:'Quanto oferecer',sufixo:'milhões',valor:p.value.toFixed(1).replace('.',','),ok:'Enviar proposta',
+    validar:v=>isNaN(v)||v<=0?'Digite um valor maior que zero, em milhões (ex.: 4,5).':v>caixa?`O caixa só tem ${money(caixa)}.`:''},
+    v=>{const r=proporCompra(pid,v);avisar(r.erro||r.msg,r.erro?'erro':'ok');save();render()});
 }
 // tela
-export const feito=r=>{if(r.erro){alert(r.erro);return}save();render()};
-export function acceptOffer(oid){feito(aceitarOferta(oid))}
-export function rejectOffer(oid){feito(recusarOferta(oid))}
+export const feito=(r,msg,tipo='ok')=>{if(r.erro){avisar(r.erro,'erro');return}save();render();if(msg)avisar(msg,tipo)};
+export function acceptOffer(oid){
+  const o=tec().offers.find(x=>x.id===oid),txt=o&&P[o.pid]?`Negócio fechado: ${P[o.pid].name} vendido ao ${clubById(o.from).name} por ${money(o.amount)}.`:'';
+  feito(aceitarOferta(oid),txt);
+}
+export function rejectOffer(oid){feito(recusarOferta(oid),'Proposta recusada.','info')}
 export function quickSell(pid){
-  if(userClub().players.length<=16){alert('Seu elenco ficaria pequeno demais (mínimo 16).');return}
-  if(!confirm(`Vender ${P[pid].name} agora por ${money(valorVendaRapida(pid))} (70% do valor)?`))return;
-  feito(venderJa(pid));
+  if(userClub().players.length<=16){avisar('Seu elenco ficaria pequeno demais (mínimo 16).','aviso');return}
+  confirmar({titulo:`Vender ${P[pid].name} agora?`,texto:`Ele sai do elenco por ${money(valorVendaRapida(pid))}, 70% do valor de mercado (${money(P[pid].value)}). A venda não pode ser desfeita.`,ok:'Vender agora',perigo:true},()=>{const txt=`${P[pid].name} vendido por ${money(valorVendaRapida(pid))}.`;feito(venderJa(pid),txt)});
 }
 export function toggleListed(pid){feito(alternarVenda(pid))}

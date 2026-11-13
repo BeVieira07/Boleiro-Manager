@@ -9,6 +9,7 @@ import { agendarEnvio, apagarNaNuvem, liberarEspaco, pendente, savesNuvem } from
 import { crest } from './partida.mjs';
 import { go, render } from './telas.mjs';
 import { SAVE_KEY, store } from './utils.mjs';
+import { avisar, confirmar } from './avisos.mjs';
 
 /* ================= jogos salvos e tela inicial (#21) =================
    Cada campanha fica em localStorage[SAVE_PREFIX+id]; SAVES_KEY guarda o índice {cur, list:[resumo]}.
@@ -26,7 +27,7 @@ export function salvarJogo(){
   const idx=indiceSaves();
   if(!S.saveId)S.saveId=Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36); // id do save não é regra do jogo
   if(!store.set(SAVE_PREFIX+S.saveId,S)&&!(liberarEspaco()&&store.set(SAVE_PREFIX+S.saveId,S))){
-    if(!salvarJogo.avisou)alert('Não há espaço para salvar no navegador. Exclua um jogo salvo na tela inicial (ou exporte e apague algum).');
+    if(!salvarJogo.avisou)avisar('Não há espaço para salvar no navegador. Exclua um jogo salvo na tela inicial (ou exporte e apague algum).');
     salvarJogo.avisou=true;return false;
   }
   const antes=idx.list.find(x=>x.id===S.saveId); // mantém x.nuvem: a versão da nuvem em que esta cópia se baseia (#31)
@@ -35,7 +36,7 @@ export function salvarJogo(){
 }
 export function podeCriarSave(){
   if(usuarioAtual()||indiceSaves().list.length<MAX_SAVES)return true; // logado: os saves vão para a nuvem e o espaço local é liberado quando enche
-  alert(`Você já tem ${MAX_SAVES} jogos salvos. Exclua um na tela inicial para começar outro.`);return false;
+  avisar(`Você já tem ${MAX_SAVES} jogos salvos. Exclua um na tela inicial para começar outro.`);return false;
 }
 export function migrarSaveAntigo(){
   const old=store.get(SAVE_KEY);if(!old||!Array.isArray(old.clubs))return;
@@ -44,16 +45,17 @@ export function migrarSaveAntigo(){
 }
 export function abrirSave(id){
   const s=store.get(SAVE_PREFIX+id);
-  if(!s||!Array.isArray(s.clubs)){alert('Este save não pôde ser lido.');return}
+  if(!s||!Array.isArray(s.clubs)){avisar('Este save não pôde ser lido.','erro');return}
   usarEstado(s);S.saveId=id;migrarPosicoes(S);reindex();migrarDiretoria(S);
   const idx=indiceSaves();idx.cur=id;store.set(SAVES_KEY,idx);
   ui.selEsc=null;ui.vDiv=null;go('clube');
 }
 export function excluirSave(id){
   const e=indiceSaves().list.find(x=>x.id===id)||(savesNuvem()||[]).find(x=>x.id===id)?.resumo;
-  if(!confirm(`Excluir o jogo salvo ${e?e.clube+' — temporada '+e.season:''}? Isso não pode ser desfeito.`))return;
-  apagarSave(id);apagarNaNuvem(id);if(S&&S.saveId===id)usarEstado(null);
-  ui.view='menu';render();
+  confirmar({titulo:'Excluir o jogo salvo?',texto:`O jogo ${e?e.clube+', temporada '+e.season:''} será apagado deste navegador${usuarioAtual()?' e da nuvem':''}: elenco, tabela, finanças e histórico. Isso não pode ser desfeito.`,ok:'Excluir',perigo:true},()=>{
+    apagarSave(id);apagarNaNuvem(id);if(S&&S.saveId===id)usarEstado(null);
+    ui.view='menu';render();avisar('Jogo salvo excluído.','ok');
+  });
 }
 export function apagarSave(id){const idx=indiceSaves();store.del(SAVE_PREFIX+id);idx.list=idx.list.filter(x=>x.id!==id);if(idx.cur===id)idx.cur=null;store.set(SAVES_KEY,idx)}
 export function voltarMenu(){if(S)salvarJogo();usarEstado(null);go('menu')}

@@ -8,6 +8,7 @@ import { clienteLogado, usuarioAtual } from './conta.mjs';
 import { getData, ui } from './estado.mjs';
 import { crest } from './partida.mjs';
 import { go, render } from './telas.mjs';
+import { avisar } from './avisos.mjs';
 
 const liga = { lista: null, atual: null, erro: null };
 const SERIES = ['A', 'B', 'C', 'D'];
@@ -17,14 +18,14 @@ const campo = id => document.getElementById(id);
 
 async function chamar(promessa) {
   const { data, error } = await promessa;
-  if (error) { alert(error.message); return null }
+  if (error) { avisar(error.message,'erro'); return null }
   return data ?? true;
 }
 
 /** Abre a tela "Minhas ligas". */
 export async function abrirLigas() {
   const c = clienteLogado();
-  if (!c) { alert('Entre na sua conta (na tela inicial) para jogar ligas com amigos.'); return }
+  if (!c) { avisar('Entre na sua conta (na tela inicial) para jogar ligas com amigos.'); return }
   liga.lista = null; liga.erro = null; go('ligas');
   const { data, error } = await c.from('ligas').select('id, nome, codigo_convite, status, series, dono_id, liga_membros(user_id, club_id)').order('criada_em', { ascending: false });
   if (error) liga.erro = 'Não foi possível carregar as ligas: ' + error.message;
@@ -37,10 +38,10 @@ export async function criarLiga() {
   const nome = (campo('nomeLiga')?.value || '').trim();
   const series = SERIES.filter(s => campo('serieLiga' + s)?.checked);
   const clubId = campo('clubeLiga')?.value;
-  if (!nome) { alert('Dê um nome para a liga.'); return }
-  if (!series.length) { alert('Escolha pelo menos uma série.'); return }
+  if (!nome) { avisar('Dê um nome para a liga.'); return }
+  if (!series.length) { avisar('Escolha pelo menos uma série.'); return }
   const cl = clube(clubId);
-  if (!cl || !series.includes(cl.division)) { alert('Escolha seu clube entre as séries da liga.'); return }
+  if (!cl || !series.includes(cl.division)) { avisar('Escolha seu clube entre as séries da liga.'); return }
   const l = await chamar(c.rpc('criar_liga', { nome, series, club_id: clubId }));
   if (l) await abrirLobby(l.id);
 }
@@ -48,7 +49,7 @@ export async function criarLiga() {
 export async function entrarLiga() {
   const c = clienteLogado(); if (!c) return;
   const codigo = (campo('codigoLiga')?.value || '').trim();
-  if (!codigo) { alert('Digite o código de convite.'); return }
+  if (!codigo) { avisar('Digite o código de convite.'); return }
   const id = await chamar(c.rpc('entrar_liga', { codigo }));
   if (id) await abrirLobby(id);
 }
@@ -60,7 +61,7 @@ export async function abrirLobby(id) {
     c.from('ligas').select('id, nome, codigo_convite, status, series, dono_id').eq('id', id).maybeSingle(),
     c.from('liga_membros').select('user_id, club_id, entrou_em').eq('liga_id', id).order('entrou_em')
   ]);
-  if (l.error || m.error || !l.data) { alert('Não foi possível abrir a liga.'); return }
+  if (l.error || m.error || !l.data) { avisar('Não foi possível abrir a liga.','erro','erro'); return }
   const ids = m.data.map(x => x.user_id);
   const p = await c.from('profiles').select('id, nome').in('id', ids);
   const nomes = Object.fromEntries((p.data || []).map(x => [x.id, x.nome]));

@@ -305,6 +305,30 @@ th[aria-sort="ascending"],th[aria-sort="descending"]{color:var(--verde-claro)}
 .estrelas{color:var(--ouro);letter-spacing:2px}
 .estrelas .apagada{color:var(--linha)}
 .sub-serie{margin-top:var(--e5)}
+/* ================= avisos (toasts) e diálogos (#64) ================= */
+.avisos{position:fixed;right:16px;bottom:16px;z-index:40;display:flex;flex-direction:column;gap:10px;width:min(380px,calc(100vw - 32px));pointer-events:none}
+body.em-jogo .avisos{bottom:24px}
+.toast{pointer-events:auto;display:flex;align-items:flex-start;gap:10px;background:var(--painel2);border:1px solid var(--linha);border-left:4px solid var(--info);border-radius:var(--r);
+  padding:10px 8px 10px 12px;box-shadow:var(--sombra);animation:entra .2s ease}
+.toast>.icone{color:var(--info);margin-top:1px}
+.toast p{margin:0;flex:1;line-height:1.4;white-space:pre-line}
+.toast.ok{border-left-color:var(--verde)} .toast.ok>.icone{color:var(--verde)}
+.toast.aviso{border-left-color:var(--ouro)} .toast.aviso>.icone{color:var(--ouro)}
+.toast.erro{border-left-color:var(--perigo);background:var(--perigo-esc)} .toast.erro>.icone{color:var(--perigo-claro)}
+.toast.saindo{opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.dialogo{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:16px}
+.dialogo[hidden]{display:none}
+.dialogo-caixa{background:var(--painel);border:1px solid var(--linha);border-radius:var(--r-lg);width:min(460px,100%);max-height:90vh;overflow:auto;padding:22px;box-shadow:var(--sombra)}
+.dialogo-caixa h2{font-size:26px;display:flex;align-items:center;gap:8px;margin-top:0}
+.dialogo-caixa h2 .icone{color:var(--perigo-claro)}
+.dialogo-acoes{display:flex;gap:var(--e2);justify-content:flex-end;flex-wrap:wrap;margin-top:var(--e4)}
+.pre{white-space:pre-line}
+.campo-valor{display:flex;flex-direction:column;gap:6px;font-weight:600}
+.campo-valor input{width:160px;font-size:18px;font-variant-numeric:tabular-nums}
+.campo-valor input[aria-invalid="true"]{border-color:var(--perigo)}
+.erro-campo{color:var(--perigo-claro);min-height:1.4em;margin:6px 0 0;font-size:13px}
+@media(max-width:799px){body.em-jogo .avisos{bottom:84px}}
 /* modal (o jogo ao vivo, empréstimos e fim de temporada) */
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
 #modal .box{background:var(--painel);border:1px solid var(--linha);border-radius:var(--r-lg);max-width:640px;width:100%;max-height:90vh;overflow:auto;padding:20px;box-shadow:var(--sombra)}

@@ -3,6 +3,7 @@
    Sem configuração, ou sem internet, o jogo continua offline como sempre. */
 import { esc } from '../core/utils.mjs';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.mjs';
+import { avisar } from './avisos.mjs';
 
 // supabase-js vem de CDN (o jogo não tem build); versão fixa
 export const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
@@ -54,12 +55,12 @@ export async function iniciarConta(aoMudar) {
 /** Entra (ou cria a conta) mandando um link mágico para o e-mail. */
 export async function entrar() {
   const campo = document.getElementById('emailConta'), email = (campo && campo.value || '').trim();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('Digite um e-mail válido.'); return }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { avisar('Digite um e-mail válido.'); return }
   const c = await cliente(); if (!c) return;
   const volta = typeof location !== 'undefined' ? location.origin + location.pathname : undefined;
   const { error } = await c.auth.signInWithOtp({ email, options: { emailRedirectTo: volta } });
-  if (error) { alert('Não foi possível enviar o link: ' + error.message); return }
-  alert(`Enviamos um link de acesso para ${email}. Abra o e-mail neste aparelho para entrar.`);
+  if (error) { avisar('Não foi possível enviar o link: ' + error.message,'erro','erro'); return }
+  avisar(`Enviamos um link de acesso para ${email}. Abra o e-mail neste aparelho para entrar.`);
 }
 
 export async function sair() {
@@ -74,7 +75,7 @@ export async function mudarNomeTecnico() {
   const campo = document.getElementById('nomeConta'), nome = (campo && campo.value || '').trim();
   if (!nome || !conta.usuario) return;
   const { error } = await conta.cliente.from('profiles').update({ nome }).eq('id', conta.usuario.id);
-  if (error) { alert('Não foi possível salvar o nome: ' + error.message); return }
+  if (error) { avisar('Não foi possível salvar o nome: ' + error.message,'erro','erro'); return }
   conta.perfil = { ...(conta.perfil || {}), nome };
   conta.aoMudar && conta.aoMudar();
 }

@@ -5,12 +5,13 @@ import { demissao } from './diretoria.mjs';
 import { save, ui } from './estado.mjs';
 import { seasonEnd, showLive } from './partida.mjs';
 import { render } from './telas.mjs';
+import { avisar, confirmar } from './avisos.mjs';
 
 export function playRound(aoVivo=true){
   const r=jogarRodada();
   if(r.demitido){demissao();return}
   if(r.fim)return;
-  if(r.erro){if(r.tecnico)usarTecnico(r.tecnico);alert(r.erro);ui.view=r.faltam?'clube':'escalacao';render();return}
+  if(r.erro){if(r.tecnico)usarTecnico(r.tecnico);avisar(r.erro,'erro');ui.view=r.faltam?'clube':'escalacao';render();return}
   const games=r.jogos,mine=r.meu;
   ui.lastRound={round:S.round,games};
   save();
@@ -18,20 +19,21 @@ export function playRound(aoVivo=true){
   else if(aoVivo){ui.view='rodada';render();if(tec().demitido)demissao()}
 }
 export function simToEnd(){
-  if(!confirm('Simular todas as rodadas restantes sem assistir aos jogos?'))return;
-  while(S.round<S.fixtures.length&&!tec().demitido){
-    const err=validateLineup();if(err){userClub().lineup=autoXI(userClub())}
-    playRound(false);
-  }
-  ui.view='tabela';render();seasonEnd();if(tec().demitido)demissao();
+  confirmar({titulo:'Simular até o fim?',texto:`As ${S.fixtures.length-S.round} rodadas restantes serão jogadas sem você assistir. Lesionados e suspensos são trocados pela escalação automática.`,ok:'Simular'},()=>{
+    while(S.round<S.fixtures.length&&!tec().demitido){
+      const err=validateLineup();if(err){userClub().lineup=autoXI(userClub())}
+      playRound(false);
+    }
+    ui.view='tabela';render();seasonEnd();if(tec().demitido)demissao();
+  });
 }
 
 // revezamento: confirma a vez do técnico atual; quando todos confirmaram, joga a rodada
 export function confirmarVez(){
   const r=confirmarRodada();
-  if(r.erro){alert(r.erro);ui.view='escalacao';render();return}
+  if(r.erro){avisar(r.erro,'erro');ui.view='escalacao';render();return}
   if(r.todos){playRound();return}
-  save();ui.view='clube';render();alert(`Vez de ${r.proximo.nome}. Passe o computador!`);
+  save();ui.view='clube';render();avisar(`Vez de ${r.proximo.nome}. Passe o computador!`);
 }
 // botão da rodada: no solo joga direto; com vários técnicos, cada um confirma a sua vez
 export function botaoRodada(cls,txt){

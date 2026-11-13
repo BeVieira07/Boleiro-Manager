@@ -7,6 +7,7 @@ import { getData, save, ui } from './estado.mjs';
 import { excluirSave, podeCriarSave } from './saves.mjs';
 import { render } from './telas.mjs';
 import { APIKEY_KEY, DATA_KEY, store } from './utils.mjs';
+import { avisar, confirmar } from './avisos.mjs';
 
 /* ================= importação API-Football ================= */
 export const API='https://v3.football.api-sports.io';
@@ -26,7 +27,7 @@ export async function importFromApi(){
   const delay=parseInt(document.getElementById('delay').value,10)*1000;
   const log=document.getElementById('implog'),bar=document.getElementById('impbar');
   const out=t=>{log.insertAdjacentHTML('beforeend',`<div>${esc(t)}</div>`);log.scrollTop=1e9};
-  if(!key){alert('Cole sua chave da API-Football.');return}
+  if(!key){avisar('Cole sua chave da API-Football.');return}
   if(document.getElementById('remember').checked)store.set(APIKEY_KEY,key);else store.del(APIKEY_KEY);
   document.getElementById('impbtn').disabled=true;log.innerHTML='';
   try{
@@ -119,15 +120,16 @@ export function mergeDivision(cur,inc,div){
 }
 export function loadDataFile(_valor,ev){
   const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
-  rd.onload=()=>{try{let d=JSON.parse(rd.result);if(!Array.isArray(d.clubs))throw 0;
+  rd.onload=()=>{let d;try{d=JSON.parse(rd.result);if(!Array.isArray(d.clubs))throw 0}catch(e){avisar('Arquivo inválido.','erro');return}
     const fd=divsOf(d.clubs),cur=getData(),other=divsOf(cur.clubs).filter(x=>x!==fd[0]);
-    if(fd.length===1&&other.length&&confirm(`Este arquivo só tem a ${DIVS[fd[0]]}. Juntar com o que já está carregado (${other.map(x=>DIVS[x]).join(', ')})?\n(Cancelar = usar só este arquivo)`))d=mergeDivision(cur,d,fd[0]);
-    store.set(DATA_KEY,d);alert(`Dados carregados: ${d.clubs.length} clubes (${d.season}).`);render()}catch(e){alert('Arquivo inválido.')}};
+    const usar=x=>{store.set(DATA_KEY,x);avisar(`Dados carregados: ${x.clubs.length} clubes (${x.season}).`,'ok');render()};
+    if(fd.length===1&&other.length)confirmar({titulo:'Juntar os dados?',texto:`Este arquivo só tem a ${DIVS[fd[0]]}. Juntar com o que já está carregado (${other.map(x=>DIVS[x]).join(', ')})? Se não, o jogo passa a usar só este arquivo.`,ok:'Juntar',cancelar:'Usar só este arquivo'},()=>usar(mergeDivision(cur,d,fd[0])),()=>usar(d));
+    else usar(d)};
   rd.readAsText(f);
 }
 export function downloadJSON(obj,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
 export function exportSave(){
-  if(!S){alert('Nenhum jogo em andamento.');return}
+  if(!S){avisar('Nenhum jogo em andamento.');return}
   const uc=userClub();
   downloadJSON({type:'brasfoot-save',version:1,exportedAt:new Date().toISOString(),save:S},`save-${norm(uc.short||uc.name)}-${S.season}-r${S.round}.json`);
 }
@@ -136,9 +138,9 @@ export function loadSaveFile(_valor,ev){
   rd.onload=()=>{try{const j=JSON.parse(rd.result);const sv=j.type==='brasfoot-save'?j.save:j;
     if(!sv||!Array.isArray(sv.clubs)||!Array.isArray(sv.fixtures)||!(sv.userClubId||sv.managers))throw 0;
     if(!podeCriarSave())return; // importar cria um save novo na lista, sem substituir os outros
-    delete sv.saveId;usarEstado(sv);migrarPosicoes(S);reindex();migrarDiretoria(S);save();ui.view='clube';render();alert(`Save carregado: ${userClub().name}, temporada ${S.season}, rodada ${S.round+1}.`)}
-  catch(e){alert('Arquivo de save inválido.')}};
+    delete sv.saveId;usarEstado(sv);migrarPosicoes(S);reindex();migrarDiretoria(S);save();ui.view='clube';render();avisar(`Save carregado: ${userClub().name}, temporada ${S.season}, rodada ${S.round+1}.`)}
+  catch(e){avisar('Arquivo de save inválido.','erro')}};
   rd.readAsText(f);
 }
-export function resetData(){if(confirm('Voltar para os dados padrão (Brasileirão 2024)?')){store.del(DATA_KEY);render()}}
+export function resetData(){confirmar({titulo:'Voltar aos dados padrão?',texto:'Os dados importados neste navegador serão apagados e o jogo volta a usar o Brasileirão 2024. Seus jogos salvos não mudam.',ok:'Voltar aos dados padrão',perigo:true},()=>{store.del(DATA_KEY);render()})}
 export function resetGame(){if(S&&S.saveId)excluirSave(S.saveId)}
