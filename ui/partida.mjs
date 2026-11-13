@@ -19,7 +19,7 @@ const EVENTO={gol:['bola','Gol'],cartao:['cartao','Cartão amarelo'],vermelho:['
 /** Linha do evento na lista; o gol do seu time ganha destaque. */
 export function itemEvento(e,H,A,meu){
   const team=e.side==='h'?H:A,[ic,nome]=EVENTO[e.t]||['info',e.t],nosso=team.id===meu;
-  return `<li class="ev ev-${e.t}${e.t==='gol'&&nosso?' nosso':''}"><span class="ev-min">${e.m}'</span>${icone(ic,{rotulo:nome,classe:'ev-ic'})}
+  return `<li class="ev ${e.t}${e.t==='gol'&&nosso?' nosso':''}"><span class="ev-min">${e.m}'</span>${icone(ic,{rotulo:nome,classe:'ev-ic'})}
     <span>${e.t==='gol'?`<b>GOL do ${esc(team.name)}!</b> ${esc(e.name)}`:`${esc(e.name)} <span class="muted">(${esc(team.short||team.name)})</span>`}</span></li>`;
 }
 /** Marcador na barra de tempo, na posição do minuto do evento. */
