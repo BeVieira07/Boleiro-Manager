@@ -17,6 +17,27 @@ O jogo usa módulos JavaScript (`<script type="module">`), então **precisa de u
 
 **Testes:** `npm test`.
 
+## Jogar no navegador (GitHub Pages)
+
+A cada push na `main`, o GitHub Actions roda os testes e publica o jogo em **https://bevieira07.github.io/Boleiro-Manager/** (`.github/workflows/pages.yml`). Os saves ficam no navegador de quem joga.
+
+## Online (Supabase)
+
+O login online é opcional: com `ui/config.mjs` vazio, o jogo funciona offline e o login não aparece. Para ligar:
+
+1. Crie uma conta e um projeto em [supabase.com](https://supabase.com) (o plano gratuito basta).
+2. Em **Project Settings → API**, copie a **Project URL** e a chave **anon / publishable** para `ui/config.mjs`. Essa chave é pública e pode ir para o repositório. **Nunca** coloque a chave `service_role` / `secret` em nenhum arquivo.
+3. Crie as tabelas e as regras de acesso (pasta `supabase/migrations/`):
+   ```bash
+   npx supabase login
+   npx supabase link --project-ref <id-do-projeto>
+   npx supabase db push
+   ```
+4. Em **Authentication → URL Configuration**, coloque `https://bevieira07.github.io/Boleiro-Manager/` como **Site URL** e adicione `http://localhost:3000/` e `http://127.0.0.1:5500/` em **Redirect URLs** (para testar no computador).
+5. Faça o push. Na tela inicial aparece "Jogar online": a pessoa digita o e-mail, recebe um link e entra (a conta é criada no primeiro acesso, sem senha).
+
+O plano gratuito **pausa o projeto depois de cerca de uma semana sem uso**: os dados ficam guardados e dá para reativar pelo painel do Supabase.
+
 ## Dados do Brasileirão (API-Football)
 
 O jogo já vem com as **Séries A, B, C e D de 2024** (80 clubes, 2435 jogadores reais), salvas em `data/brasileirao-2024.json` e `data/brasileirao-serie-<b|c|d>-2024.json`. Elas ficam embutidas em `core/dados-padrao.mjs`, para o jogo funcionar sem internet. Se mudar os JSONs, rode `npm run dados:padrao` para gerar o `core/dados-padrao.mjs` de novo. Para usar outros dados, baixe com os passos abaixo e carregue em **Dados → Carregar JSON**.
@@ -76,7 +97,9 @@ core/                 regras do jogo, sem tela (rodam no navegador e em Node/Den
   emprestimos.mjs     empréstimos
   diretoria.mjs       confiança da diretoria
   forma.mjs           evolução do overall
-ui/                   telas e interação (usam o core/)
+ui/                   telas e interação (usam o core/); config.mjs e conta.mjs: login online
+supabase/             tabelas e regras de acesso do banco online (migrations/)
+.github/workflows/    publicação no GitHub Pages
   main.mjs            entrada: liga os botões (data-acao / data-mudar) e abre a tela inicial
   telas.mjs           telas e abas · saves.mjs jogos salvos · api.mjs importar/exportar · ...
 tests/                testes (npm test)

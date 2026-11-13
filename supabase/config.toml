@@ -1,0 +1,7 @@
+# Configuração da CLI do Supabase (usada por `npx supabase link` e `npx supabase db push`).
+# As configurações do projeto na nuvem (URL do site, provedores de login) ficam no painel do Supabase.
+project_id = "boleiro-manager"
+
+[auth]
+site_url = "https://bevieira07.github.io/Boleiro-Manager/"
+additional_redirect_urls = ["http://localhost:3000/", "http://127.0.0.1:5500/"]
