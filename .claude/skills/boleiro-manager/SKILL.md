@@ -39,6 +39,7 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 
 ## API-Football
 - A conta está **suspensa** ("Your account is suspended"), então `dados`, `dados:b/c/d` e `notas` não baixam nada novo. Os dados já salvos em `data/` continuam valendo.
+- O navegador não importa mais da API (#52): a aba Dados só carrega e exporta JSON. A única fonte são os scripts (`npm run dados` etc.).
 - O host de imagens `media.api-sports.io` está fora do ar (DNS não resolve). Por isso os escudos vêm da Wikipédia.
 
 ## Escudos

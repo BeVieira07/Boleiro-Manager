@@ -87,3 +87,13 @@ test('save de versões antigas, sem os campos novos, carrega e joga', () => {
   assert.equal(j.run('typeof tec().conf'), 'number', 'confiança migrada');
   assert.deepEqual(problemasNasTelas(j), []);
 });
+
+test('aba Dados sem importação pela API; a chave antiga é apagada e carregar/exportar continuam (#52)', () => {
+  const j = carregarJogo({ boot: true, ls: { brasfoot_apikey: 'segredo123' } });
+  assert.equal(j.ls.brasfoot_apikey, undefined, 'a chave guardada por versões antigas foi apagada');
+  j.run("go('dados')");
+  assert.doesNotMatch(j.html(), /API-Football<\/h3>|apikey|importFromApi/);
+  assert.match(j.html(), /data-mudar="loadDataFile"/);
+  assert.match(j.html(), /data-acao="exportData"/);
+  assert.equal(j.run('typeof importFromApi'), 'undefined');
+});
