@@ -79,7 +79,9 @@ export function jogarRodada(){
     }
     const wages=wageBill(uc);
     addFin('Salários do elenco',-Math.round(wages*1000)/1000,uc);
-    if(mine){const gf=mine.h===uc.id?mine.hg:mine.ag,ga=mine.h===uc.id?mine.ag:mine.hg;if(gf>ga)addFin('Bicho por vitória',-Math.round(wages*0.15*1000)/1000,uc)}
+    if(mine){const gf=mine.h===uc.id?mine.hg:mine.ag,ga=mine.h===uc.id?mine.ag:mine.hg,bicho=Math.round(wages*0.15*1000)/1000;
+      (mine.bicho||(mine.bicho={}))[uc.id]=bicho; // o ajuste ao vivo (ressimularDepois) usa o mesmo valor (#43)
+      if(gf>ga)addFin('Bicho por vitória',-bicho,uc)}
     // ofertas por jogadores à venda
     t.offers=t.offers.filter(o=>o.until>S.round);
     for(const p of uc.players.filter(p=>p.listed)){

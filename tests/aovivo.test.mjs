@@ -35,3 +35,21 @@ test('sem animação com prefers-reduced-motion', () => {
   const css = readFileSync(new URL('../css/style.css', import.meta.url), 'utf8');
   assert.match(css, /@media\(prefers-reduced-motion:reduce\)\{\*,\*::before,\*::after\{animation:none!important;transition:none!important/);
 });
+
+test('bicho por vitória: o ajuste ao vivo usa o mesmo valor cobrado, mesmo com empréstimo (#43)', () => {
+  const j = carregarJogo({ boot: true });
+  j.run(`newGame('${clubeDaSerie(j, 'A', 0)}')`);
+  // jogador caro emprestado ao meu clube, com salário pago pelo clube que cedeu: fica fora da minha folha
+  j.run(`(()=>{const uc=userClub(),c=S.clubs.find(c=>c.id!==uc.id),p=[...c.players].sort((a,b)=>b.wage-a.wage)[0];
+    startLoan({pid:p.id,from:c.id,to:uc.id,until:S.fixtures.length,payer:'from',buy:null})})()`);
+  assert.notEqual(j.run('wageBill(userClub())'), j.run('userClub().players.reduce((s,p)=>s+p.wage,0)'));
+  for (let i = 0; i < 10 && !j.run('(()=>{const g=ui.lastRound&&ui.lastRound.games.find(g=>g.h===userClub().id||g.a===userClub().id);return g&&(g.h===userClub().id?g.hg>g.ag:g.ag>g.hg)})()'); i++) j.run('if(validateLineup())userClub().lineup=autoXI(userClub());playRound(false)');
+  const r = j.run(`(()=>{const uc=userClub(),g=ui.lastRound.games.find(g=>g.h===uc.id||g.a===uc.id),venceu=()=>g.h===uc.id?g.hg>g.ag:g.ag>g.hg;
+    if(!venceu())return null;
+    for(let k=0;k<30;k++)ressimularDepois(g,0);/* vira e desvira o resultado; a cobrança fica na rodada antes do S.round++ */
+    const soma=uc.fin.filter(f=>f.desc.startsWith('Bicho por vitória')&&f.r>=S.round-1).reduce((s,f)=>s+f.amount,0);
+    return {soma:Math.round(soma*1000)/1000,esperado:venceu()?-g.bicho[uc.id]:0,bicho:g.bicho[uc.id]}})()`);
+  assert.ok(r, 'o time venceu alguma rodada');
+  assert.equal(r.soma, r.esperado);
+  assert.equal(r.bicho, Math.round(j.run('wageBill(userClub())') * 0.15 * 1000) / 1000);
+});
