@@ -58,6 +58,8 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 - Supabase: `ui/config.mjs` (URL e chave **pública**; vazio = offline, sem login), `ui/conta.mjs` (login por link mágico, `supabase-js` da CDN com versão fixa), `supabase/migrations/*.sql` (tabelas e RLS, aplicadas com `npx supabase db push`). A chave service_role/secret **nunca** entra no repositório (`tests/conta.test.mjs` confere).
 - Configurar: veja "Online (Supabase)" no README. O plano gratuito pausa o projeto após cerca de uma semana sem uso (dados ficam; reativar no painel).
 - Nos testes, `configurarConta({url, chave, cliente})` troca o Supabase por um cliente falso.
+- Projeto Supabase: ref `nfctxdzapspnxwttrwym` (sa-east-1, plano free). As migrações podem ser aplicadas pelo MCP do Supabase (`apply_migration`), além do `db push`. Testes das regras de acesso no banco real: `supabase/tests/*.sql` (transação com rollback; rodar no SQL Editor ou com `execute_sql`).
+- Saves na nuvem (#31): `ui/nuvem.mjs`. Logado, `salvarJogo()` agenda o envio (`agendarEnvio`, junta envios em 2 s) para a tabela `saves` (chave `user_id, id` = `S.saveId`). No índice local, `x.nuvem` = data da versão já enviada; diferente de `x.data` = pendente (`pendente(x)`), reenviado ao entrar, ao abrir o jogo e no evento `online`. A tela inicial mistura os saves locais e os da nuvem (`savesNuvem()`, só o resumo; `abrirDaNuvem` baixa o estado). Logado não há limite de 5; se o navegador enche, `liberarEspaco()` apaga as cópias locais já enviadas.
 
 ## Testes
 - `npm test` roda `node --test` com os testes de `tests/` (uns 20 s). Rodar antes de commitar mudanças no jogo.
