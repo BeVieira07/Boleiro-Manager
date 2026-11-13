@@ -136,19 +136,19 @@ test('save sem copa (de antes): joga normalmente, a tela avisa e a copa começa 
 test('telas: chaveamento por fase com o meu confronto em destaque, e o aviso na tela de Jogos', () => {
   const j = novo(), datas = copa(j).datas;
   j.run(`go('copa')`);
-  assert.match(j.html(), /Segunda fase/);
+  assert.match(j.html(), /Primeira fase/);
   assert.equal((j.html().match(/<li class="jogo/g) || []).length, 32);
   assert.equal((j.html().match(/<li class="jogo meu">/g) || []).length, 1);
   assert.match(j.html(), /A jogar/);
   assert.match(j.html(), new RegExp(`Ida na rodada ${datas[0] + 1}, volta na rodada ${datas[1] + 1}`));
   jogarRodada(j, datas[1] + 1);
   j.run(`go('copa')`);
-  assert.match(j.html(), /Terceira fase/);
+  assert.match(j.html(), /Segunda fase/);
   assert.match(j.html(), /Ida: \S+ \d+ x \d+ \S+ · Volta: \S+ \d+ x \d+ \S+/);
   assert.match(j.html(), /class="jogo-time (casa|fora) venceu"/);
   j.run(`go('jogos')`);
   j.acao(`verRodadaJogos|${datas[0]}`);
-  assert.match(j.html(), /Nesta rodada também tem segunda fase \(ida\)/);
+  assert.match(j.html(), /Nesta rodada também tem primeira fase \(ida\)/);
   j.acao(`verRodadaJogos|${datas[0] + 1}`);
   assert.doesNotMatch(j.html(), /Nesta rodada também tem/);
   assert.match(j.run('lateral()'), /data-acao="go\|copa"/);

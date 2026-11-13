@@ -14,8 +14,8 @@ import { clamp, money, poisson, rnd, shuffle } from './utils.mjs';
 
 export const COPA = 'Copa do Brasil', COPA_MAX = 64;
 // pelo número de confrontos da fase: 1 = final, 2 = semifinal...
-const NOMES = { 1: 'Final', 2: 'Semifinal', 4: 'Quartas de final', 8: 'Oitavas de final', 16: 'Terceira fase', 32: 'Segunda fase' };
-export const nomeFase = f => NOMES[f.jogos.length] || 'Primeira fase';
+const NOMES = { 1: 'Final', 2: 'Semifinal', 4: 'Quartas de final', 8: 'Oitavas de final', 16: 'Segunda fase', 32: 'Primeira fase' };
+export const nomeFase = f => NOMES[f.jogos.length] || 'Fase preliminar';
 // premiação por passar de fase, pelo número de confrontos dela (em milhões); a da final é a do título
 export const PREMIO_COPA = { 1: 8, 2: 3, 4: 1.5, 8: 1, 16: 0.6, 32: 0.4 };
 const pares = ids => Array.from({ length: ids.length / 2 }, (_, i) => ({ h: ids[2 * i], a: ids[2 * i + 1], ida: null, volta: null, pen: null, v: null }));
@@ -34,7 +34,7 @@ export const jogoDaData = k => ({ fase: Math.floor(k / 2), volta: k % 2 === 1 })
 export function copaNaRodada(r) {
   const k = S.copa ? S.copa.datas.indexOf(r) : -1; if (k < 0) return null;
   const { fase, volta } = jogoDaData(k), n = S.copa.fases[0].jogos.length / 2 ** fase;
-  return { fase, volta, nome: NOMES[n] || 'Primeira fase' };
+  return { fase, volta, nome: NOMES[n] || 'Fase preliminar' };
 }
 // placar de um jogo da copa (mandante M contra V), com a mesma conta da liga
 function placar(M, V) {
