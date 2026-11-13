@@ -34,7 +34,12 @@ O login online é opcional: com `ui/config.mjs` vazio, o jogo funciona offline e
    npx supabase db push
    ```
 4. Em **Authentication → URL Configuration**, coloque `https://bevieira07.github.io/Boleiro-Manager/` como **Site URL** e adicione `http://localhost:3000/` e `http://127.0.0.1:5500/` em **Redirect URLs** (para testar no computador).
-5. Faça o push. Na tela inicial aparece "Jogar online": a pessoa digita o e-mail, recebe um link e entra (a conta é criada no primeiro acesso, sem senha).
+5. **Login com Google** (#84; recomendado, porque o e-mail grátis do Supabase manda só uns 2 links por hora):
+   - No [Google Cloud Console](https://console.cloud.google.com/), crie um projeto. Em **APIs e serviços → Tela de consentimento OAuth**, escolha **Externo** e preencha o nome do app e o e-mail de suporte.
+   - Em **APIs e serviços → Credenciais → Criar credenciais → ID do cliente OAuth**, tipo **Aplicativo da Web**. Em **URIs de redirecionamento autorizados**, coloque `https://<id-do-projeto>.supabase.co/auth/v1/callback`.
+   - No Supabase, em **Authentication → Sign In / Providers → Google**, ligue o provedor e cole o **Client ID** e o **Client Secret**. O segredo fica só no painel do Supabase, **nunca** no repositório.
+   - Quem já entrou pelo link mágico com o mesmo e-mail do Google cai na mesma conta.
+6. Faça o push. Na tela inicial aparece "Jogar online": **Entrar com Google** ou, por e-mail, a pessoa recebe um link e entra (a conta é criada no primeiro acesso, sem senha).
 
 O plano gratuito **pausa o projeto depois de cerca de uma semana sem uso**: os dados ficam guardados e dá para reativar pelo painel do Supabase.
 

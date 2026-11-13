@@ -13,6 +13,7 @@ function clienteFalso({ sessao = null } = {}) {
     getSession: async () => ({ data: { session: sessao } }),
     onAuthStateChange: cb => { f.ouvinte = cb; return { data: { subscription: { unsubscribe() {} } } } },
     signInWithOtp: async a => { f.pedidos.push(['otp', a.email]); return { error: null } },
+    signInWithOAuth: async a => { f.pedidos.push(['oauth', a.provider, a.options.redirectTo]); return { error: null } },
     signOut: async () => { f.pedidos.push(['sair']); return { error: null } }
   };
   f.from = tabela => ({
@@ -40,6 +41,9 @@ test('entrar manda o link mágico; a sessão aparece e sair encerra', async () =
   await conta.iniciarConta(() => avisos++);
   j.run('render()');
   assert.match(j.html(), /id="emailConta"/, 'mostra o campo de e-mail na tela inicial');
+  assert.match(j.html(), /data-acao="entrarComGoogle"/, 'botão do Google (#84)');
+  await j.acao('entrarComGoogle');
+  assert.equal(f.pedidos.at(-1)[0], 'oauth'); assert.equal(f.pedidos.at(-1)[1], 'google');
   j.campo('emailConta', 'nao-e-email');
   await j.acao('entrar');
   assert.ok(j.alertas.some(a => a.includes('e-mail válido')));
