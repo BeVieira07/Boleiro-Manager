@@ -9,6 +9,7 @@ import { esc, money } from '../core/utils.mjs';
 import { barra, ovrChip } from './componentes.mjs';
 import { loanBtn, loanTag, vLoans } from './emprestimos.mjs';
 import { ui } from './estado.mjs';
+import { botaoProposta } from './ligajogo.mjs';
 import { tendenciaTag } from './forma.mjs';
 import { icone } from './icones.mjs';
 import { campoBusca, chipsGrupo, filtrar, mudarFiltro, pctForma, th } from './jogadores.mjs';
@@ -26,7 +27,7 @@ function status(p, tit) {
 
 function linha(p, xi) {
   const tit = xi.includes(p.id), f = pctForma(p);
-  const acoes = loanOf(p.id) ? '' : `<button class="btn sm ${p.listed ? 'perigo' : 'sec'}" data-acao="toggleListed|${p.id}" aria-pressed="${!!p.listed}">${p.listed ? 'À venda' : 'Pôr à venda'}</button><button class="btn sec sm" data-acao="quickSell|${p.id}">Vender já</button>`;
+  const acoes = loanOf(p.id) ? '' : `<button class="btn sm ${p.listed ? 'perigo' : 'sec'}" data-acao="toggleListed|${p.id}" aria-pressed="${!!p.listed}">${p.listed ? 'À venda' : 'Pôr à venda'}</button><button class="btn sec sm" data-acao="quickSell|${p.id}">Vender já</button>${botaoProposta(p)}`;
   return `<tr class="${tit ? 'tit' : ''}${unavailable(p) ? ' indisp' : ''}">
     <td class="c-pos">${posTag(p)}</td>
     <th scope="row" class="c-nome"><div class="jogador"><span class="camisa" aria-hidden="true">${p.number ?? ''}</span>${p.number != null ? `<span class="sr">camisa ${p.number}, </span>` : ''}<div><b>${esc(p.name)}</b>${loanTag(p)}${status(p, tit)}</div></div></th>

@@ -10,7 +10,7 @@ import { campoBusca, chipsGrupo, filtrar, mudarFiltro, th } from './jogadores.mj
 import { crest } from './partida.mjs';
 import { posTag } from './posicoes.mjs';
 import { render } from './telas.mjs';
-import { mercadoLiga } from './ligajogo.mjs';
+import { botaoProposta, mercadoLiga } from './ligajogo.mjs';
 import { avisar, confirmar, pedirValor } from './avisos.mjs';
 
 /* ================= Mercado (#63): mesma tabela do Elenco ================= */
@@ -28,7 +28,7 @@ export function corpoMercado() {
   const linhas = L.slice(0, LIMITE).map(p => { const c = clubById(p.clubId);
     return `<tr><td class="c-pos">${posTag(p)}</td><th scope="row" class="c-nome"><div class="jogador">${crest(c)}<div><b>${esc(p.name)}</b>${loanTag(p)}<span class="st">${esc(c.name)}</span></div></div></th>
     <td class="n c-idade"><span class="rot">Idade </span>${p.age}</td><td class="c c-ovr">${ovrChip(p.ovr)}</td><td class="n c-valor">${money(p.value)}</td><td class="n c-sal">${money(p.wage)}</td>
-    <td class="c-acoes"><div class="acoes">${loanOf(p.id) || ehHumano(c) ? '' : `<button class="btn sm" data-acao="makeBid|${p.id}">Proposta</button>${loanBtn(p, 'in')}`}</div></td></tr>` }).join('');
+    <td class="c-acoes"><div class="acoes">${loanOf(p.id) ? '' : ehHumano(c) ? botaoProposta(p) : `<button class="btn sm" data-acao="makeBid|${p.id}">Proposta</button>${loanBtn(p, 'in')}`}</div></td></tr>` }).join('');
   return { linhas: linhas || '<tr><td colspan="7" class="muted">Nenhum jogador com esse filtro.</td></tr>', total: L.length };
 }
 const contagem = t => `${t} jogadores${t > LIMITE ? ` (mostrando os ${LIMITE} primeiros)` : ''}.`;

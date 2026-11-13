@@ -118,6 +118,8 @@ liga_noticias   (liga_id, user_id null, rodada, texto)                          
 
 **Como ficou (#35):** com a IA, cada ação vai para `jogar-rodada` com `acao: 'mercado'` (uma função só, em vez de `acao-mercado`), que roda `acaoMercadoLiga` e grava por `liga_gravar_acao` com controle de `versao`. Negócio fechado vira notícia para todos (`addNews` de cada técnico). Os outros navegadores recebem a mudança de `versao` pelo tempo real e baixam o estado de novo, mantendo a escalação ainda não confirmada. Com clube de outro técnico não há negócio ainda. A tela **Liga** (só dentro da liga) mostra técnicos, clubes, posição e quem confirmou.
 
+**Entre técnicos (#36):** as propostas (compra, venda, empréstimo com taxa, duração, quem paga o salário e opção de compra) ficam no estado da liga (`S.propostas`, regras em `core/propostas.mjs`) e passam pelo mesmo caminho do mercado: o servidor confere e grava com controle de versão, e o tempo real avisa o outro técnico. Ele aceita, recusa ou faz contraproposta na tela Liga; ao aceitar, tudo é conferido de novo (caixa, elenco, jogador ainda no clube). A tabela `liga_propostas` ficou sem uso.
+
 ### 3.6 Solo com conta e save na nuvem
 
 - Mesmo jogo de hoje. O `ui/saves.mjs` ganha um segundo destino: além do `localStorage`, envia o save para a tabela `saves` quando o usuário está logado.

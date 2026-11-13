@@ -199,3 +199,42 @@ test('mercado da liga: a venda é feita no servidor, todos recebem o estado novo
   assert.match(j.html(), /data-acao="go|liga"/, 'item Liga no menu');
   j.run('sairDaLiga()');
 });
+
+test('propostas entre técnicos: pelo Mercado, o outro aceita, e quem recebe uma proposta é avisado (#36)', async () => {
+  const j0 = carregarJogo();
+  const srv = servidorFalso([clubeDaSerie(j0, 'A', 0), clubeDaSerie(j0, 'A', 1)]);
+  await como(srv, 'a');
+  const j = carregarJogo({ boot: true });
+  await j.acao('comecarLiga|L1'); await esperar();
+  const [ana, bia] = srv.membros.map(m => m.club_id), clube = id => srv.estado.clubs.find(c => c.id === id);
+  for (const id of [ana, bia]) { const c = clube(id); c.players = c.players.slice(0, 25); c.lineup = c.lineup.filter(x => c.players.some(p => p.id === x)); c.balance = 30 }
+  srv.liga.versao++; srv.emitir('ligas', srv.liga); await esperar(); // o navegador baixa o estado ajustado
+
+  const daBia = clube(bia).players.find(p => !clube(bia).lineup.includes(p.id)).id;
+  j.run(`ui.mf.club='${bia}'`); await j.acao('go|mercado');
+  assert.match(j.html(), new RegExp(`propostaForm\|${daBia}`), 'jogador de outro técnico tem botão de proposta');
+  j.acao(`propostaForm|${daBia}`);
+  j.campo('ppNeg', 'transferencia'); j.campo('ppValor', '3,5'); j.campo('ppDur', '5'); j.campo('ppPay', 'to'); j.campo('ppBuy', false);
+  await j.acao(`enviarProposta|${daBia}`); await esperar();
+  assert.equal(srv.estado.propostas.length, 1);
+  assert.equal(srv.estado.propostas[0].valor, 3.5);
+
+  // a Bia aceita no computador dela; o navegador da Ana recebe pelo tempo real
+  await srv.cliente('b').functions.invoke('jogar-rodada', { body: { liga: 'L1', acao: 'mercado', mercado: { tipo: 'aceitarProposta', id: srv.estado.propostas[0].id } } });
+  await esperar();
+  assert.equal(j.run(`P['${daBia}'].clubId`), ana);
+  assert.equal(j.run('userClub().balance'), 26.5);
+
+  // a Bia oferece um jogador à Ana: ela é avisada e recusa pela tela Liga
+  const outro = clube(bia).players.find(p => !clube(bia).lineup.includes(p.id) && p.id !== daBia).id;
+  await srv.cliente('b').functions.invoke('jogar-rodada', { body: { liga: 'L1', acao: 'mercado', mercado: { tipo: 'proporTecnico', negocio: 'emprestimo', pid: outro, para: 'a', valor: 0, dur: 5, payer: 'from' } } });
+  await esperar();
+  assert.ok(j.alertas.some(a => a.includes('recebeu uma proposta')));
+  await j.acao('go|liga');
+  assert.match(j.html(), /De Bia: empréstimo de/);
+  const id = srv.estado.propostas[0].id;
+  await j.acao(`responderProposta|recusarProposta|${id}`); await esperar();
+  assert.equal(srv.estado.propostas.length, 0);
+  assert.match(srv.estado.managers.b.news[0].t, /recusou/);
+  j.run('sairDaLiga()');
+});

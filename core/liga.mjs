@@ -9,6 +9,7 @@ import { P, S, clubById, clubDo, criarJogo, ehHumano, reindex, tec, tecnicos, us
 import { aceitarOferta, alternarVenda, proporCompra, recusarOferta, venderJa } from './mercado.mjs';
 import { autoXI, jogarRodada, validateLineup } from './motor.mjs';
 import { fecharTemporada, iniciarTemporada } from './partida.mjs';
+import { aceitarProposta, cancelarProposta, contraproposta, proporTecnico, recusarProposta } from './propostas.mjs';
 import { ESTILOS, MODOS } from './taticas.mjs';
 import { FORMS } from './utils.mjs';
 
@@ -72,7 +73,7 @@ export function jogarRodadaLiga(estado, entradas) {
 
 /* ---------- mercado da liga (#35): o servidor sorteia a resposta da IA, então recarregar a página não muda nada ---------- */
 const invalido = { erro: 'Jogador inválido para esta ação.' };
-const HUMANO = { erro: 'Negociar com outro técnico da liga ainda não é possível.' };
+const HUMANO = { erro: 'O clube é de outro técnico: faça uma proposta a ele.' };
 // jogador de um clube da IA (comprar, pedir emprestado) / do meu clube (vender, emprestar)
 const daIA = (pid, uc) => !P[pid] || P[pid].clubId === uc.id ? invalido : ehHumano(P[pid].clubId) ? HUMANO : null;
 const meu = (pid, uc) => P[pid] && P[pid].clubId === uc.id ? null : invalido;
@@ -92,7 +93,13 @@ const MERCADO = {
   aceitar: a => aceitarOferta(a.oid),
   recusar: a => recusarOferta(a.oid),
   opcaoCompra: a => exercerOpcaoCompra(a.pid),
-  emprestimo: emprestimoLiga
+  emprestimo: emprestimoLiga,
+  // entre técnicos (#36)
+  proporTecnico: a => proporTecnico(a),
+  aceitarProposta: a => aceitarProposta(a.id),
+  recusarProposta: a => recusarProposta(a.id),
+  cancelarProposta: a => cancelarProposta(a.id),
+  contraproposta: a => contraproposta(a.id, a)
 };
 /** Ação de mercado de um técnico (a: {tipo, ...}, vinda do navegador: tudo é conferido). Devolve {erro} (nada muda) ou {ok, msg}
  *  (o estado em S mudou e deve ser gravado; ok=false é proposta recusada). Negócio fechado vira notícia para todos da liga. */
