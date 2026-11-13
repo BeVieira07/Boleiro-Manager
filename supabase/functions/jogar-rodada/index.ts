@@ -4,9 +4,9 @@
 // Sempre que core/ mudar, troque o commit nos três imports abaixo e publique a função de novo, senão site e servidor
 // rodam motores diferentes. Veja supabase/functions/README.md.
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
-import { acaoMercadoLiga, iniciarLiga, jogarRodadaLiga } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@a2590e1515b4f9542297d14515f000f904611e1e/core/liga.mjs';
-import { S } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@a2590e1515b4f9542297d14515f000f904611e1e/core/estado.mjs';
-import { DADOS_PADRAO } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@a2590e1515b4f9542297d14515f000f904611e1e/core/dados-padrao.mjs';
+import { acaoMercadoLiga, iniciarLiga, jogarRodadaLiga } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@5a350b84ea9273127419af543f55280e2128e418/core/liga.mjs';
+import { S } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@5a350b84ea9273127419af543f55280e2128e418/core/estado.mjs';
+import { DADOS_PADRAO } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@5a350b84ea9273127419af543f55280e2128e418/core/dados-padrao.mjs';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
