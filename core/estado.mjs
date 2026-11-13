@@ -1,3 +1,4 @@
+import { criarBases, darPotencial } from './base.mjs';
 import { contratoInicial } from './contratos.mjs';
 import { SQUAD_SHAPE, fakePlayer, rate, refStrength, refreshEconomics } from './dados.mjs';
 import { migrarDiretoria } from './diretoria.mjs';
@@ -66,7 +67,8 @@ export function criarJogo(quem,data){
      fixtures:makeAllFixtures(clubs),history:[],
      managers:Object.fromEntries(lista.map(t=>[t.id,novoTecnico(t.id,t.nome,t.clubId)])),atual:lista[0].id};
   for(const c of S.clubs)c.balance=startBalance(divOf(c),c.strength); // clubes da IA também têm caixa
-  reindex();
+  darPotencial(S.clubs);
+  reindex();criarBases();
   for(const t of tecnicos()){const uc=clubDo(t);uc.lineup=autoXI(uc);addNews(`${lista.length>1?t.nome+', você':'Você'} assumiu o comando do ${uc.name}! Caixa inicial: ${money(uc.balance)}.`,uc.id)}
   migrarDiretoria(S);
   return S;

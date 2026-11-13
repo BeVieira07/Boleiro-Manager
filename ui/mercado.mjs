@@ -3,6 +3,7 @@ import { P, S, clubById, ehHumano, tec, userClub } from '../core/estado.mjs';
 import { aceitarOferta, alternarVenda, podeProporCompra, proporCompra, recusarOferta, valorVendaRapida, venderJa } from '../core/mercado.mjs';
 import { posDNome } from '../core/posicoes.mjs';
 import { esc, money } from '../core/utils.mjs';
+import { potTag } from './base.mjs';
 import { ovrChip } from './componentes.mjs';
 import { loanBtn, loanTag } from './emprestimos.mjs';
 import { save, ui } from './estado.mjs';
@@ -27,9 +28,9 @@ export function corpoMercado() {
   const L = filtrar(listaMercado(), ui.mf);
   const linhas = L.slice(0, LIMITE).map(p => { const c = clubById(p.clubId);
     return `<tr><td class="c-pos">${posTag(p)}</td><th scope="row" class="c-nome"><div class="jogador">${crest(c)}<div><b>${esc(p.name)}</b>${loanTag(p)}<span class="st">${esc(c.name)}</span></div></div></th>
-    <td class="n c-idade"><span class="rot">Idade </span>${p.age}</td><td class="c c-ovr">${ovrChip(p.ovr)}</td><td class="n c-valor">${money(p.value)}</td><td class="n c-sal">${money(p.wage)}</td>
+    <td class="n c-idade"><span class="rot">Idade </span>${p.age}</td><td class="c c-ovr">${ovrChip(p.ovr)}</td><td class="c-pot">${potTag(p)}</td><td class="n c-valor">${money(p.value)}</td><td class="n c-sal">${money(p.wage)}</td>
     <td class="c-acoes"><div class="acoes">${loanOf(p.id) ? '' : ehHumano(c) ? botaoProposta(p) : `<button class="btn sm" data-acao="makeBid|${p.id}">Proposta</button>${loanBtn(p, 'in')}`}</div></td></tr>` }).join('');
-  return { linhas: linhas || '<tr><td colspan="7" class="muted">Nenhum jogador com esse filtro.</td></tr>', total: L.length };
+  return { linhas: linhas || '<tr><td colspan="8" class="muted">Nenhum jogador com esse filtro.</td></tr>', total: L.length };
 }
 const contagem = t => `${t} jogadores${t > LIMITE ? ` (mostrando os ${LIMITE} primeiros)` : ''}.`;
 export function filtrarMercado(campo, valor) {
@@ -47,7 +48,7 @@ export function vMercado() {
     <div class="row"><span class="pill">Caixa <b>${money(uc.balance)}</b></span><span class="pill">Elenco ${uc.players.length}/32</span></div></div>
   <p class="muted resumo"><span id="totalMercado">${contagem(r.total)}</span> Craques do time vendedor custam mais caro. Uma proposta por jogador a cada rodada.</p>
   <section class="card tabela-card"><div class="tabela-rolavel"><table class="tabela-jogadores mercado"><caption class="sr">Jogadores de outros clubes</caption>
-    <thead><tr>${th('Pos', 'pos', f, a)}${th('Jogador', 'nome', f, a, 'c-nome')}${th('Idade', 'idade', f, a, 'n')}${th('Força', 'ovr', f, a, 'c')}${th('Valor', 'valor', f, a, 'n')}${th('Salário', 'salario', f, a, 'n')}${th('Negociar', '', f, a)}</tr></thead>
+    <thead><tr>${th('Pos', 'pos', f, a)}${th('Jogador', 'nome', f, a, 'c-nome')}${th('Idade', 'idade', f, a, 'n')}${th('Força', 'ovr', f, a, 'c')}${th('Potencial', 'pot', f, a)}${th('Valor', 'valor', f, a, 'n')}${th('Salário', 'salario', f, a, 'n')}${th('Negociar', '', f, a)}</tr></thead>
     <tbody id="corpoMercado">${r.linhas}</tbody></table></div></section>`;
 }
 

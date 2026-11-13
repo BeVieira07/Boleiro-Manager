@@ -229,6 +229,9 @@ th[aria-sort="ascending"],th[aria-sort="descending"]{color:var(--verde-claro)}
 .forca{display:inline-flex;align-items:center;gap:8px}
 .c-forma .barra{width:64px}
 .acoes{display:flex;gap:6px;justify-content:flex-end;flex-wrap:nowrap}
+.c-pot .estrelas{font-size:12px;letter-spacing:1px;white-space:nowrap}
+.base-topo{padding:16px 16px 0}
+.base-vazia{padding:0 16px 14px;margin:0}
 .rot{display:none}
 @media(max-width:799px){
   .tabela-rolavel{max-height:none;overflow:visible}
@@ -241,7 +244,7 @@ th[aria-sort="ascending"],th[aria-sort="descending"]{color:var(--verde-claro)}
   .tabela-jogadores .c-nome{flex:1 1 50%;order:1}
   .tabela-jogadores .c-pos{order:0;padding:0}
   .tabela-jogadores .c-nome{min-width:0}
-  .tabela-jogadores .c-ovr{order:2}
+  .tabela-jogadores .c-ovr,.tabela-jogadores .c-pot{order:2}
   .tabela-jogadores .c-idade,.tabela-jogadores .c-gols,.tabela-jogadores .c-valor,.tabela-jogadores .c-contr{order:3;font-size:12px;color:var(--muted)}
   .tabela-jogadores .c-forma,.tabela-jogadores .c-sal{display:none}
   .tabela-jogadores .c-acoes{order:4;flex-basis:100%}

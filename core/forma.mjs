@@ -1,3 +1,4 @@
+import { tetoOvr } from './base.mjs';
 import { refreshEconomics } from './dados.mjs';
 import { unavailable } from './escalacao.mjs';
 import { S, addNews, clubById, ehHumano } from './estado.mjs';
@@ -6,7 +7,7 @@ import { getXI } from './motor.mjs';
 /* ================= forma e evolução do overall (#13) =================
    p.forma acumula o desempenho nas rodadas; ao passar de ±2 o overall sobe ou desce 1 ponto
    (no máximo ±3 por temporada, contados de p.oT, o overall depois da mudança de idade, #44). p.o0 é o overall do início
-   da temporada, antes da idade, para mostrar a tendência.
+   da temporada, antes da idade, para mostrar a tendência. O overall não passa do potencial do jogador (p.pot, #50).
    A idade age na virada de temporada (newSeason). Saves antigos não têm forma/o0: assumem 0 e o overall atual. */
 export const FORMA_LIM=2,FORMA_MAX_TEMP=3;
 // xiDe: quem foi titular em cada clube (padrão: a escalação atual)
@@ -22,7 +23,7 @@ export function atualizarForma(games,xiDe=id=>getXI(clubById(id))){
       if(xi.includes(p.id))f+=0.04+0.3*res+0.5*(gols[p.id]||0);
       else if(!unavailable(p))f-=0.13;
       const d=p.ovr-p.oT;
-      if(f>=FORMA_LIM&&p.ovr<95){if(d<FORMA_MAX_TEMP){p.ovr++;refreshEconomics(p);addNews(`📈 ${p.name} está em grande fase e subiu para ${p.ovr}.`,c.id)}f=FORMA_LIM-0.1}
+      if(f>=FORMA_LIM&&p.ovr<Math.min(95,tetoOvr(p))){if(d<FORMA_MAX_TEMP){p.ovr++;refreshEconomics(p);addNews(`📈 ${p.name} está em grande fase e subiu para ${p.ovr}.`,c.id)}f=FORMA_LIM-0.1}
       else if(f<=-FORMA_LIM&&p.ovr>40){if(d>-FORMA_MAX_TEMP){p.ovr--;refreshEconomics(p);addNews(`📉 ${p.name} está em má fase e caiu para ${p.ovr}.`,c.id)}f=-FORMA_LIM+0.1}
       p.forma=Math.round(f*100)/100;
     }
