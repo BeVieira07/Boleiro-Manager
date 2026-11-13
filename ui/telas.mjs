@@ -1,6 +1,6 @@
 import { loanOf, wageBill } from '../core/emprestimos.mjs';
 import { escalarMelhores } from '../core/escalacao.mjs';
-import { DIVS, MOVE_N, P, S, clubById, divOf, divisions, divsOf, hasTwoDivs, table, tec, topScorers, tvQuota, userClub } from '../core/estado.mjs';
+import { DIVS, MOVE_N, P, S, clubById, divOf, divisions, divsOf, hasTwoDivs, table, tec, tecnicos, topScorers, tvQuota, userClub } from '../core/estado.mjs';
 import { getXI } from '../core/motor.mjs';
 import { POSD, POSD_ORDEM, posDSigla } from '../core/posicoes.mjs';
 import { clamp, esc, money, norm } from '../core/utils.mjs';
@@ -8,10 +8,10 @@ import { API, exportData, exportSave, importFromApi, loadDataFile, loadSaveFile,
 import { painelDiretoria } from './diretoria.mjs';
 import { loanBtn, loanTag, vLoans } from './emprestimos.mjs';
 import { vEscalacao } from './escalacao.mjs';
-import { getData, newGame, save, ui } from './estado.mjs';
+import { MAX_TECNICOS, getData, newGame, save, ui } from './estado.mjs';
 import { tendenciaTag } from './forma.mjs';
 import { acceptOffer, makeBid, quickSell, rejectOffer, toggleListed } from './mercado.mjs';
-import { playRound, simToEnd } from './motor.mjs';
+import { botaoRodada, playRound, simToEnd } from './motor.mjs';
 import { crest, newSeason, seasonEnd } from './partida.mjs';
 import { posTag } from './posicoes.mjs';
 import { vMenu, voltarMenu } from './saves.mjs';
@@ -32,9 +32,9 @@ export function render(){
   if(!S){nav.innerHTML=ui.view==='menu'?'':`<button data-acao="go|menu">☰ Menu</button>`;hi.innerHTML='';if(ui.view!=='dados'&&ui.view!=='inicio')ui.view='menu';}
   else{
     const uc=userClub(),pos=table().findIndex(t=>t.id===uc.id)+1;
-    hi.innerHTML=`<span>${crest(uc)} <b>${esc(uc.name)}</b></span>${hasTwoDivs()?`<span><b>${DIVS[divOf(uc)]}</b></span>`:''}<span>Temporada <b>${S.season}</b></span><span>Rodada <b>${Math.min(S.round+1,S.fixtures.length)}/${S.fixtures.length}</b></span><span>Posição <b>${S.round?pos+'º':'-'}</b></span><span>Caixa <b class="${userClub().balance<0?'bad':'ok'}">${money(userClub().balance)}</b></span>`;
+    hi.innerHTML=(tecnicos().length>1?`<span>Vez de <b>${esc(tec().nome)}</b> ${tecnicos().map(t=>`<span class="pill" title="${t.pronto?'confirmou':'falta confirmar'}">${t.pronto?'✔':'…'} ${esc(t.nome)}</span>`).join(' ')}</span>`:'')+`<span>${crest(uc)} <b>${esc(uc.name)}</b></span>${hasTwoDivs()?`<span><b>${DIVS[divOf(uc)]}</b></span>`:''}<span>Temporada <b>${S.season}</b></span><span>Rodada <b>${Math.min(S.round+1,S.fixtures.length)}/${S.fixtures.length}</b></span><span>Posição <b>${S.round?pos+'º':'-'}</b></span><span>Caixa <b class="${userClub().balance<0?'bad':'ok'}">${money(userClub().balance)}</b></span>`;
     nav.innerHTML=NAV.map(([k,l])=>`<button class="${ui.view===k?'on':''}" data-acao="go|${k}">${l}</button>`).join('')+
-      (S.round<S.fixtures.length?`<button class="on" style="margin-left:auto" data-acao="playRound">▶ Jogar rodada ${S.round+1}</button>`:'')+
+      (S.round<S.fixtures.length?botaoRodada('on" style="margin-left:auto',`▶ Jogar rodada ${S.round+1}`):'')+
       `<button data-acao="voltarMenu" title="Salvar e voltar à tela inicial"${S.round<S.fixtures.length?'':' style="margin-left:auto"'}>☰ Menu</button>`;
   }
   const V={menu:vMenu,inicio:vInicio,clube:vClube,elenco:vElenco,escalacao:vEscalacao,tabela:vTabela,jogos:vJogos,artilharia:vArt,mercado:vMercado,financas:vFin,dados:vDados,rodada:vRodada};
@@ -48,7 +48,8 @@ export function vInicio(){
   <div class="card row"><span>Dados: <b>${d.source==='api'?'API-Football (reais)':'Exemplo (jogadores fictícios)'}</b> — temporada ${d.season}, ${ds.map(x=>`${DIVS[x]} (${d.clubs.filter(c=>divOf(c)===x).length} clubes)`).join(' + ')}.</span>
   <button class="btn sec sm" data-acao="go|dados">${d.source==='api'?'Gerenciar dados':'Importar dados reais'}</button>
   <label class="btn sec sm">Carregar save<input type="file" accept=".json" style="display:none" data-mudar="loadSaveFile"></label></div>
-  <h3>Escolha seu clube</h3>
+  ${painelTecnicos(d)}
+  <h3>${ui.novos.length?`Clube de ${esc((ui.novos.find(t=>!t.clubId)||{nome:'...'}).nome)}`:'Escolha seu clube'}</h3>
   ${ds.map(x=>`${ds.length>1?`<h3>${DIVS[x]}</h3>`:''}<div class="grid">${d.clubs.filter(c=>divOf(c)===x).sort((a,b)=>b.strength-a.strength).map(card).join('')}</div>`).join('')}`;
 }
 export function resultLine(g,me){
@@ -66,7 +67,7 @@ export function vClube(){
   <div class="cols">
    <div class="card"><h3>Próximo jogo</h3>${next?`<div class="score" style="font-size:15px">${crest(clubById(next.h))} ${esc(clubById(next.h).name)} <span class="muted">x</span> ${esc(clubById(next.a).name)} ${crest(clubById(next.a))}</div>
      <p class="muted" style="text-align:center">${next.h===me?'Em casa':'Fora de casa'} · Rodada ${S.round+1}</p>
-     <div class="row" style="justify-content:center"><button class="btn big" data-acao="playRound">▶ Jogar rodada</button><button class="btn sec" data-acao="simToEnd">Simular até o fim</button></div>`
+     <div class="row" style="justify-content:center">${botaoRodada('btn big','▶ Jogar rodada')}${tecnicos().length>1?'':'<button class="btn sec" data-acao="simToEnd">Simular até o fim</button>'}</div>`
      :`<p>Temporada encerrada.</p><button class="btn" data-acao="proximaTemporada">Iniciar temporada ${S.season+1}</button>`}</div>
    <div class="card"><h3>Campanha</h3><p>${S.round?`<b>${pos}º</b> lugar · ${row.Pts} pts · ${row.V}V ${row.E}E ${row.D}D · saldo ${row.GP-row.GC}`:'A temporada ainda não começou.'}</p>
      <h3>Últimos jogos</h3><table>${last.map(g=>resultLine(g)).join('')||'<tr><td class="muted">—</td></tr>'}</table></div>
@@ -111,7 +112,7 @@ export function vRodada(){
   const me=tec().clubId,d=curDiv();
   return `<h2>Resultados — rodada ${ui.lastRound.round}${hasTwoDivs()?' — '+DIVS[d]:''}</h2>${divTabs()}
   <div class="card tw"><table>${ui.lastRound.games.filter(g=>inDiv(g,d)).map(g=>resultLine(g,me)).join('')}</table></div>
-  <div class="row">${S.round<S.fixtures.length?`<button class="btn big" data-acao="playRound">▶ Jogar rodada ${S.round+1}</button>`:''}<button class="btn sec" data-acao="go|tabela">Ver tabela</button><button class="btn sec" data-acao="go|clube">Clube</button></div>`;
+  <div class="row">${S.round<S.fixtures.length?botaoRodada('btn big',`▶ Jogar rodada ${S.round+1}`):''}<button class="btn sec" data-acao="go|tabela">Ver tabela</button><button class="btn sec" data-acao="go|clube">Clube</button></div>`;
 }
 export function vArt(){
   const d=curDiv(),L=topScorers(25,d);
@@ -183,3 +184,17 @@ export function vDados(){
 export function verRodadaJogos(n){ui.jogosRound=+n;render()}
 export function verDivisao(d){ui.vDiv=d;render()}
 export function proximaTemporada(){S.seasonClosed===S.season?newSeason():seasonEnd()}
+
+// novo jogo: painel para jogar com vários técnicos no mesmo computador (#29)
+export function painelTecnicos(d){
+  const nomeClube=id=>{const c=d.clubs.find(x=>x.id===id);return c?esc(c.name):'<span class="muted">escolha o clube abaixo</span>'};
+  if(!ui.novos.length)return `<div class="card row"><span>Jogar com amigos no mesmo computador?</span>
+   <input id="nomeTec" placeholder="Nome do técnico" style="width:180px"><button class="btn sec sm" data-acao="adicionarTecnico">Adicionar técnico</button>
+   <span class="muted">Adicione os técnicos e escolha o clube de cada um. Eles revezam a vez a cada rodada.</span></div>`;
+  const prontos=ui.novos.length>=2&&ui.novos.every(t=>t.clubId);
+  return `<div class="card"><h3>Técnicos (${ui.novos.length}/${MAX_TECNICOS})</h3>
+   <table>${ui.novos.map((t,i)=>`<tr><td><b>${esc(t.nome)}</b></td><td>${nomeClube(t.clubId)}</td><td><button class="btn red sm" data-acao="removerTecnico|${i}">Remover</button></td></tr>`).join('')}</table>
+   <div class="row">${ui.novos.length<MAX_TECNICOS?'<input id="nomeTec" placeholder="Nome do técnico" style="width:180px"><button class="btn sec sm" data-acao="adicionarTecnico">Adicionar técnico</button>':''}
+   <button class="btn" data-acao="comecarComTecnicos" ${prontos?'':'disabled'}>Começar com ${ui.novos.length} técnicos</button>
+   <button class="btn sec sm" data-acao="cancelarTecnicos">Cancelar</button></div></div>`;
+}

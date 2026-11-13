@@ -14,8 +14,9 @@ import { SAVE_KEY, store } from './utils.mjs';
 export const SAVES_KEY='brasfoot_saves_v2', SAVE_PREFIX='brasfoot_save_v2_', MAX_SAVES=5; // cada save ocupa uns 600 mil caracteres; o navegador costuma dar uns 5 milhões por site
 export const indiceSaves=()=>{const i=store.get(SAVES_KEY);return i&&Array.isArray(i.list)?i:{cur:null,list:[]}};
 export function resumoSave(s){
-  const c=s.clubs.find(x=>x.id===s.userClubId)||{};
-  return {id:s.saveId,clube:c.name||'?',clubId:c.id,div:c.division||null,season:s.season,round:Math.min(s.round+1,(s.fixtures||[]).length),total:(s.fixtures||[]).length,data:new Date().toISOString()};
+  const ts=s.managers?Object.values(s.managers):[],t=ts.find(x=>x.id===s.atual);
+  const c=s.clubs.find(x=>x.id===(t?t.clubId:s.userClubId))||{};
+  return {id:s.saveId,clube:c.name||'?',tecnicos:ts.length>1?ts.map(x=>x.nome):null,clubId:c.id,div:c.division||null,season:s.season,round:Math.min(s.round+1,(s.fixtures||[]).length),total:(s.fixtures||[]).length,data:new Date().toISOString()};
 }
 // grava o jogo atual no seu save (cria um save novo na primeira vez)
 export function salvarJogo(){
@@ -59,7 +60,7 @@ export function vMenu(){
   const clube=id=>(getData().clubs||[]).find(c=>c.id===id);
   const quando=d=>{try{return new Date(d).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}catch(e){return ''}};
   const linha=x=>{const c=clube(x.clubId);
-    return `<tr><td>${c?crest(c):''}</td><td><b>${esc(x.clube)}</b>${x.div&&DIVS[x.div]?` <span class="muted">${DIVS[x.div]}</span>`:''}</td>
+    return `<tr><td>${c?crest(c):''}</td><td><b>${esc(x.clube)}</b>${x.div&&DIVS[x.div]?` <span class="muted">${DIVS[x.div]}</span>`:''}${x.tecnicos?`<br><span class="muted">${x.tecnicos.map(esc).join(', ')}</span>`:''}</td>
     <td>Temporada ${x.season}</td><td>Rodada ${x.round}/${x.total}</td><td class="muted">${quando(x.data)}</td>
     <td><button class="btn sm" data-acao="abrirSave|${x.id}">Abrir</button> <button class="btn red sm" data-acao="excluirSave|${x.id}">Excluir</button></td></tr>`};
   return `<div class="menu-ini">

@@ -60,6 +60,8 @@ export function validateLineup(uc=userClub()){
 export function jogarRodada(){
   if(tec().demitido)return {demitido:true};
   if(S.round>=S.fixtures.length)return {fim:true};
+  const faltam=tecnicos().length>1?tecnicos().filter(t=>!t.pronto):[];
+  if(faltam.length)return {erro:`Falta confirmar a rodada: ${faltam.map(t=>t.nome).join(', ')}.`,faltam:faltam.map(t=>t.id)};
   for(const t of tecnicos()){const e=validateLineup(clubDo(t));if(e)return {erro:(tecnicos().length>1?t.nome+': ':'')+e,tecnico:t.id}}
   S.rng=semente(S.seed,S.season,S.round); // a rodada depende só do estado e das escolhas, não do que foi sorteado antes
   const games=S.fixtures[S.round].map(simulate);
@@ -89,7 +91,19 @@ export function jogarRodada(){
       }
     }
   }
+  for(const t of tecnicos())t.pronto=false;
+  S.atual=tecnicos()[0].id; // depois da rodada, a vez volta ao primeiro técnico
   S.round++;processLoans();
   for(const t of tecnicos()){const uc=clubDo(t);atualizarConfianca(t,jogoDe(uc));if(uc.balance<0)addNews('⚠️ Caixa negativo! Venda jogadores para equilibrar as contas.',uc.id)}
   return {jogos:games,meu:jogoDe(userClub())};
+}
+
+// revezamento (#29): o técnico da vez confirma a escalação; a vez passa ao próximo que falta.
+// Devolve {erro}, {proximo: técnico} ou {todos: true} (todos confirmaram: pode jogar a rodada).
+export function confirmarRodada(){
+  const e=validateLineup();if(e)return {erro:e};
+  tec().pronto=true;
+  const falta=tecnicos().filter(t=>!t.pronto);
+  if(falta.length){S.atual=falta[0].id;return {proximo:falta[0]}}
+  return {todos:true};
 }
