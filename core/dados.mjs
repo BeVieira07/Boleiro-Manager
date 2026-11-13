@@ -1,6 +1,10 @@
+import { S, divOf } from './estado.mjs';
+import { sorteiaPosD } from './posicoes.mjs';
+import { clamp, hashStr, mulberry32, norm, pick, ri } from './utils.mjs';
+
 /* ================= dados base (Série A 2026) ================= */
 // [nome, sigla, força base, cor, chaves de busca p/ casar com a API]
-const BASE_CLUBS=[
+export const BASE_CLUBS=[
  ['Flamengo','FLA',80,'#c4122e',['flamengo']],
  ['Palmeiras','PAL',79,'#006437',['palmeiras']],
  ['Botafogo','BOT',75,'#222',['botafogo']],
@@ -22,20 +26,20 @@ const BASE_CLUBS=[
  ['Chapecoense','CHA',65,'#008f39',['chapecoense']],
  ['Remo','REM',65,'#1b2a6b',['remo']]
 ];
-const FN=['Lucas','Gabriel','Matheus','Pedro','João','Rafael','Bruno','Thiago','Vitor','Caio','Diego','Felipe','Gustavo','Igor','Leandro','Marcelo','Nicolas','Otávio','Renan','Samuel','Wesley','Yuri','André','Davi','Enzo','Fábio','Hugo','Kauã','Luan','Murilo','Ruan','Erick','Alan','Kaio','Jefferson'];
-const LN=['Silva','Santos','Oliveira','Souza','Lima','Pereira','Costa','Rodrigues','Almeida','Nascimento','Carvalho','Araújo','Ribeiro','Gomes','Martins','Rocha','Barbosa','Cardoso','Teixeira','Moreira','Batista','Freitas','Mendes','Pinto','Ramos','Vieira','Monteiro','Farias'];
-const SQUAD_SHAPE={G:3,D:8,M:9,A:6};
+export const FN=['Lucas','Gabriel','Matheus','Pedro','João','Rafael','Bruno','Thiago','Vitor','Caio','Diego','Felipe','Gustavo','Igor','Leandro','Marcelo','Nicolas','Otávio','Renan','Samuel','Wesley','Yuri','André','Davi','Enzo','Fábio','Hugo','Kauã','Luan','Murilo','Ruan','Erick','Alan','Kaio','Jefferson'];
+export const LN=['Silva','Santos','Oliveira','Souza','Lima','Pereira','Costa','Rodrigues','Almeida','Nascimento','Carvalho','Araújo','Ribeiro','Gomes','Martins','Rocha','Barbosa','Cardoso','Teixeira','Moreira','Batista','Freitas','Mendes','Pinto','Ramos','Vieira','Monteiro','Farias'];
+export const SQUAD_SHAPE={G:3,D:8,M:9,A:6};
 
-function baseInfo(apiName){
+export function baseInfo(apiName){
   const n=norm(apiName);
   if(/botafogo.*(sp|pb)\b/.test(n))return null; // homônimos de outros estados não são o Botafogo da Série A
   for(const b of BASE_CLUBS){ if(b[4].some(k=>n.includes(k))) return b; }
   return null;
 }
-function fakePlayer(clubId,i,strength,pos,r,ageRange){
+export function fakePlayer(clubId,i,strength,pos,r,ageRange){
   return {id:'s'+clubId+'_'+i+'_'+Math.floor(r()*1e6),name:pick(FN,r)+' '+pick(LN,r),age:ageRange?ri(ageRange[0],ageRange[1],r):ri(18,34,r),pos,pd:sorteiaPosD(pos,r),number:i+1,photo:null};
 }
-function sampleData(){
+export function sampleData(){
   const r=mulberry32(2026);
   const clubs=BASE_CLUBS.map((b,ci)=>{
     const id='c'+ci; const players=[]; let i=0;
@@ -47,9 +51,9 @@ function sampleData(){
 
 /* ================= atributos e valores ================= */
 // Overall médio de um titular de cada série. Mantenha igual ao CENTRO de scripts/gerar-dados-padrao.mjs.
-const OVR_CENTRO={A:72,B:66,C:61,D:56};
+export const OVR_CENTRO={A:72,B:66,C:61,D:56};
 // Overall de referência de um clube: o centro da série, mais ou menos conforme o clube é mais forte ou mais fraco que a média dela.
-function refStrength(c,clubs){
+export function refStrength(c,clubs){
   const dv=divOf(c),mesmos=clubs.filter(x=>divOf(x)===dv);
   return OVR_CENTRO[dv]+(c.strength-mesmos.reduce((s,x)=>s+x.strength,0)/mesmos.length);
 }
@@ -57,7 +61,7 @@ function refStrength(c,clubs){
 //  1. p.ovrM  — valor escolhido à mão (data/overalls-manual.json)
 //  2. p.base  — calculado da nota média e dos minutos reais (npm run notas), misturado com a estimativa conforme p.conf
 //  3. estimativa pela força do clube e idade, com pouco sorteio; quem jogou pouco ou nada (p.mn) fica mais baixo
-function rate(p,ref){
+export function rate(p,ref){
   if(p.ovrM!=null)return clamp(Math.round(p.ovrM),40,95);
   const r=mulberry32(hashStr(p.id+'|'+p.name));
   const a=p.age||25;
@@ -67,9 +71,8 @@ function rate(p,ref){
   if(p.base!=null){const w=p.conf??1;h=w*p.base+(1-w)*h}
   return clamp(Math.round(h),40,93);
 }
-function valueOf(p){
+export function valueOf(p){
   const af=p.age<=21?1.4:p.age<=24?1.2:p.age<=28?1:p.age<=31?0.7:0.4;
   return Math.round(0.3*Math.pow(1.13,p.ovr-50)*af*10)/10 || 0.1;
 }
-function refreshEconomics(p){p.value=Math.max(0.1,valueOf(p));p.wage=Math.round(p.value*0.01*1000)/1000}
-
+export function refreshEconomics(p){p.value=Math.max(0.1,valueOf(p));p.wage=Math.round(p.value*0.01*1000)/1000}

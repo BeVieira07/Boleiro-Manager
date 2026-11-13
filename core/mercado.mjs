@@ -1,0 +1,53 @@
+import { P, S, addFin, addNews, clubById, userClub } from './estado.mjs';
+import { ensureSquad } from './partida.mjs';
+import { money, pick, rnd } from './utils.mjs';
+
+/* ================= transferências ================= */
+export function movePlayer(p,to){
+  const from=clubById(p.clubId);from.players=from.players.filter(x=>x!==p);
+  if(from.lineup)from.lineup=from.lineup.filter(id=>id!==p.id);
+  to.players.push(p);p.clubId=to.id;p.listed=false;
+  S.offers=S.offers.filter(o=>o.pid!==p.id);
+  ensureSquad(from);
+}
+// regra: pode fazer proposta por este jogador agora? (texto do erro ou null)
+export function podeProporCompra(pid){
+  const p=P[pid],seller=clubById(p.clubId),uc=userClub();
+  if(p.bidRound===S.round+'_'+S.season)return `${seller.name} não quer negociar ${p.name} de novo nesta rodada.`;
+  if(uc.players.length>=32)return 'Seu elenco já tem 32 jogadores. Venda alguém antes.';
+  return null;
+}
+// regra: proposta de compra a um clube da IA. Devolve {erro} ou {ok, msg}.
+export function proporCompra(pid,amt){
+  const p=P[pid],seller=clubById(p.clubId),uc=userClub();
+  const e=podeProporCompra(pid);if(e)return {erro:e};
+  if(!(amt>0))return {erro:'Valor inválido.'};
+  if(amt>S.balance)return {erro:'Caixa insuficiente.'};
+  p.bidRound=S.round+'_'+S.season;
+  const best=[...seller.players].sort((a,b)=>b.ovr-a.ovr).slice(0,3).includes(p);
+  const need=p.value*(best?1.3:1);
+  const prob=amt>=need*1.25?1:amt>=need?0.65:amt>=need*0.85?0.2:0;
+  const sameP=seller.players.filter(x=>x.pos===p.pos).length;
+  if(sameP<=(p.pos==='G'?2:3))return {ok:false,msg:`${seller.name} recusou: não pode ficar sem reposição na posição.`};
+  if(rnd()<prob){
+    addFin(`Compra de ${p.name} (${seller.name})`,-amt);movePlayer(p,uc);
+    addNews(`✅ Contratado: ${p.name} por ${money(amt)}.`);return {ok:true,msg:`Negócio fechado! ${p.name} é do ${uc.name}.`};
+  }
+  addNews(`❌ ${seller.name} recusou ${money(amt)} por ${p.name}.`);return {ok:false,msg:`${seller.name} recusou a proposta.`};
+}
+// regras de venda: devolvem {erro} ou {ok}
+export function aceitarOferta(oid){
+  const o=S.offers.find(x=>x.id===oid);if(!o)return {erro:'Proposta não encontrada.'};const p=P[o.pid],b=clubById(o.from);
+  if(userClub().players.length<=16)return {erro:'Seu elenco ficaria pequeno demais (mínimo 16).'};
+  addFin(`Venda de ${p.name} (${b.name})`,o.amount);movePlayer(p,b);
+  addNews(`💰 ${p.name} vendido ao ${b.name} por ${money(o.amount)}.`);return {ok:true};
+}
+export function recusarOferta(oid){S.offers=S.offers.filter(o=>o.id!==oid);return {ok:true}}
+export const valorVendaRapida=pid=>Math.round(P[pid].value*0.7*10)/10;
+export function venderJa(pid){
+  const p=P[pid],uc=userClub();
+  if(uc.players.length<=16)return {erro:'Seu elenco ficaria pequeno demais (mínimo 16).'};
+  const amt=valorVendaRapida(pid),buyers=S.clubs.filter(c=>c.id!==uc.id&&c.players.length<32),b=pick(buyers);
+  addFin(`Venda de ${p.name} (${b.name})`,amt);movePlayer(p,b);addNews(`💰 ${p.name} vendido ao ${b.name} por ${money(amt)}.`);return {ok:true};
+}
+export function alternarVenda(pid){P[pid].listed=!P[pid].listed;return {ok:true}}

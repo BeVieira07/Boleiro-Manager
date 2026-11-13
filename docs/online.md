@@ -115,7 +115,7 @@ liga_noticias   (liga_id, user_id null, rodada, texto)                          
 
 ### 3.6 Solo com conta e save na nuvem
 
-- Mesmo jogo de hoje. O `js/saves.js` ganha um segundo destino: além do `localStorage`, envia o save para a tabela `saves` quando o usuário está logado.
+- Mesmo jogo de hoje. O `ui/saves.mjs` ganha um segundo destino: além do `localStorage`, envia o save para a tabela `saves` quando o usuário está logado.
 - Ao abrir, a tela inicial lista os saves locais e os da nuvem, e mostra qual é o mais recente quando houver os dois.
 - Sem login, tudo continua funcionando como hoje (offline).
 - Com o save na nuvem, o limite de 5 saves do `localStorage` deixa de valer para quem está logado.
@@ -125,7 +125,7 @@ liga_noticias   (liga_id, user_id null, rodada, texto)                          
 - **Site:** GitHub Pages, servindo a pasta do jogo (estático, de graça, publica a cada push na `main`).
 - **Supabase (plano gratuito):** 2 projetos ativos, 500 MB de banco, Edge Functions com **2 s de CPU** e **150 s de tempo total** por chamada, 256 MB de memória. O projeto **é pausado depois de cerca de uma semana sem uso** (os dados ficam guardados e dá para reativar pelo painel). Conferido na documentação do Supabase em novembro de 2026.
 - Configuração no repositório: `supabase/migrations/*.sql` (tabelas e RLS) e `supabase/functions/*` (funções), aplicados com a CLI do Supabase.
-- A URL e a chave pública do projeto ficam num `js/config.js`. A chave de serviço nunca vai para o repositório nem para o navegador.
+- A URL e a chave pública do projeto ficam num `ui/config.mjs`. A chave de serviço nunca vai para o repositório nem para o navegador.
 
 ---
 

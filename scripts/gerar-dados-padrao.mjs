@@ -1,4 +1,4 @@
-// Gera js/dados-padrao.js (dados embutidos no jogo) a partir dos JSONs em data/.
+// Gera core/dados-padrao.mjs (dados embutidos no jogo) a partir dos JSONs em data/.
 // Uso: npm run dados:padrao
 // Junta a Série A (data/brasileirao-<ano>.json) com as Séries B, C e D (data/brasileirao-serie-<b|c|d>-<ano>.json), se existirem.
 // Aplica também o overall real dos jogadores:
@@ -25,7 +25,7 @@ for (const c of clubs) for (const p of c.players) { if (ids.has(p.id)) throw new
 
 /* ================= 1. notas reais (API-Football) ================= */
 // Overall médio e desvio de quem tem nota em cada série (a mesma nota vale mais na Série A que na C).
-// Mantenha CENTRO igual ao OVR_CENTRO de js/dados.js.
+// Mantenha CENTRO igual ao OVR_CENTRO de core/dados.mjs.
 const CENTRO = { A: 72, B: 66, C: 61, D: 56 }, DP = 4.5, MIN_AMOSTRA = 600, MIN_GRUPO = 12;
 const PESO_GA = { A: 0.3, M: 0.15, D: 0, G: 0 }; // quanto gols+assistências por 90 min pesam além da nota
 const fn = `data/notas-${ANO}.json`;
@@ -97,7 +97,7 @@ for (const c of clubs) if (existsSync(`img/escudos/${c.id}.png`)) { c.logo = `im
 console.log(`Escudos: ${locais}/${clubs.length} usando arquivo local.`);
 
 /* ================= 4. posições detalhadas reais ================= */
-// Ordem: 1. data/posicoes-manual.json (à mão)  2. data/posicoes-<ano>.json (npm run posicoes: Transfermarkt)  3. inferência (js/posicoes.js), só para quem sobrar.
+// Ordem: 1. data/posicoes-manual.json (à mão)  2. data/posicoes-<ano>.json (npm run posicoes: Transfermarkt)  3. inferência (core/posicoes.mjs), só para quem sobrar.
 const hashStr = s => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619) } return h >>> 0 };
 const GRUPO = { GOL: 'G', ZAG: 'D', LD: 'D', LE: 'D', VOL: 'M', MC: 'M', MEI: 'M', PE: 'A', PD: 'A', ATA: 'A' };
 const TM = { 'Goalkeeper': 'GOL', 'Centre-Back': 'ZAG', 'Right-Back': 'LD', 'Left-Back': 'LE', 'Defensive Midfield': 'VOL', 'Central Midfield': 'MC', 'Attacking Midfield': 'MEI', 'Right Midfield': 'MC', 'Left Midfield': 'MC', 'Right Winger': 'PD', 'Left Winger': 'PE', 'Centre-Forward': 'ATA', 'Second Striker': 'MEI' };
@@ -156,12 +156,12 @@ if (existsSync(mp)) {
 for (const k of Object.keys(pendentes)) if (!pendentes[k].length) delete pendentes[k];
 writeFileSync('data/posicoes-pendentes.json', JSON.stringify(pendentes, null, 1));
 console.log(`Pendentes (posição inferida, a conferir): ${Object.values(pendentes).reduce((s, v) => s + v.length, 0)} jogadores, lista em data/posicoes-pendentes.json.`);
-// Quem sobrou recebe a posição inferida, com a mesma lógica do jogo (js/posicoes.js).
-const { atribuirPosicoes } = new Function('hashStr', 'clamp', readFileSync('js/posicoes.js', 'utf8') + '\nreturn { atribuirPosicoes };')(hashStr, clamp);
+// Quem sobrou recebe a posição inferida, com a mesma lógica do jogo (core/posicoes.mjs).
+const { atribuirPosicoes } = await import('../core/posicoes.mjs');
 for (const c of clubs) atribuirPosicoes(c.players);
 for (const c of clubs) for (const p of c.players) delete p.real;
 console.log(`Posições: ${clubs.reduce((s, c) => s + c.players.filter(p => p.pd).length, 0)}/${ids.size} jogadores com posição detalhada.`);
 
 const data = { posv: 2, source: 'api', season: a.season, createdAt: a.createdAt, clubs };
-writeFileSync('js/dados-padrao.js', `// Dados padrão do jogo (API-Football), temporada ${a.season}. NÃO EDITE: gerado por scripts/gerar-dados-padrao.mjs a partir de data/.\nconst DADOS_PADRAO=${JSON.stringify(data)};\n`);
-console.log(`js/dados-padrao.js: ${Object.entries(series).map(([d, x]) => `Série ${d} ${x.clubs.length} clubes`).join(' + ')}, ${ids.size} jogadores.`);
+writeFileSync('core/dados-padrao.mjs', `// Dados padrão do jogo (API-Football), temporada ${a.season}. NÃO EDITE: gerado por scripts/gerar-dados-padrao.mjs a partir de data/.\nexport const DADOS_PADRAO=${JSON.stringify(data)};\n`);
+console.log(`core/dados-padrao.mjs: ${Object.entries(series).map(([d, x]) => `Série ${d} ${x.clubs.length} clubes`).join(' + ')}, ${ids.size} jogadores.`);

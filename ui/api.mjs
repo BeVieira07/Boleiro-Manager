@@ -1,7 +1,17 @@
+import { BASE_CLUBS, SQUAD_SHAPE, baseInfo, fakePlayer } from '../core/dados.mjs';
+import { migrarDiretoria } from '../core/diretoria.mjs';
+import { DIVS, S, divOf, divsOf, reindex, usarEstado, userClub } from '../core/estado.mjs';
+import { migrarPosicoes } from '../core/posicoes.mjs';
+import { esc, hashStr, mulberry32, norm } from '../core/utils.mjs';
+import { getData, save, ui } from './estado.mjs';
+import { excluirSave, podeCriarSave } from './saves.mjs';
+import { render } from './telas.mjs';
+import { APIKEY_KEY, DATA_KEY, store } from './utils.mjs';
+
 /* ================= importação API-Football ================= */
-const API='https://v3.football.api-sports.io';
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-async function apiGet(path,key){
+export const API='https://v3.football.api-sports.io';
+export const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+export async function apiGet(path,key){
   const res=await fetch(API+path,{headers:{'x-apisports-key':key}});
   if(!res.ok)throw new Error('HTTP '+res.status);
   const j=await res.json();
@@ -9,7 +19,7 @@ async function apiGet(path,key){
   if(errs&&errs.length)throw new Error(errs.join(' | '));
   return j;
 }
-async function importFromApi(){
+export async function importFromApi(){
   const key=document.getElementById('apikey').value.replace(/[^A-Za-z0-9]/g,'');
   const season=parseInt(document.getElementById('season').value,10);
   const LEAGUES={A:71,B:72,C:75,D:76},serie=LEAGUES[document.getElementById('serie').value]?document.getElementById('serie').value:'A',league=LEAGUES[serie];
@@ -95,19 +105,19 @@ async function importFromApi(){
   }catch(e){out('❌ '+e.message);if(/application key|token/i.test(e.message))out('Dica: a API não reconheceu a chave enviada pelo navegador. Teste a chave no Soccer Tester do painel ou use o script baixar-brasileirao.mjs e depois "Carregar JSON".')}
   finally{const b=document.getElementById('impbtn');if(b)b.disabled=false}
 }
-function exportData(){
+export function exportData(){
   const data=store.get(DATA_KEY)||window._lastData||getData();
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
   a.download=`brasileirao-${data.season}-${data.source}.json`;a.click();
 }
 // junta os clubes de uma série (div) aos dados atuais, substituindo só aquela série
-function mergeDivision(cur,inc,div){
+export function mergeDivision(cur,inc,div){
   const ids=new Set(inc.clubs.map(c=>c.id));
   inc.clubs.forEach(c=>c.division=div);
   const kept=(cur.clubs||[]).filter(c=>divOf(c)!==div&&!ids.has(c.id));
   return {...inc,clubs:[...kept,...inc.clubs].sort((x,y)=>divOf(x).localeCompare(divOf(y)))};
 }
-function loadDataFile(ev){
+export function loadDataFile(_valor,ev){
   const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
   rd.onload=()=>{try{let d=JSON.parse(rd.result);if(!Array.isArray(d.clubs))throw 0;
     const fd=divsOf(d.clubs),cur=getData(),other=divsOf(cur.clubs).filter(x=>x!==fd[0]);
@@ -115,21 +125,20 @@ function loadDataFile(ev){
     store.set(DATA_KEY,d);alert(`Dados carregados: ${d.clubs.length} clubes (${d.season}).`);render()}catch(e){alert('Arquivo inválido.')}};
   rd.readAsText(f);
 }
-function downloadJSON(obj,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
-function exportSave(){
+export function downloadJSON(obj,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
+export function exportSave(){
   if(!S){alert('Nenhum jogo em andamento.');return}
   const uc=userClub();
   downloadJSON({type:'brasfoot-save',version:1,exportedAt:new Date().toISOString(),save:S},`save-${norm(uc.short||uc.name)}-${S.season}-r${S.round}.json`);
 }
-function loadSaveFile(ev){
+export function loadSaveFile(_valor,ev){
   const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
   rd.onload=()=>{try{const j=JSON.parse(rd.result);const sv=j.type==='brasfoot-save'?j.save:j;
     if(!sv||!Array.isArray(sv.clubs)||!Array.isArray(sv.fixtures)||!sv.userClubId)throw 0;
     if(!podeCriarSave())return; // importar cria um save novo na lista, sem substituir os outros
-    delete sv.saveId;S=sv;migrarPosicoes(S);reindex();migrarDiretoria(S);save();view='clube';render();alert(`Save carregado: ${userClub().name}, temporada ${S.season}, rodada ${S.round+1}.`)}
+    delete sv.saveId;usarEstado(sv);migrarPosicoes(S);reindex();migrarDiretoria(S);save();ui.view='clube';render();alert(`Save carregado: ${userClub().name}, temporada ${S.season}, rodada ${S.round+1}.`)}
   catch(e){alert('Arquivo de save inválido.')}};
   rd.readAsText(f);
 }
-function resetData(){if(confirm('Voltar para os dados padrão (Brasileirão 2024)?')){store.del(DATA_KEY);render()}}
-function resetGame(){if(S&&S.saveId)excluirSave(S.saveId)}
-
+export function resetData(){if(confirm('Voltar para os dados padrão (Brasileirão 2024)?')){store.del(DATA_KEY);render()}}
+export function resetGame(){if(S&&S.saveId)excluirSave(S.saveId)}

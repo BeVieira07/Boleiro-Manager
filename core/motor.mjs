@@ -1,10 +1,19 @@
+import { atualizarConfianca } from './diretoria.mjs';
+import { processLoans, wageBill } from './emprestimos.mjs';
+import { aplicarDisponibilidade, autoSlotXI, slotsDe, unavailable } from './escalacao.mjs';
+import { P, S, addFin, addNews, clubById, divOf, table, tvQuota, userClub } from './estado.mjs';
+import { atualizarForma } from './forma.mjs';
+import { ovrNaPosicao } from './posicoes.mjs';
+import { golsSegmento, novosGols, taticaDe } from './taticas.mjs';
+import { clamp, money, pick, poisson, ri, rnd, semente } from './utils.mjs';
+
 /* ================= escalação e força ================= */
-function autoXI(club,formation){return autoSlotXI(club,formation)} // em escalacao.js: já na ordem das vagas
-function getXI(club){
+export function autoXI(club,formation){return autoSlotXI(club,formation)} // em escalacao.js: já na ordem das vagas
+export function getXI(club){
   if(club.id===S.userClubId){club.lineup=(club.lineup||[]).filter(id=>P[id]&&P[id].clubId===club.id);return club.lineup}
   return autoXI(club);
 }
-function power(club){
+export function power(club){
   const xi=getXI(club).map(id=>P[id]).filter(Boolean);
   // com 11 titulares na ordem das vagas, quem joga fora de posição rende menos
   const sl=xi.length===11?slotsDe(club.formation||'4-4-2'):null;
@@ -20,12 +29,12 @@ function power(club){
   const miss=11-xi.length; if(miss>0){att-=miss*4;def-=miss*4;mid-=miss*4}
   return {att:Math.max(25,att),def:Math.max(25,def),mid:Math.max(25,mid),xi};
 }
-function pickScorer(xi){
+export function pickScorer(xi){
   const w={G:0.02,D:0.8,M:2.6,A:6};
   const ws=xi.map(p=>w[p.pos]*Math.pow(p.ovr/70,2));const tot=ws.reduce((a,b)=>a+b,0);
   let x=rnd()*tot;for(let i=0;i<xi.length;i++){x-=ws[i];if(x<=0)return xi[i]}return xi[xi.length-1];
 }
-function simulate(g){
+export function simulate(g){
   const H=clubById(g.h),A=clubById(g.a),ph=power(H),pa=power(A);
   const lh=clamp(1.1*Math.pow(ph.att/pa.def,3)*Math.pow(ph.mid/pa.mid,0.8)*1.12,0.15,4.5);
   const la=clamp(1.1*Math.pow(pa.att/ph.def,3)*Math.pow(pa.mid/ph.mid,0.8)*0.9,0.15,4.5);
@@ -39,7 +48,7 @@ function simulate(g){
 }
 
 /* ================= rodada ================= */
-function validateLineup(){
+export function validateLineup(){
   const uc=userClub(),xi=getXI(uc);
   if(xi.length!==11)return `Sua escalação tem ${xi.length} jogadores. Escolha exatamente 11 titulares.`;
   if(xi.filter(id=>P[id].pos==='G').length!==1)return 'Escale exatamente 1 goleiro.';
@@ -47,10 +56,11 @@ function validateLineup(){
   if(ind.length)return `Jogador(es) indisponível(is) na escalação: ${ind.map(p=>p.name+' ('+unavailable(p)+')').join(', ')}.`;
   return null;
 }
-function playRound(){
-  if(S.demitido){demissao();return}
-  if(S.round>=S.fixtures.length)return;
-  const err=validateLineup();if(err){alert(err);view='escalacao';render();return}
+// regra: joga a rodada atual. Devolve {erro}, {demitido}, {fim} ou {jogos, meu}.
+export function jogarRodada(){
+  if(S.demitido)return {demitido:true};
+  if(S.round>=S.fixtures.length)return {fim:true};
+  const erro=validateLineup();if(erro)return {erro};
   S.rng=semente(S.seed,S.season,S.round); // a rodada depende só do estado e das escolhas, não do que foi sorteado antes
   const games=S.fixtures[S.round].map(simulate);
   aplicarDisponibilidade(games);
@@ -79,17 +89,5 @@ function playRound(){
   }
   S.round++;processLoans();atualizarConfianca(mine);
   if(S.balance<0)addNews('⚠️ Caixa negativo! Venda jogadores para equilibrar as contas.');
-  lastRound={round:S.round,games};
-  save();
-  if(mine)showLive(mine,()=>{view='rodada';render();if(S.round>=S.fixtures.length)seasonEnd();if(S.demitido)demissao()});
-  else{view='rodada';render();if(S.demitido)demissao()}
+  return {jogos:games,meu:mine};
 }
-function simToEnd(){
-  if(!confirm('Simular todas as rodadas restantes sem assistir aos jogos?'))return;
-  while(S.round<S.fixtures.length&&!S.demitido){
-    const err=validateLineup();if(err){userClub().lineup=autoXI(userClub())}
-    const saveLive=showLive;showLive=(g,cb)=>{};playRound();showLive=saveLive;
-  }
-  view='tabela';render();seasonEnd();if(S.demitido)demissao();
-}
-

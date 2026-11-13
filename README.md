@@ -13,11 +13,13 @@ Jogo de gerenciamento de futebol no navegador, estilo Brasfoot, com os clubes e 
 npm start        # abre em http://localhost:3000
 ```
 
-Abrir o `index.html` direto (duplo clique) também funciona, mas com Live Server a página recarrega sozinha a cada alteração.
+O jogo usa módulos JavaScript (`<script type="module">`), então **precisa de um servidor local**: abrir o `index.html` com duplo clique (`file://`) não funciona. Com Live Server a página recarrega sozinha a cada alteração.
+
+**Testes:** `npm test`.
 
 ## Dados do Brasileirão (API-Football)
 
-O jogo já vem com as **Séries A, B, C e D de 2024** (80 clubes, 2435 jogadores reais), salvas em `data/brasileirao-2024.json` e `data/brasileirao-serie-<b|c|d>-2024.json`. Elas ficam embutidas em `js/dados-padrao.js` para funcionar até abrindo o HTML direto. Se mudar os JSONs, rode `npm run dados:padrao` para gerar o `dados-padrao.js` de novo. Para usar outros dados, baixe com os passos abaixo e carregue em **Dados → Carregar JSON**.
+O jogo já vem com as **Séries A, B, C e D de 2024** (80 clubes, 2435 jogadores reais), salvas em `data/brasileirao-2024.json` e `data/brasileirao-serie-<b|c|d>-2024.json`. Elas ficam embutidas em `core/dados-padrao.mjs`, para o jogo funcionar sem internet. Se mudar os JSONs, rode `npm run dados:padrao` para gerar o `core/dados-padrao.mjs` de novo. Para usar outros dados, baixe com os passos abaixo e carregue em **Dados → Carregar JSON**.
 
 1. Copie `.env.example` para `.env` e coloque sua chave.
 2. Rode:
@@ -58,25 +60,33 @@ Para baixar as notas: `npm run notas`. O plano gratuito só libera 100 requisiç
 ## Estrutura
 
 ```
-index.html            página principal
-css/style.css         visual
-js/utils.js           utilidades (aleatório, formatação, localStorage)
-js/dados.js           clubes base, geração de jogadores, força e valor
-js/dados-padrao.js    dados padrão (Séries A, B, C e D 2024), gerado por scripts/gerar-dados-padrao.mjs
-js/estado.js          estado do jogo, novo jogo, calendário e tabela
-js/motor.js           escalação, força dos times, simulação e rodada
-js/partida.js         jogo ao vivo e fim de temporada
-js/mercado.js         compra, venda e propostas
-js/api.js             importação da API-Football, exportar/importar JSON e save
-js/telas.js           todas as telas (HTML gerado em JS)
-js/main.js            inicialização
+index.html            página principal (carrega só ui/main.mjs)
+css/                  visual
+core/                 regras do jogo, sem tela (rodam no navegador e em Node/Deno)
+  utils.mjs           sorteio com semente, números, formatação
+  estado.mjs          estado do jogo (S), usarEstado, criarJogo, calendário e tabela
+  dados.mjs           geração de jogadores, força e valor
+  dados-padrao.mjs    dados padrão (Séries A, B, C e D), gerado por scripts/gerar-dados-padrao.mjs
+  posicoes.mjs        posições detalhadas e penalidade fora de posição
+  motor.mjs           força dos times, simulação e jogarRodada
+  escalacao.mjs       vagas, escalação automática, lesões e suspensões
+  taticas.mjs         estilos e modos de jogo
+  partida.mjs         fim e começo de temporada
+  mercado.mjs         compra, venda e propostas
+  emprestimos.mjs     empréstimos
+  diretoria.mjs       confiança da diretoria
+  forma.mjs           evolução do overall
+ui/                   telas e interação (usam o core/)
+  main.mjs            entrada: liga os botões (data-acao / data-mudar) e abre a tela inicial
+  telas.mjs           telas e abas · saves.mjs jogos salvos · api.mjs importar/exportar · ...
+tests/                testes (npm test)
 scripts/baixar-brasileirao.mjs   script Node para baixar os dados
 scripts/baixar-notas.mjs         baixa nota e minutos dos jogadores (retomável)
-scripts/gerar-dados-padrao.mjs   junta as séries, aplica notas e lista manual em js/dados-padrao.js
+scripts/gerar-dados-padrao.mjs   junta as séries, aplica notas e lista manual em core/dados-padrao.mjs
 data/                 JSONs baixados
 ```
 
-Os arquivos JS são scripts comuns carregados em ordem (sem build). As funções são globais porque os botões usam `onclick="..."`.
+As regras ficam em `core/` e não sabem nada da tela: devolvem resultados (`{erro}`, `{ok, msg}`) que a `ui/` transforma em mensagens. Os botões não usam `onclick`: usam `data-acao="função|arg"` (clique) e `data-mudar="função|arg"` (mudança), ligados em `ui/main.mjs`; a função precisa ser exportada por um módulo de `ui/`.
 
 ## Salvamento
 

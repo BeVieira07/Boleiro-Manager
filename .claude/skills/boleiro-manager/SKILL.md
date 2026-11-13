@@ -24,7 +24,7 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 | Escudos | `img/escudos/<id>.png` |
 | Origem de cada escudo (para conferir) | `data/escudos-fontes.json` |
 | Título do artigo da Wikipédia de cada clube | `data/escudos-wikipedia.json` |
-| O que o jogo lê | `js/dados-padrao.js` (**gerado**, não editar à mão) |
+| O que o jogo lê | `core/dados-padrao.mjs` (**gerado**, não editar à mão) |
 
 `data/*-raw.json` é ignorado pelo git.
 
@@ -33,7 +33,7 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 2. Overall à mão: editar `data/overalls-manual.json`.
 3. Escudos: `npm run escudos`.
 4. Mudou a temporada ou o clube trocou de divisão: conferir as listas na Wikipédia (`Campeonato Brasileiro de Futebol de AAAA - Série A/B/C/D`), editar os ids em `data/divisoes-2026.json` e rodar `node scripts/aplicar-divisoes-2026.mjs` (move os clubes entre os 4 JSONs; exige 20 por série e que todo id exista). Clube que não existe nos dados precisa ser baixado pela API antes; sem API, deixar um clube antigo no lugar e registrar em `_divergencias`.
-5. **Sempre** terminar com `npm run dados:padrao` (regenera `js/dados-padrao.js`), conferir e commitar.
+5. **Sempre** terminar com `npm run dados:padrao` (regenera `core/dados-padrao.mjs`), conferir e commitar.
 
 ## API-Football
 - A conta está **suspensa** ("Your account is suspended"), então `dados`, `dados:b/c/d` e `notas` não baixam nada novo. Os dados já salvos em `data/` continuam valendo.
@@ -43,30 +43,32 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 - `npm run escudos` baixa a imagem principal do artigo `pt.wikipedia.org` de cada clube (mapa em `data/escudos-wikipedia.json`) para `img/escudos/<id>.png`, 128 px. Pula os que já existem; apague o arquivo para baixar de novo.
 - A Wikipédia limita o ritmo (HTTP 429). O script já faz pausa e tenta de novo; se ainda falhar, esperar alguns minutos.
 - `gerar-dados-padrao.mjs` aponta o `logo` para o arquivo local quando ele existe; sem arquivo, mantém o link da API.
-- Se a imagem falhar no navegador, `crest()` em `js/partida.js` troca pela sigla colorida.
+- Se a imagem falhar no navegador, `crest()` em `ui/partida.mjs` troca pela sigla colorida.
 - Falta o escudo do **Iguatu** (`c15505`): sem imagem na Wikipédia. Salvar como `img/escudos/c15505.png` e rodar `npm run dados:padrao`.
 
 ## Rodando o jogo
-- Abrir `index.html` direto do disco (`file://`) funciona. Não há porta.
+- O jogo usa módulos ES: **precisa de servidor local**. Abrir `index.html` direto do disco (`file://`) não funciona.
 - Com porta: `npm start` (`npx serve .`, normalmente `http://localhost:3000`) ou Live Server do VS Code (`http://127.0.0.1:5500`).
 - O `localStorage` é separado por origem: save feito em `file://` não aparece em `localhost`. Para mudar de origem, usar **Exportar save** e **Importar save** na aba **Dados**.
 
 ## Testes
 - `npm test` roda `node --test` com os testes de `tests/` (uns 20 s). Rodar antes de commitar mudanças no jogo.
-- `tests/jogo.mjs` carrega os scripts de `js/` em Node, na ordem do `index.html`, com um DOM falso: `carregarJogo()` devolve `run(código)`, o HTML da tela atual, os alertas e o localStorage em memória. Use `jogarRodada`/`jogarTemporada` (corrigem a escalação quando há lesionados) e `problemasNasTelas` (acha "undefined", "NaN" e "[object" nas telas).
+- `tests/jogo.mjs` importa os módulos de `core/` e `ui/` em Node com um DOM falso: `carregarJogo()` zera o estado e devolve `run(código)` (com todos os exports à vista), `acao('nome|arg')` (clica como o botão), o HTML da tela atual, os alertas e o localStorage em memória. Para trocar o jogo use `usarEstado(...)`. Use `jogarRodada`/`jogarTemporada` (corrigem a escalação quando há lesionados) e `problemasNasTelas` (acha "undefined", "NaN" e "[object" nas telas).
 - Sorteio com semente (#26): as regras usam `rnd()` (`utils.js`), que avança `S.rng`; cada rodada recomeça de `semente(S.seed, temporada, rodada)`. Nunca usar `Math.random` nas regras (há um teste que confere). `jogarTemporada` impede a demissão, salvo com `{demissao:true}`.
 
 ## Persistência no navegador
-- As campanhas ficam em `localStorage`, uma por save (até 5): `brasfoot_save_v2_<id>` mais o índice `brasfoot_saves_v2`. Tudo em `js/saves.js` (`save()` de `js/estado.js` chama `salvarJogo()`). O jogo abre na tela inicial (Continuar, Novo jogo, lista de saves); o save antigo de slot único (`brasfoot_save_v1`) é migrado na primeira abertura. Backup: **Exportar save (JSON)**; importar cria um save novo.
+- As campanhas ficam em `localStorage`, uma por save (até 5): `brasfoot_save_v2_<id>` mais o índice `brasfoot_saves_v2`. Tudo em `ui/saves.mjs` (`save()` de `core/estado.mjs` chama `salvarJogo()`). O jogo abre na tela inicial (Continuar, Novo jogo, lista de saves); o save antigo de slot único (`brasfoot_save_v1`) é migrado na primeira abertura. Backup: **Exportar save (JSON)**; importar cria um save novo.
 - Dados importados pela aba Dados (`DATA_KEY`) ficam só no navegador e **têm prioridade** sobre `dados-padrao.js`. Se o jogo mostrar menos jogadores ou escudos antigos: aba **Dados**, **Voltar aos dados padrão**, `Ctrl+F5` e começar campanha nova (dados novos só valem a partir de um jogo novo).
 - Para guardar algo importado pela aba Dados: **Exportar dados**, salvar em `data/` e rodar `npm run dados:padrao`.
-- O overall é recalculado a cada campanha nova (`rate()` em `js/dados.js`), exceto os `ovrM`.
+- O overall é recalculado a cada campanha nova (`rate()` em `core/dados.mjs`), exceto os `ovrM`.
 
-## Mapa do código (`js/`)
-`utils.js` (store, `esc`) · `estado.js` (estado `S`, divisões, `newGame`) · `dados.js` (`rate`, dados de reserva) · `dados-padrao.js` (gerado) · `motor.js` (simulação) · `partida.js` (jogo ao vivo, `crest`) · `mercado.js` · `telas.js` (telas e abas) · `api.js` (importar/exportar) · `main.js`.
+## Mapa do código
+- `core/`: regras puras (sem DOM, `alert`, `render` nem `localStorage`), testado em `tests/modulos.test.mjs`. O estado atual é `S` em `core/estado.mjs`; de fora, troque com `usarEstado(s)`. As regras devolvem `{erro}` / `{ok, msg}`.
+- `ui/`: telas. Estado só da tela em `ui.view`, `ui.vDiv` etc. (`ui/estado.mjs`). Botões: `data-acao="função|arg"` e `data-mudar="função|arg"` (recebe valor e evento), ligados em `ui/main.mjs`; a função precisa ser exportada por um módulo de `ui/`.
+- Imports são explícitos: ao usar uma função de outro módulo, importe-a.
 
 ## Posições detalhadas (#4)
-- `p.pos` continua sendo o grupo (G/D/M/A); `p.pd` é a posição detalhada (GOL, ZAG, LD, LE, VOL, MC meia central, MEI meia-atacante, PE e PD pontas, ATA centroavante; antes da #23 eram MEI, MAT, PON, CEN. Saves e dados antigos são convertidos por `converterPosicoesAntigas`, marcados com `posv:2`) e `p.ps` as secundárias. Tudo em `js/posicoes.js`.
+- `p.pos` continua sendo o grupo (G/D/M/A); `p.pd` é a posição detalhada (GOL, ZAG, LD, LE, VOL, MC meia central, MEI meia-atacante, PE e PD pontas, ATA centroavante; antes da #23 eram MEI, MAT, PON, CEN. Saves e dados antigos são convertidos por `converterPosicoesAntigas`, marcados com `posv:2`) e `p.ps` as secundárias. Tudo em `core/posicoes.mjs`.
 - A API só traz o grupo. As posições reais vêm do Transfermarkt (#10): `npm run posicoes` baixa o elenco detalhado de cada clube para `data/posicoes-2024.json` (retomável, com pausa entre pedidos; os clubes que não casam por nome entram em `data/posicoes-clubes.json` como `"<id do jogo>": <id do Transfermarkt>`). O elenco baixado é o ATUAL (`--saison=2025`), porque a API devolve o elenco atual.
 - `npm run dados:padrao` aplica, nesta ordem: `data/posicoes-manual.json` (à mão: `"Clube": {"Nome": "ZAG"}`, com secundárias opcionais, ex.: `"LD LE"`), as posições reais do Transfermarkt e, só para quem sobrar, a inferência pela camisa e pelo equilíbrio do elenco. Quem ficou na inferência está em `data/posicoes-pendentes.json`. Se a posição real mudar o grupo, `p.pos` acompanha. Saves e dados antigos são migrados no carregamento (`migrarPosicoes`).
 - Para escalar: `penalidadePosicao(p, slot)` devolve `{pen, tipo, aviso}` e `ovrNaPosicao(p, slot)` o overall já penalizado.
