@@ -7,7 +7,7 @@ import { DATA_KEY, store } from './utils.mjs';
 import { avisar } from './avisos.mjs';
 
 // estado só da tela (não vai para o save)
-export const ui={view:'clube',lastRound:null,selEsc:null,vDiv:null,jogosRound:null,mf:{grupo:'',q:'',max:'',club:'',ord:'ovr',dir:-1},ef:{grupo:'',q:'',ord:'pos',dir:1},tvAoVivo:null,novos:[]};
+export const ui={view:'clube',lastRound:null,selEsc:null,vDiv:null,jogosRound:null,mf:{grupo:'',q:'',max:'',club:'',ord:'ovr',dir:-1},ef:{grupo:'',q:'',ord:'pos',dir:1},tvAoVivo:null,novos:[],liga:null}; // liga: jogando uma liga online (#34)
 export function save(){if(S)salvarJogo()} // js/saves.js: grava no save da campanha atual
 export function getData(){return store.get(DATA_KEY)||(typeof DADOS_PADRAO!=='undefined'?DADOS_PADRAO:sampleData())}
 

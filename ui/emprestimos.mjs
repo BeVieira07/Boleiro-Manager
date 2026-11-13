@@ -5,6 +5,7 @@ import { esc, money } from '../core/utils.mjs';
 import { save } from './estado.mjs';
 import { closeModal, openModal } from './partida.mjs';
 import { render } from './telas.mjs';
+import { bloqueadoNaLiga } from './ligajogo.mjs';
 import { avisar, confirmar } from './avisos.mjs';
 
 export function loanTag(p){
@@ -16,7 +17,7 @@ export function loanBtn(p,mode){
   if(loanOf(p.id))return '';
   return `<button class="btn sec sm" data-acao="loanForm|${p.id}|${mode}">Empréstimo</button>`;
 }
-export function loanForm(pid,mode){
+export function loanForm(pid,mode){if(bloqueadoNaLiga())return;
   const p=P[pid],uc=userClub(),left=S.fixtures.length-S.round;
   if(left<1){avisar('A temporada acabou.');return}
   const durs=[...new Set([5,10,19,left].filter(n=>n<=left))].sort((a,b)=>a-b);
@@ -37,7 +38,7 @@ export function submitLoan(pid,mode){
   if(r.erro){avisar(r.erro,'erro');return}
   closeModal();save();render();avisar(r.msg,'ok');
 }
-export function buyLoaned(pid){
+export function buyLoaned(pid){if(bloqueadoNaLiga())return;
   const l=loanOf(pid);if(!l||!l.buy)return;
   confirmar({titulo:'Exercer a opção de compra?',texto:`${P[pid].name} passa a ser do seu clube por ${money(l.buy)}, que saem do caixa (${money(userClub().balance)}).`,ok:`Comprar por ${money(l.buy)}`},()=>{
     const r=exercerOpcaoCompra(pid);if(r.erro){avisar(r.erro,'erro');return}save();render();avisar(`${P[pid].name} foi comprado.`,'ok')});

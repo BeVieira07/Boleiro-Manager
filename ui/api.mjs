@@ -8,6 +8,7 @@ import { excluirSave, podeCriarSave } from './saves.mjs';
 import { render } from './telas.mjs';
 import { APIKEY_KEY, DATA_KEY, store } from './utils.mjs';
 import { avisar, confirmar } from './avisos.mjs';
+import { bloqueadoNaLiga } from './ligajogo.mjs';
 
 /* ================= importação API-Football ================= */
 export const API='https://v3.football.api-sports.io';
@@ -143,4 +144,4 @@ export function loadSaveFile(_valor,ev){
   rd.readAsText(f);
 }
 export function resetData(){confirmar({titulo:'Voltar aos dados padrão?',texto:'Os dados importados neste navegador serão apagados e o jogo volta a usar o Brasileirão 2024. Seus jogos salvos não mudam.',ok:'Voltar aos dados padrão',perigo:true},()=>{store.del(DATA_KEY);render()})}
-export function resetGame(){if(S&&S.saveId)excluirSave(S.saveId)}
+export function resetGame(){if(bloqueadoNaLiga())return;if(S&&S.saveId)excluirSave(S.saveId)}

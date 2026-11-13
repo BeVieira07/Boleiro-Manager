@@ -1,0 +1,75 @@
+// Função do servidor da liga com amigos (#34): começa a liga e joga a rodada quando todos confirmam (ou o dono força).
+// O motor é o mesmo do site: o core/ é importado do GitHub (jsDelivr) FIXADO num commit.
+// Sempre que core/ mudar, troque o commit nos três imports abaixo e publique a função de novo, senão site e servidor
+// rodam motores diferentes. Veja supabase/functions/README.md.
+import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
+import { iniciarLiga, jogarRodadaLiga } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@fb6f2ab15541dc9950b5e8da0a6b45f2677d5b18/core/liga.mjs';
+import { S } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@fb6f2ab15541dc9950b5e8da0a6b45f2677d5b18/core/estado.mjs';
+import { DADOS_PADRAO } from 'https://cdn.jsdelivr.net/gh/BeVieira07/boleiro-manager@fb6f2ab15541dc9950b5e8da0a6b45f2677d5b18/core/dados-padrao.mjs';
+
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS'
+};
+const resposta = (corpo: unknown, status = 200) =>
+  new Response(JSON.stringify(corpo), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
+const erro = (msg: string, status = 400) => resposta({ erro: msg }, status);
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
+  if (req.method !== 'POST') return erro('Use POST.', 405);
+  try {
+    const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
+    // quem chama vem do token de login, nunca do corpo do pedido
+    const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+    const { data: u } = await admin.auth.getUser(token);
+    const eu = u?.user?.id;
+    if (!eu) return erro('Entre na sua conta.', 401);
+    const corpo = await req.json().catch(() => ({}));
+    const ligaId = String(corpo.liga || ''), acao = corpo.acao, forcar = !!corpo.forcar;
+
+    const { data: liga } = await admin.from('ligas').select('id, dono_id, status, rodada, versao, series').eq('id', ligaId).maybeSingle();
+    if (!liga) return erro('Liga não encontrada.', 404);
+    const { data: membros } = await admin.from('liga_membros').select('user_id, club_id').eq('liga_id', ligaId);
+    if (!membros || !membros.some((m) => m.user_id === eu)) return erro('Você não é membro desta liga.', 403);
+
+    if (acao === 'iniciar') {
+      if (liga.dono_id !== eu) return erro('Só o dono começa a liga.', 403);
+      if (liga.status !== 'aberta') return erro('A liga já começou.', 409);
+      const { data: perfis } = await admin.from('profiles').select('id, nome').in('id', membros.map((m) => m.user_id));
+      const nomes = Object.fromEntries((perfis || []).map((p) => [p.id, p.nome]));
+      // bloco síncrono: monta o estado e copia para texto antes de qualquer await (o core usa um estado global)
+      const r = iniciarLiga(membros.map((m) => ({ ...m, nome: nomes[m.user_id] })), liga.series, DADOS_PADRAO);
+      if (r.erro) return erro(r.erro);
+      const estado = JSON.stringify(S);
+      const { data: ok, error } = await admin.rpc('liga_iniciar', { p_liga: ligaId, p_estado: JSON.parse(estado) });
+      if (error) throw error;
+      return ok ? resposta({ ok: true, iniciada: true }) : erro('A liga já começou.', 409);
+    }
+
+    if (acao === 'jogar') {
+      if (liga.status !== 'andamento') return erro('A liga ainda não começou.', 409);
+      if (forcar && liga.dono_id !== eu) return erro('Só o dono pode forçar a rodada.', 403);
+      const { data: entradas } = await admin.from('liga_entradas').select('*').eq('liga_id', ligaId).eq('rodada', liga.rodada);
+      const prontos = new Set((entradas || []).filter((e) => e.pronto).map((e) => e.user_id));
+      const faltam = membros.filter((m) => !prontos.has(m.user_id)).length;
+      if (faltam && !forcar) return resposta({ ok: true, jogada: false, faltam });
+      const { data: est } = await admin.from('liga_estado').select('estado').eq('liga_id', ligaId).single();
+      // bloco síncrono: joga e copia o resultado para texto antes do próximo await
+      const r = jogarRodadaLiga(est.estado, Object.fromEntries((entradas || []).map((e) => [e.user_id, e])));
+      const novo = JSON.stringify(S), jogos = JSON.stringify(r.jogos);
+      const { data: ok, error } = await admin.rpc('liga_gravar_rodada', {
+        p_liga: ligaId, p_rodada: liga.rodada, p_versao: liga.versao, p_estado: JSON.parse(novo),
+        p_temporada: r.temporada, p_rodada_temporada: r.rodada, p_semente: r.semente, p_jogos: JSON.parse(jogos)
+      });
+      if (error) throw error;
+      // false: outra chamada já gravou esta rodada (duas confirmações ao mesmo tempo); não é erro
+      return resposta({ ok: true, jogada: !!ok, jaJogada: !ok, virada: ok ? r.virada : null });
+    }
+    return erro('Ação desconhecida.');
+  } catch (e) {
+    console.error(e);
+    return erro('Erro no servidor: ' + (e instanceof Error ? e.message : String(e)), 500);
+  }
+});

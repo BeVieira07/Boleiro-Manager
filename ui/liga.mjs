@@ -82,13 +82,24 @@ const opcoesClubes = (series, ocupados = [], atual = '') =>
 
 const STATUS = { aberta: 'esperando técnicos', andamento: 'em andamento', encerrada: 'encerrada' };
 
+// #34: começar (o dono, quando todos têm clube) ou jogar a liga em andamento
+function acaoLiga(l, eu) {
+  if (l.status === 'andamento') return `<div class="card row"><span class="cresce">A liga está em andamento. Ajuste a escalação e confirme cada rodada; ela é jogada quando todos confirmam.</span>
+    <button class="btn" data-acao="entrarNaLiga|${esc(l.id)}">Jogar a liga</button></div>`;
+  if (l.status !== 'aberta') return '';
+  const sem = l.membros.filter(x => !x.club_id);
+  if (l.dono_id !== eu) return `<p class="muted">Esperando o dono começar a liga.</p>`;
+  return `<div class="card row"><span class="cresce">${sem.length ? `Falta escolher o clube: ${sem.map(x => esc(x.nome)).join(', ')}.` : 'Todos escolheram o clube. Quando todos tiverem entrado, comece a liga.'}</span>
+    <button class="btn" data-acao="comecarLiga|${esc(l.id)}"${sem.length ? ' disabled' : ''}>Começar a liga</button></div>`;
+}
+
 export function vLigas() {
   const eu = usuarioAtual()?.id;
   const linhas = (liga.lista || []).map(l => {
     const meu = l.liga_membros.find(x => x.user_id === eu), cl = meu && clube(meu.club_id);
     return `<tr><td><b>${esc(l.nome)}</b>${l.dono_id === eu ? ' <span class="pill">dono</span>' : ''}<br><span class="muted">Séries ${l.series.join(', ')} · ${l.liga_membros.length} técnico(s) · ${STATUS[l.status] || esc(l.status)}</span></td>
       <td>${cl ? crest(cl) + ' ' + esc(cl.name) : '<span class="muted">sem clube</span>'}</td>
-      <td><button class="btn sm" data-acao="abrirLobby|${esc(l.id)}">Abrir</button></td></tr>`;
+      <td><button class="btn sm" data-acao="abrirLobby|${esc(l.id)}">Abrir</button>${l.status === 'andamento' ? ` <button class="btn sm" data-acao="entrarNaLiga|${esc(l.id)}">Jogar</button>` : ''}</td></tr>`;
   }).join('');
   return `<div class="menu-ini"><h2>Ligas com amigos</h2>
   <div class="card tw"><h3>Minhas ligas</h3>
@@ -122,7 +133,7 @@ export function vLobby() {
   <div class="card tw"><h3>Técnicos (${l.membros.length})</h3><table>${membros}</table></div>
   ${meu && l.status === 'aberta' ? `<div class="card row"><span>Seu clube:</span>
    <select aria-label="Seu clube" data-mudar="escolherClubeLiga|${esc(l.id)}"><option value="">Escolha…</option>${opcoesClubes(l.series, ocupados, meu.club_id)}</select></div>` : ''}
-  <p class="muted">A liga começa quando as rodadas online estiverem prontas (#34).</p>
+  ${acaoLiga(l, eu)}
   <div class="row"><button class="btn sec" data-acao="abrirLobby|${esc(l.id)}">Atualizar</button>
    <button class="btn sec" data-acao="abrirLigas">← Minhas ligas</button></div></div>`;
 }

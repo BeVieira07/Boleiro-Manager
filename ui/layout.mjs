@@ -6,6 +6,7 @@ import { DIVS, S, divOf, hasTwoDivs, table, tec, tecnicos, userClub } from '../c
 import { esc, money } from '../core/utils.mjs';
 import { ui } from './estado.mjs';
 import { icone } from './icones.mjs';
+import { situacaoLiga } from './ligajogo.mjs';
 import { botaoRodada } from './motor.mjs';
 import { crest } from './partida.mjs';
 import { render } from './telas.mjs';
@@ -29,7 +30,7 @@ export function lateral() {
   <nav class="nav" aria-label="Principal">
     ${NAV.slice(0, PRINCIPAIS).map(item).join('')}
     <div class="nav-resto${ui.maisAberto ? ' aberto' : ''}" id="navResto">${mais.map(item).join('')}
-      <button type="button" class="nav-item" data-acao="voltarMenu">${icone('sair')}<span>Salvar e sair</span></button></div>
+      <button type="button" class="nav-item" data-acao="voltarMenu">${icone('sair')}<span>${ui.liga ? 'Sair da liga' : 'Salvar e sair'}</span></button></div>
     <button type="button" class="nav-item nav-mais" data-acao="alternarMais" aria-expanded="${!!ui.maisAberto}" aria-controls="navResto"${maisAtivo ? ' aria-current="page"' : ''}>${icone('mais')}<span>Mais</span></button>
   </nav>
   <div class="clube-cartao" style="--cor-clube:${esc(uc.color || '#335')}">${crest(uc, 'm')}<div><b>${esc(uc.name)}</b><span class="muted">${DIVS[divOf(uc)] || ''} · ${S.season}</span></div></div>`;
@@ -42,10 +43,10 @@ export function barraAcoes(titulo) {
   const varios = tecnicos().length > 1;
   const sub = [`Rodada ${Math.min(S.round + 1, S.fixtures.length)} de ${S.fixtures.length}`, `temporada ${S.season}`,
     S.round ? `${pos}º lugar${hasTwoDivs() ? ' na ' + DIVS[divOf(uc)] : ''}` : '', `caixa <b class="${uc.balance < 0 ? 'bad' : ''}">${money(uc.balance)}</b>`].filter(Boolean).join(' · ');
-  const vez = varios ? `<div class="vez">Vez de <b>${esc(tec().nome)}</b> ${tecnicos().map(t => `<span class="pill" title="${t.pronto ? 'confirmou' : 'falta confirmar'}">${t.pronto ? icone('ok', { tam: 12, rotulo: 'confirmou' }) : '…'} ${esc(t.nome)}</span>`).join(' ')}</div>` : '';
+  const vez = ui.liga ? situacaoLiga() : varios ? `<div class="vez">Vez de <b>${esc(tec().nome)}</b> ${tecnicos().map(t => `<span class="pill" title="${t.pronto ? 'confirmou' : 'falta confirmar'}">${t.pronto ? icone('ok', { tam: 12, rotulo: 'confirmou' }) : '…'} ${esc(t.nome)}</span>`).join(' ')}</div>` : '';
   const botoes = fim
     ? `<button class="btn" data-acao="proximaTemporada">${icone('trofeu')}${S.seasonClosed === S.season ? 'Iniciar temporada ' + (S.season + 1) : 'Encerrar a temporada ' + S.season}</button>`
-    : `${varios ? '' : '<button class="btn sec" data-acao="simToEnd">Simular até o fim</button>'}${botaoRodada('btn', `${icone('play', { tam: 16 })}Jogar rodada ${S.round + 1}`)}`;
+    : `${varios || ui.liga ? '' : '<button class="btn sec" data-acao="simToEnd">Simular até o fim</button>'}${botaoRodada('btn', `${icone('play', { tam: 16 })}Jogar rodada ${S.round + 1}`)}`;
   return `<div class="barra-acoes"><div class="barra-titulo"><h1>${esc(titulo)}</h1><span class="muted">${sub}</span>${vez}</div>
     <div class="barra-botoes">${botoes}</div></div>`;
 }

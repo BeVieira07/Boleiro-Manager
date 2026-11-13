@@ -26,7 +26,7 @@ export function itemEvento(e,H,A,meu){
 /** Marcador na barra de tempo, na posição do minuto do evento. */
 export const marcador=(e,H,A)=>{const team=e.side==='h'?H:A,[,nome]=EVENTO[e.t]||['',e.t];
   return `<span class="marca-ev ${e.t} ${e.side}" style="left:${Math.min(100,e.m/DURACAO*100)}%" title="${e.m}' ${nome}: ${esc(e.name)} (${esc(team.name)})"></span>`};
-export function showLive(g,done){
+export function showLive(g,done,{replay=false}={}){ // replay: jogo já simulado no servidor (liga, #34), sem mudar tática
   const H=clubById(g.h),A=clubById(g.a),meu=userClub().id;let min=0,hs=0,as=0,timer=null;
   const lado=(c,cls)=>`<div class="placar-time ${cls}">${crest(c,'g')}<b>${esc(c.name)}</b></div>`;
   openModal(`<div class="ao-vivo">
@@ -34,7 +34,7 @@ export function showLive(g,done){
     <div class="tempo" aria-hidden="true"><div class="tempo-trilho"><div class="tempo-feito" id="lbar"></div></div><div class="tempo-marcas" id="lmarcas"></div>
       <div class="tempo-escala"><span>0'</span><span>45'</span><span>90'</span></div></div>
     <ul class="eventos" id="lfeed" aria-label="Lances da partida"><li class="ev muted">Bola rolando!</li></ul>
-    <div class="tatica-vivo" id="ltat">${chipsTaticaAoVivo()}</div>
+    <div class="tatica-vivo" id="ltat">${replay?'<p class="muted">Replay do jogo simulado no servidor. Na liga, a tática vale para a rodada inteira.</p>':chipsTaticaAoVivo()}</div>
     <div class="row fim-acoes"><button class="btn sec" id="lskip">${icone('avancar',{tam:16})}Pular para o fim</button><button class="btn" id="ldone" style="display:none">Continuar</button></div></div>`,{fechavel:false});
   const feed=document.getElementById('lfeed'),marcas=document.getElementById('lmarcas'),placar=document.getElementById('lsc');
   const tick=()=>{
@@ -48,7 +48,7 @@ export function showLive(g,done){
     document.getElementById('lbar').style.width=Math.min(100,min/DURACAO*100)+'%';
     if(min>=DURACAO)finish();
   };
-  ui.tvAoVivo={g,min:()=>min};
+  ui.tvAoVivo=replay?null:{g,min:()=>min};
   const finish=()=>{clearInterval(timer);while(min<DURACAO)tick();ui.tvAoVivo=null;document.getElementById('ltat').style.display='none';
     document.getElementById('lclk').textContent='Fim de jogo';
     document.getElementById('lskip').style.display='none';const ok=document.getElementById('ldone');ok.style.display='';ok.focus();};

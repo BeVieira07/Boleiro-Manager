@@ -11,6 +11,7 @@ import { crest } from './partida.mjs';
 import { go, render } from './telas.mjs';
 import { SAVE_KEY, store } from './utils.mjs';
 import { avisar, confirmar } from './avisos.mjs';
+import { sairDaLiga } from './ligajogo.mjs';
 
 /* ================= jogos salvos e tela inicial (#21) =================
    Cada campanha fica em localStorage[SAVE_PREFIX+id]; SAVES_KEY guarda o índice {cur, list:[resumo]}.
@@ -24,6 +25,7 @@ export function resumoSave(s){
 }
 // grava o jogo atual no seu save (cria um save novo na primeira vez)
 export function salvarJogo(){
+  if(ui.liga)return true; // #34: o estado da liga é do servidor; nunca vira save local nem da nuvem
   if(!S)return true;
   const idx=indiceSaves();
   if(!S.saveId)S.saveId=Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36); // id do save não é regra do jogo
@@ -59,7 +61,7 @@ export function excluirSave(id){
   });
 }
 export function apagarSave(id){const idx=indiceSaves();store.del(SAVE_PREFIX+id);idx.list=idx.list.filter(x=>x.id!==id);if(idx.cur===id)idx.cur=null;store.set(SAVES_KEY,idx)}
-export function voltarMenu(){if(S)salvarJogo();usarEstado(null);go('menu')}
+export function voltarMenu(){if(ui.liga)sairDaLiga();else if(S)salvarJogo();usarEstado(null);go('menu')}
 export function novoJogo(){if(podeCriarSave()){usarEstado(null);go('inicio')}}
 export function vMenu(){
   const idx=indiceSaves(),cur=idx.list.find(x=>x.id===idx.cur)||idx.list[0];
