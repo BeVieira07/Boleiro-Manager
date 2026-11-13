@@ -11,15 +11,16 @@ function clienteFalso({ sessao = null } = {}) {
   const f = { pedidos: [], ouvinte: null, perfis: { u1: { nome: 'Ana' } } };
   f.auth = {
     getSession: async () => ({ data: { session: sessao } }),
-    onAuthStateChange: cb => { f.ouvinte = cb; return { data: { subscription: { unsubscribe() {} } } } },
+    // como no supabase-js: o aviso roda com a trava do login presa; chamar o Supabase dentro dele trava tudo (anotado em f.travou)
+    onAuthStateChange: cb => { f.ouvinte = async (...a) => { f.naTrava = true; try { await cb(...a) } finally { f.naTrava = false } }; return { data: { subscription: { unsubscribe() {} } } } },
     signInWithOtp: async a => { f.pedidos.push(['otp', a.email]); return { error: null } },
     signInWithOAuth: async a => { f.pedidos.push(['oauth', a.provider, a.options.redirectTo]); return { error: null } },
     signOut: async () => { f.pedidos.push(['sair']); return { error: null } }
   };
-  f.from = tabela => ({
+  f.from = tabela => { if (f.naTrava) f.travou = true; return {
     select: () => ({ eq: (_c, id) => ({ maybeSingle: async () => ({ data: f.perfis[id] ?? null }) }) }),
     update: v => ({ eq: async (_c, id) => { f.pedidos.push(['nome', id, v.nome]); f.perfis[id] = { ...f.perfis[id], ...v }; return { error: null } } })
-  });
+  } };
   return f;
 }
 const espera = () => new Promise(r => setTimeout(r, 0));
@@ -53,6 +54,8 @@ test('entrar manda o link mágico; a sessão aparece e sair encerra', async () =
   assert.ok(j.alertas.some(a => a.includes('Enviamos um link')));
   // a pessoa clica no link do e-mail: o Supabase avisa que a sessão começou
   await f.ouvinte('SIGNED_IN', { user: { id: 'u1', email: 'ana@exemplo.com' } });
+  assert.ok(!f.travou, 'o aviso de login não chama o Supabase por dentro (travaria a página)');
+  await espera();
   assert.equal(conta.usuarioAtual().email, 'ana@exemplo.com');
   j.run('render()');
   assert.match(j.html(), /Conectado como <b>Ana<\/b>/);
