@@ -55,7 +55,7 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 
 ## Online (#30)
 - Site: GitHub Pages, publicado pelo workflow `.github/workflows/pages.yml` a cada push na `main` (roda `npm test` antes). Endereço: https://bevieira07.github.io/Boleiro-Manager/. O site leva só `index.html`, `css/`, `img/`, `core/` e `ui/`.
-- Supabase: `ui/config.mjs` (URL e chave **pública**; vazio = offline, sem login), `ui/conta.mjs` (login por link mágico, `supabase-js` da CDN com versão fixa), `supabase/migrations/*.sql` (tabelas e RLS, aplicadas com `npx supabase db push`). A chave service_role/secret **nunca** entra no repositório (`tests/conta.test.mjs` confere).
+- Supabase: `ui/config.mjs` (URL e chave **pública**; vazio = offline, sem login), `ui/conta.mjs` (login com Google, #84, ou por link mágico, `supabase-js` da CDN com versão fixa), `supabase/migrations/*.sql` (tabelas e RLS, aplicadas com `npx supabase db push`). A chave service_role/secret **nunca** entra no repositório (`tests/conta.test.mjs` confere).
 - Configurar: veja "Online (Supabase)" no README. O plano gratuito pausa o projeto após cerca de uma semana sem uso (dados ficam; reativar no painel).
 - Nos testes, `configurarConta({url, chave, cliente})` troca o Supabase por um cliente falso.
 - Projeto Supabase: ref `nfctxdzapspnxwttrwym` (sa-east-1, plano free). As migrações podem ser aplicadas pelo MCP do Supabase (`apply_migration`), além do `db push`. Aplicada pelo MCP, a migração ganha como versão o horário em que rodou: renomear o arquivo para essa versão (`list_migrations`), senão o `db push` tenta rodá-la de novo. Testes das regras de acesso no banco real: `supabase/tests/*.sql` (transação com rollback; rodar no SQL Editor ou com `execute_sql`).

@@ -1,5 +1,5 @@
 /* ================= conta online (Supabase) (#30) =================
-   Login por link mágico no e-mail. Só aparece quando ui/config.mjs tem a URL e a chave pública.
+   Login com Google (#84) ou por link mágico no e-mail. Só aparece quando ui/config.mjs tem a URL e a chave pública.
    Sem configuração, ou sem internet, o jogo continua offline como sempre. */
 import { esc } from '../core/utils.mjs';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.mjs';
@@ -52,13 +52,22 @@ export async function iniciarConta(aoMudar) {
   conta.aoMudar && conta.aoMudar();
 }
 
+// depois do login, o Supabase volta para esta mesma página (o endereço precisa estar em Redirect URLs)
+const volta = () => typeof location !== 'undefined' ? location.origin + location.pathname : undefined;
+
+/** Entra (ou cria a conta) com a conta Google: sem e-mail de confirmação, então sem o limite de envios (#84). */
+export async function entrarComGoogle() {
+  const c = await cliente(); if (!c) return;
+  const { error } = await c.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: volta() } });
+  if (error) avisar('Não foi possível entrar com o Google: ' + error.message, 'erro');
+}
+
 /** Entra (ou cria a conta) mandando um link mágico para o e-mail. */
 export async function entrar() {
   const campo = document.getElementById('emailConta'), email = (campo && campo.value || '').trim();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { avisar('Digite um e-mail válido.'); return }
   const c = await cliente(); if (!c) return;
-  const volta = typeof location !== 'undefined' ? location.origin + location.pathname : undefined;
-  const { error } = await c.auth.signInWithOtp({ email, options: { emailRedirectTo: volta } });
+  const { error } = await c.auth.signInWithOtp({ email, options: { emailRedirectTo: volta() } });
   if (error) { avisar('Não foi possível enviar o link: ' + error.message,'erro','erro'); return }
   avisar(`Enviamos um link de acesso para ${email}. Abra o e-mail neste aparelho para entrar.`);
 }
@@ -88,6 +97,7 @@ export function painelConta() {
   if (u) return `<div class="card row"><span>Conectado como <b>${esc(conta.perfil?.nome || u.email)}</b> <span class="muted">${esc(u.email)}</span></span>
     <input id="nomeConta" aria-label="Nome do técnico" placeholder="Nome do técnico" value="${esc(conta.perfil?.nome || '')}" style="width:180px"><button class="btn sec sm" data-acao="mudarNomeTecnico">Salvar nome</button>
     <button class="btn sec sm" data-acao="sair">Sair</button></div>`;
-  return `<div class="card row"><span>Jogar online: entre com seu e-mail (você recebe um link de acesso, sem senha).</span>
-    <input id="emailConta" type="email" aria-label="Seu e-mail" autocomplete="email" placeholder="seu@email.com" style="width:220px"><button class="btn sm" data-acao="entrar">Entrar</button></div>`;
+  return `<div class="card row"><span>Jogar online:</span><button class="btn sm" data-acao="entrarComGoogle">Entrar com Google</button>
+    <span class="muted">ou receba um link de acesso no e-mail:</span>
+    <input id="emailConta" type="email" aria-label="Seu e-mail" autocomplete="email" placeholder="seu@email.com" style="width:220px"><button class="btn sec sm" data-acao="entrar">Enviar link</button></div>`;
 }
