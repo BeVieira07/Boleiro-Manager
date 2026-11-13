@@ -4,7 +4,7 @@ import { migrarPosicoes } from '../core/posicoes.mjs';
 import { esc } from '../core/utils.mjs';
 import { loadSaveFile } from './api.mjs';
 import { getData, save, ui } from './estado.mjs';
-import { painelConta } from './conta.mjs';
+import { painelConta, usuarioAtual } from './conta.mjs';
 import { crest } from './partida.mjs';
 import { go, render } from './telas.mjs';
 import { SAVE_KEY, store } from './utils.mjs';
@@ -71,6 +71,7 @@ export function vMenu(){
    <button class="btn ${cur?'sec':''}" data-acao="novoJogo">＋ Novo jogo</button>
    <label class="btn sec">Importar save<input type="file" accept=".json" style="display:none" data-mudar="loadSaveFile"></label>
    <button class="btn sec" data-acao="go|dados">Dados do jogo</button>
+   ${usuarioAtual()?'<button class="btn sec" data-acao="abrirLigas">🏆 Ligas com amigos</button>':''}
   </div>
   ${painelConta()}
   <div class="card tw"><h3>Jogos salvos (${idx.list.length}/${MAX_SAVES})</h3>

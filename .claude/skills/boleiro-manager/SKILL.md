@@ -58,6 +58,8 @@ Manager de futebol estilo Brasfoot, em JS puro, sem build. Brasileirão Séries 
 - Supabase: `ui/config.mjs` (URL e chave **pública**; vazio = offline, sem login), `ui/conta.mjs` (login por link mágico, `supabase-js` da CDN com versão fixa), `supabase/migrations/*.sql` (tabelas e RLS, aplicadas com `npx supabase db push`). A chave service_role/secret **nunca** entra no repositório (`tests/conta.test.mjs` confere).
 - Configurar: veja "Online (Supabase)" no README. O plano gratuito pausa o projeto após cerca de uma semana sem uso (dados ficam; reativar no painel).
 - Nos testes, `configurarConta({url, chave, cliente})` troca o Supabase por um cliente falso.
+- Ligas (#32): `ui/liga.mjs` (telas `ligas` e `lobby`, botão "Ligas com amigos" no menu só para quem está logado). Ações pelas funções do banco `criar_liga`, `entrar_liga`, `escolher_clube` (migração `..._ligas_funcoes.sql`); as tabelas da liga só são lidas pelo navegador. O estado da liga (`liga_estado`) ainda não é criado: fica para #34. Teste das regras no banco real: `supabase/tests/rls_ligas.sql`.
+- `tests/jogo.mjs` importa os módulos um de cada vez: em paralelo, os ciclos entre módulos de `ui/` quebram no Node 22.
 
 ## Testes
 - `npm test` roda `node --test` com os testes de `tests/` (uns 20 s). Rodar antes de commitar mudanças no jogo.
