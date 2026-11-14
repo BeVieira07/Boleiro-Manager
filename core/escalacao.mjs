@@ -26,9 +26,9 @@ export function aplicarDisponibilidade(games){
 }
 // vagas detalhadas de cada formação, em ordem: goleiro, defesa, meio, ataque (mesmas contagens de FORMS)
 export const SLOTS={
- '4-4-2':'GOL LD ZAG ZAG LE VOL MC MC MEI ATA ATA','4-3-3':'GOL LD ZAG ZAG LE VOL MC MEI PE ATA PD',
- '3-5-2':'GOL ZAG ZAG ZAG VOL VOL MC MC MEI ATA ATA','4-5-1':'GOL LD ZAG ZAG LE VOL VOL MC MC MEI ATA',
- '5-3-2':'GOL LD ZAG ZAG ZAG LE VOL MC MEI ATA ATA','3-4-3':'GOL ZAG ZAG ZAG VOL MC MC MEI PE ATA PD'
+ '4-4-2':'GOL LD ZAG ZAG LE MEI MEI MEI MEI ATA ATA','4-3-3':'GOL LD ZAG ZAG LE MEI MEI MEI ATA ATA ATA',
+ '3-5-2':'GOL ZAG ZAG ZAG MEI MEI MEI MEI MEI ATA ATA','4-5-1':'GOL LD ZAG ZAG LE MEI MEI MEI MEI MEI ATA',
+ '5-3-2':'GOL LD ZAG ZAG ZAG LE MEI MEI MEI ATA ATA','3-4-3':'GOL ZAG ZAG ZAG MEI MEI MEI MEI ATA ATA ATA'
 };
 for(const k in SLOTS)SLOTS[k]=SLOTS[k].split(' ');
 export const slotsDe=f=>SLOTS[f]||SLOTS['4-4-2'];

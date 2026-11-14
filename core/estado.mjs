@@ -4,7 +4,7 @@ import { criarCopa } from './copa.mjs';
 import { SQUAD_SHAPE, fakePlayer, rate, refStrength, refreshEconomics } from './dados.mjs';
 import { migrarDiretoria } from './diretoria.mjs';
 import { autoXI } from './motor.mjs';
-import { atribuirPosicoes, converterPosicoesAntigas } from './posicoes.mjs';
+import { atribuirPosicoes, converterPosicoesAntigas, simplificarPosicoes } from './posicoes.mjs';
 import { hashStr, money, mulberry32, novaSemente, shuffle } from './utils.mjs';
 import { VERSAO_SAVE } from './versao.mjs';
 
@@ -57,6 +57,7 @@ export function criarJogo(quem,data){
   const clubs=JSON.parse(JSON.stringify(data.clubs));
   for(const c of clubs){
     if(data.posv!==2)converterPosicoesAntigas(c.players); // dados antigos (aba Dados) usam as siglas de antes da #23
+    simplificarPosicoes(c.players); // os dados guardam a posição real (Transfermarkt); o jogo usa só 6 (#97)
     if(c.players.length<16){const r=mulberry32(hashStr(c.id));let k=0;for(const [pos,n] of Object.entries(SQUAD_SHAPE))while(c.players.filter(p=>p.pos===pos).length<n)c.players.push(fakePlayer(c.id,k++,c.strength,pos,r))}
     atribuirPosicoes(c.players);
     const ref=refStrength(c,clubs);

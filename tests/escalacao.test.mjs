@@ -25,7 +25,6 @@ test('#54: lateral esquerdo à esquerda e direito à direita, sem mudar as vagas
     j.acao(`setFormation|${f}`);
     const v = vagas(j.html());
     assert.ok(v.indexOf('LE') < v.indexOf('LD'), `${f}: ${v.join(' ')}`);
-    assert.ok(v.indexOf('PE') < 0 || v.indexOf('PE') < v.indexOf('PD'), f);
     assert.deepEqual(j.run('slotLayout(userClub()).map(s=>s.d)'), j.run(`slotsDe('${f}')`), 'a ordem das vagas no estado não muda');
   }
 });
@@ -33,17 +32,17 @@ test('#54: lateral esquerdo à esquerda e direito à direita, sem mudar as vagas
 test('penalidade de posição aparece na carta e no resumo, com o valor certo', () => {
   const j = carregarJogo({ boot: true });
   j.run(`newGame('${clubeDaSerie(j)}');go('escalacao');setFormation('4-3-3')`);
-  // troca a ponta esquerda com a ponta direita: os dois ficam fora de posição
-  const [pe, pd] = j.run(`(()=>{const L=slotLayout(userClub());return [L.find(s=>s.d==='PE').id,L.find(s=>s.d==='PD').id]})()`);
-  j.run(`P['${pe}'].pd='PE';P['${pe}'].ps=[];P['${pd}'].pd='PD';P['${pd}'].ps=[]`);
+  // troca o lateral esquerdo com o direito: os dois ficam fora de posição
+  const [pe, pd] = j.run(`(()=>{const L=slotLayout(userClub());return [L.find(s=>s.d==='LE').id,L.find(s=>s.d==='LD').id]})()`);
+  j.run(`P['${pe}'].pd='LE';P['${pe}'].ps=[];P['${pd}'].pd='LD';P['${pd}'].ps=[]`);
   j.acao(`trocarTitulares|${pe}|${pd}`);
-  const pen = j.run(`Math.round(penalidadePosicao(P['${pe}'],'PD').pen*100)`);
+  const pen = j.run(`Math.round(penalidadePosicao(P['${pe}'],'LD').pen*100)`);
   assert.ok(pen > 0);
   assert.match(j.html(), new RegExp(`class="carta-nota">-${pen}%`));
-  assert.match(j.html(), /jogará de ponta direita/);
+  assert.match(j.html(), /jogará de lateral direito/);
   assert.match(j.html(), new RegExp(`data-acao="trocarTitulares\\|(${pe}\\|${pd}|${pd}\\|${pe})"`), 'sugere destrocar');
   j.acao(`trocarTitulares|${pe}|${pd}`);
-  assert.equal(j.run(`slotLayout(userClub()).find(s=>s.id==='${pe}').d`), 'PE');
+  assert.equal(j.run(`slotLayout(userClub()).find(s=>s.id==='${pe}').d`), 'LE');
 });
 
 test('indisponíveis marcados, fora da escalação automática; trocas mantêm a ordem das vagas', () => {
