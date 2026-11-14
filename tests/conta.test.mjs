@@ -15,7 +15,7 @@ function clienteFalso({ sessao = null } = {}) {
     onAuthStateChange: cb => { f.ouvinte = async (...a) => { f.naTrava = true; try { await cb(...a) } finally { f.naTrava = false } }; return { data: { subscription: { unsubscribe() {} } } } },
     signInWithOtp: async a => { f.pedidos.push(['otp', a.email]); return { error: null } },
     signInWithOAuth: async a => { f.pedidos.push(['oauth', a.provider, a.options.redirectTo]); return { error: null } },
-    signOut: async () => { f.pedidos.push(['sair']); return { error: null } }
+    signOut: async o => { f.pedidos.push(['sair', o && o.scope]); return { error: null } }
   };
   f.from = tabela => { if (f.naTrava) f.travou = true; return {
     select: () => ({ eq: (_c, id) => ({ maybeSingle: async () => ({ data: f.perfis[id] ?? null }) }) }),
@@ -63,7 +63,7 @@ test('entrar manda o link mágico; a sessão aparece e sair encerra', async () =
   await j.acao('mudarNomeTecnico');
   assert.deepEqual(f.pedidos.at(-1), ['nome', 'u1', 'Ana Técnica']);
   await j.acao('sair');
-  assert.deepEqual(f.pedidos.at(-1), ['sair']);
+  assert.deepEqual(f.pedidos.at(-1), ['sair', 'local'], 'sair só deste aparelho (#95)');
   assert.equal(conta.usuarioAtual(), null);
   j.run('render()');
   assert.match(j.html(), /id="emailConta"/);

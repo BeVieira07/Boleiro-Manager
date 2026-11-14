@@ -85,11 +85,17 @@ export async function entrar() {
   avisar(`Enviamos um link de acesso para ${email}. Abra o e-mail neste aparelho para entrar.`);
 }
 
+// scope local (#95): sair neste aparelho não derruba a mesma conta aberta em outro (o padrão do supabase-js encerra todas)
 export async function sair() {
   const c = await cliente(); if (!c) return;
-  await c.auth.signOut();
+  await c.auth.signOut({ scope: 'local' }).catch(() => {});
   conta.usuario = null; conta.perfil = null;
   conta.aoMudar && conta.aoMudar();
+}
+/** O servidor recusou o login (sessão encerrada em outro lugar): sai só daqui e avisa, em vez de parecer conectado. */
+export async function sessaoEncerrada() {
+  await sair();
+  avisar('Sua sessão foi encerrada (por exemplo, ao sair desta conta em outro aparelho). Entre de novo.', 'erro');
 }
 
 /** Muda o nome do técnico (tabela profiles). */

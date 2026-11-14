@@ -12,7 +12,7 @@ import { descrever } from '../core/propostas.mjs';
 import { taticaUser } from '../core/taticas.mjs';
 import { esc, money } from '../core/utils.mjs';
 import { avisar, confirmar, pedirValor } from './avisos.mjs';
-import { clienteLogado, usuarioAtual } from './conta.mjs';
+import { clienteLogado, sessaoEncerrada, usuarioAtual } from './conta.mjs';
 import { ui } from './estado.mjs';
 import { icone } from './icones.mjs';
 import { closeModal, crest, openModal, showLive } from './partida.mjs';
@@ -26,6 +26,7 @@ async function chamarFuncao(corpo) {
   const c = clienteLogado(); if (!c) { avisar('Você não está mais conectado. Entre na sua conta de novo.', 'erro'); return null }
   const { data, error } = await c.functions.invoke(FUNCAO, { body: corpo });
   if (error) {
+    if (error.context && error.context.status === 401) { sairDaLiga(); usarEstado(null); go('menu'); await sessaoEncerrada(); return null } // #95: como voltarMenu
     let msg = error.message;
     try { const j = await error.context.json(); if (j && j.erro) msg = j.erro } catch { /* resposta sem JSON */ }
     avisar(msg, 'erro'); return null;
