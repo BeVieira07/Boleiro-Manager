@@ -19,7 +19,7 @@ O jogo usa módulos JavaScript (`<script type="module">`), então **precisa de u
 
 ## Jogar no navegador (GitHub Pages)
 
-A cada push na `main`, o GitHub Actions roda os testes e publica o jogo em **https://bevieira07.github.io/Boleiro-Manager/** (`.github/workflows/pages.yml`). Os saves ficam no navegador de quem joga.
+A cada push na `main`, o GitHub Actions roda os testes e publica o jogo em **https://bevieira07.github.io/boleiro-manager/** (`.github/workflows/pages.yml`). Os saves ficam no navegador de quem joga.
 
 ## Online (Supabase)
 
@@ -33,7 +33,7 @@ O login online é opcional: com `ui/config.mjs` vazio, o jogo funciona offline e
    npx supabase link --project-ref <id-do-projeto>
    npx supabase db push
    ```
-4. Em **Authentication → URL Configuration**, coloque `https://bevieira07.github.io/Boleiro-Manager/` como **Site URL** e adicione `http://localhost:3000/` e `http://127.0.0.1:5500/` em **Redirect URLs** (para testar no computador).
+4. Em **Authentication → URL Configuration**, coloque `https://bevieira07.github.io/boleiro-manager/` como **Site URL** e adicione `http://localhost:3000/` e `http://127.0.0.1:5500/` em **Redirect URLs** (para testar no computador).
 5. **Login com Google** (#84; recomendado, porque o e-mail grátis do Supabase manda só uns 2 links por hora):
    - No [Google Cloud Console](https://console.cloud.google.com/), crie um projeto. Em **APIs e serviços → Tela de consentimento OAuth**, escolha **Externo** e preencha o nome do app e o e-mail de suporte.
    - Em **APIs e serviços → Credenciais → Criar credenciais → ID do cliente OAuth**, tipo **Aplicativo da Web**. Em **URIs de redirecionamento autorizados**, coloque `https://<id-do-projeto>.supabase.co/auth/v1/callback`.
