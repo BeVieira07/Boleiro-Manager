@@ -8,7 +8,7 @@ import { migrarBase } from './base.mjs';
 import { migrarContratos } from './contratos.mjs';
 import { migrarDiretoria } from './diretoria.mjs';
 import { migrarTecnicos, reindex, usarEstado } from './estado.mjs';
-import { migrarPosicoes } from './posicoes.mjs';
+import { migrarPosicoes, simplificarPosicoes } from './posicoes.mjs';
 import { novaSemente } from './utils.mjs';
 
 const MIGRACOES = [
@@ -17,7 +17,8 @@ const MIGRACOES = [
   s => { if (s.seed == null) { s.seed = novaSemente(); s.rng = s.seed } }, // 3: semente do sorteio (#26)
   s => migrarDiretoria(s), // 4: confiança e meta da diretoria (#11); precisa dos técnicos
   s => migrarContratos(s), // 5: contrato de cada jogador (#49)
-  s => migrarBase(s) // 6: potencial de cada jogador e base dos clubes com técnico (#50)
+  s => migrarBase(s), // 6: potencial de cada jogador e base dos clubes com técnico (#50)
+  s => { for (const c of s.clubs) { simplificarPosicoes(c.players); if (c.base) simplificarPosicoes(c.base) } } // 7: só 6 posições (#97)
 ];
 export const VERSAO_SAVE = MIGRACOES.length;
 
