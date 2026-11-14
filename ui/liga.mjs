@@ -113,7 +113,7 @@ export function vLigas() {
    ${SERIES.map(s => `<label><input type="checkbox" id="serieLiga${s}"${s === 'A' ? ' checked' : ''}> Série ${s}</label>`).join(' ')}
    <select id="clubeLiga" aria-label="Seu clube"><option value="">Seu clube…</option>${opcoesClubes(SERIES)}</select>
    <button class="btn" data-acao="criarLiga">Criar</button></div>
-   <p class="muted">Depois de criar, mande o código de convite para os amigos. Cada um escolhe um clube diferente.</p></div>
+   <p class="muted">Depois de criar, mande o código de convite para os amigos. Cada um escolhe um clube diferente e entra com a própria conta Google.</p></div>
   <button class="btn sec" data-acao="go|menu">← Voltar</button></div>`;
 }
 

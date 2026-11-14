@@ -58,8 +58,9 @@ function servidorFalso(clubes) {
     return q;
   };
   srv.cliente = uid => ({
-    auth: { getSession: async () => ({ data: { session: { user: { id: uid, email: uid + '@x.com' } } } }), onAuthStateChange: () => ({}) },
+    auth: { getSession: async () => ({ data: { session: { user: { id: uid, email: uid + '@x.com' } } } }), onAuthStateChange: () => ({}), signOut: async () => ({ error: null }) },
     functions: { invoke: async (_nome, { body }) => {
+      if (srv.sessaoEncerrada) return { data: null, error: { message: '401', context: { status: 401, json: async () => ({ erro: 'Entre na sua conta.' }) } } }; // #95
       // o servidor roda noutra máquina: aqui ele divide o S global com o navegador, então o S do navegador é devolvido depois
       const s0 = est.S, r = funcao(uid, body);
       est.usarEstado(s0); if (s0) est.reindex();
@@ -237,4 +238,20 @@ test('propostas entre técnicos: pelo Mercado, o outro aceita, e quem recebe uma
   assert.equal(srv.estado.propostas.length, 0);
   assert.match(srv.estado.managers.b.news[0].t, /recusou/);
   j.run('sairDaLiga()');
+});
+
+test('sessão encerrada em outro aparelho: a liga avisa e volta a pedir o login, em vez de parecer conectada (#95)', async () => {
+  const j0 = carregarJogo();
+  const srv = servidorFalso([clubeDaSerie(j0, 'A', 0), clubeDaSerie(j0, 'A', 1)]);
+  await como(srv, 'a');
+  const j = carregarJogo({ boot: true });
+  await j.acao('comecarLiga|L1'); await esperar();
+  assert.equal(j.run('ui.view'), 'clube');
+  srv.sessaoEncerrada = true; // alguém clicou em Sair nesta conta em outro computador
+  const pid = j.run('userClub().players.find(p=>!userClub().lineup.includes(p.id)).id');
+  await j.acao(`toggleListed|${pid}`); await esperar();
+  assert.ok(j.alertas.some(a => a.includes('sessão foi encerrada')));
+  assert.equal(j.run('usuarioAtual()'), null, 'o login local foi encerrado');
+  assert.equal(j.run('ui.liga'), null);
+  assert.equal(j.run('ui.view'), 'menu');
 });
